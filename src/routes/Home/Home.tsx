@@ -7,6 +7,8 @@ import OrderSummary from '../../components/OrderSummary';
 import { Backdrop } from '@mui/material';
 import { CheckCircle } from '@mui/icons-material';
 import sum from '../../functions/sum';
+import { useAuth } from '../../context/AuthContext';
+import { useCheckToken } from '../../hooks/useCheckToken';
 
 const Home = () => {
   const [orders, setOrders] = useState([]);
@@ -17,6 +19,11 @@ const Home = () => {
 
   const [openSummary, setOpenSummary] = useState(false);
   const [openBackdrop, setOpenBackdrop] = useState(false);
+
+  const { user } = useAuth();
+
+  // useEffect
+  useCheckToken(user);
 
   useEffect(() => {
     setTotalOrder(sum(orders));

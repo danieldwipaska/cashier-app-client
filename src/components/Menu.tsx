@@ -1,10 +1,12 @@
+import { Box, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import React from 'react';
+import React, { useState } from 'react';
 import { IoFastFoodOutline } from 'react-icons/io5';
 
 const Menu = (props: any): JSX.Element => {
   const { orders, setOrders, openSummary, setOpenSummary } = props;
+  const [selectedCategory, setSelectedCategory] = useState('All');
 
   const { data: categories } = useQuery({
     queryKey: ['categories'],
@@ -19,27 +21,36 @@ const Menu = (props: any): JSX.Element => {
         }),
   });
 
-  const { data: fnbs } = useQuery({
+  const { data: fnbs, refetch: fnbsRefetch } = useQuery({
     queryKey: ['fnbs'],
-    queryFn: () =>
-      axios
-        .get('http://localhost:3001/fnbs')
-        .then((res) => {
+    queryFn: async () => {
+      try {
+        const res = await axios.get('http://localhost:3001/fnbs');
+
+        if (selectedCategory === 'All') {
           return res.data.data;
-        })
-        .catch((err) => {
-          return console.log(err);
-        }),
+        }
+
+        const data: any = res.data.data.filter((fnb: any) => {
+          return fnb.category === selectedCategory;
+        });
+
+        return data;
+      } catch (error) {
+        return console.log(error);
+      }
+    },
   });
 
-  const addFnbToOrder = async (id: number) => {
+  const addFnbToOrder = async (id: string) => {
     try {
       const response = await axios.get(`http://localhost:3001/fnbs/${id}`);
-      if (response.data.status === 200) {
+
+      if (response.data.statusCode === 200) {
         // check if exist
         const check: any = [];
 
-        orders.forEach((order: any) => {
+        orders?.forEach((order: any) => {
           if (order.id === id) {
             check.push(id);
             order.amount++;
@@ -64,35 +75,27 @@ const Menu = (props: any): JSX.Element => {
     }
   };
 
+  const handleSelectCategoryChange = (event: SelectChangeEvent) => {
+    setSelectedCategory(event.target.value);
+    setTimeout(() => {
+      fnbsRefetch();
+    }, 500);
+  };
+
   return (
     <div className="bg-gray-200 max-h-screen pt-20 px-8 w-8/12">
-      <div>
-        <p>Order Here</p>
-      </div>
       <div className="flex flex-row mt-3">
-        {categories?.map((category: any, i: number) => {
-          if (i === 0) {
-            if (openSummary) {
-              return (
-                <button className="bg-white text-sm w-36 h-10 rounded-md mr-1" disabled>
-                  {category.name}
-                </button>
-              );
-            } else {
-              return <button className="bg-white text-sm w-36 h-10 rounded-md hover:bg-green-300 duration-300 hover:border hover:border-green-500 mr-1">{category.name}</button>;
-            }
-          } else {
-            if (openSummary) {
-              return (
-                <button className="bg-white text-sm w-36 h-10 rounded-md mx-1" disabled>
-                  {category.name}
-                </button>
-              );
-            } else {
-              return <button className="bg-white text-sm w-36 h-10 rounded-md hover:bg-green-300 duration-300 hover:border hover:border-green-500 mx-1">{category.name}</button>;
-            }
-          }
-        })}
+        <Box sx={{ minWidth: 200, backgroundColor: 'whitesmoke' }}>
+          <FormControl fullWidth size="small">
+            <InputLabel id="demo-simple-select-label">Category</InputLabel>
+            <Select labelId="demo-simple-select-label" id="demo-simple-select" value={selectedCategory} label="Category" onChange={handleSelectCategoryChange}>
+              <MenuItem value={'All'}>All</MenuItem>
+              {categories?.map((category: any) => (
+                <MenuItem value={category.name}>{category.name}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
       </div>
       <div className="bg-white mt-5 rounded-md px-5 py-3 h-4/5">
         <div>
@@ -100,7 +103,7 @@ const Menu = (props: any): JSX.Element => {
         </div>
         <div className="grid grid-cols-5 gap-4 mt-8 px-2 h-5/6 overflow-y-auto">
           {fnbs?.map((fnb: any) => (
-            <div className="p-2 border border-black/40 rounded-lg grid grid-cols-1 content-between">
+            <div className="p-2 border border-black/40 rounded-lg grid grid-cols-1 content-between max-h-72">
               <div>
                 <div className="bg-slate-800 p-5 rounded-lg flex justify-center">
                   <IoFastFoodOutline size={80} color="#ffffff" />

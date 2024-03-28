@@ -102,7 +102,6 @@ const MenuManagement = () => {
       setNewMenuFormName('');
       setNewMenuFormCategory('');
       setNewMenuFormPrice('');
-      console.log(response);
     } catch (error) {
       console.log(error);
     }
@@ -117,7 +116,7 @@ const MenuManagement = () => {
       const response = await axios.post('http://localhost:3001/categories', formData);
 
       categoriesRefetch();
-      console.log(response);
+
       setNewCategoryFormName('');
 
       setCategorySubmitIsSuccess(true);
@@ -144,6 +143,16 @@ const MenuManagement = () => {
       await axios.delete(`http://localhost:3001/categories/${id}`);
 
       categoriesRefetch();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const updateFnbAvailability = async (id: string, availability: boolean) => {
+    try {
+      await axios.patch(`http://localhost:3001/fnbs/${id}`, { availability });
+
+      fnbsRefetch();
     } catch (error) {
       console.log(error);
     }
@@ -176,8 +185,29 @@ const MenuManagement = () => {
                       <td className="py-0 text-sm">{i + 1}</td>
                       <td className="py-0 px-4 text-sm">{fnb.name}</td>
                       <td className="py-0 px-4 text-sm">{fnb.category}</td>
-                      <td className="py-0 px-4 text-sm">{fnb.price}</td>
-                      <td className="py-0 px-4 text-sm">{fnb.availability ? <Switch {...label} defaultChecked color="success" size="small" disabled /> : <Switch {...label} color="success" size="small" disabled />}</td>
+                      <td className="py-0 px-4 text-sm">{Intl.NumberFormat('en-us').format(fnb.price)}</td>
+                      <td className="py-0 px-4 text-sm flex justify-center">
+                        {fnb.availability ? (
+                          <Switch
+                            {...label}
+                            defaultChecked
+                            color="success"
+                            size="small"
+                            onClick={() => {
+                              updateFnbAvailability(fnb.id, !fnb.availability);
+                            }}
+                          />
+                        ) : (
+                          <Switch
+                            {...label}
+                            color="success"
+                            size="small"
+                            onClick={() => {
+                              updateFnbAvailability(fnb.id, !fnb.availability);
+                            }}
+                          />
+                        )}
+                      </td>
                       <td className="py-0 px-4 text-sm">{new Date(fnb.createdAt).toLocaleString()}</td>
                       <td className="py-0 flex justify-center">
                         <button

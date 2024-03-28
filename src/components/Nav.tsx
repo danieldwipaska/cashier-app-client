@@ -1,6 +1,9 @@
 import React from 'react';
+import { useAuth } from '../context/AuthContext';
 
 const Nav = () => {
+  const { user } = useAuth();
+
   return (
     <nav className="bg-white h-16 w-full grid grid-cols-1 content-center fixed">
       <div className="flex my-auto justify-between">
@@ -9,7 +12,7 @@ const Nav = () => {
         </div>
         <div className="flex-col mx-12">
           <div className="text-xs text-gray-500">Cashier</div>
-          <div className="">Daniel</div>
+          {user.username ? <div className="">{user.username}</div> : <div className="">Login</div>}
         </div>
       </div>
     </nav>
