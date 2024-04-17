@@ -32,7 +32,7 @@ const Menu = (props: any): JSX.Element => {
         }
 
         const data: any = res.data.data.filter((fnb: any) => {
-          return fnb.category === selectedCategory;
+          return fnb.category.id === selectedCategory;
         });
 
         return data;
@@ -91,7 +91,7 @@ const Menu = (props: any): JSX.Element => {
             <Select labelId="demo-simple-select-label" id="demo-simple-select" value={selectedCategory} label="Category" onChange={handleSelectCategoryChange}>
               <MenuItem value={'All'}>All</MenuItem>
               {categories?.map((category: any) => (
-                <MenuItem value={category.name}>{category.name}</MenuItem>
+                <MenuItem value={category.id}>{category.name}</MenuItem>
               ))}
             </Select>
           </FormControl>
@@ -109,7 +109,7 @@ const Menu = (props: any): JSX.Element => {
                   <IoFastFoodOutline size={80} color="#ffffff" />
                 </div>
                 <div className="mt-2 flex">
-                  <p className="text-xs rounded-full bg-green-200 px-3 py-1">{fnb.category}</p>
+                  <p className="text-xs rounded-full bg-green-200 px-3 py-1">{fnb.category.name}</p>
                 </div>
                 <div className="mt-1 mx-1">
                   <p className="text-sm">{fnb.name}</p>

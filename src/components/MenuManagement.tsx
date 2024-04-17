@@ -52,6 +52,7 @@ const MenuManagement = () => {
       axios
         .get('http://localhost:3001/categories')
         .then((res) => {
+          // console.log(res.data);
           return res.data.data;
         })
         .catch((err) => {
@@ -91,7 +92,7 @@ const MenuManagement = () => {
   const submitNewMenu = async () => {
     const formData = {
       name: newMenuFormName,
-      category: newMenuFormCategory,
+      categoryId: newMenuFormCategory,
       price: Number(newMenuFormPrice),
     };
 
@@ -184,7 +185,7 @@ const MenuManagement = () => {
                     <tr className="border-b-2 hover:bg-gray-100 duration-50">
                       <td className="py-0 text-sm">{i + 1}</td>
                       <td className="py-0 px-4 text-sm">{fnb.name}</td>
-                      <td className="py-0 px-4 text-sm">{fnb.category}</td>
+                      <td className="py-0 px-4 text-sm">{fnb.category.name}</td>
                       <td className="py-0 px-4 text-sm">{Intl.NumberFormat('en-us').format(fnb.price)}</td>
                       <td className="py-0 px-4 text-sm flex justify-center">
                         {fnb.availability ? (
@@ -208,7 +209,7 @@ const MenuManagement = () => {
                           />
                         )}
                       </td>
-                      <td className="py-0 px-4 text-sm">{new Date(fnb.createdAt).toLocaleString()}</td>
+                      <td className="py-0 px-4 text-sm">{new Date(fnb.created_at).toLocaleString()}</td>
                       <td className="py-0 flex justify-center">
                         <button
                           className="my-2"
@@ -243,7 +244,7 @@ const MenuManagement = () => {
                       <tr className="border-b-2 hover:bg-gray-100 duration-50">
                         <td className="py-0 text-sm">{i + 1}</td>
                         <td className="py-0 px-4 text-sm">{category.name}</td>
-                        <td className="py-0 px-4 text-sm">{new Date(category.createdAt).toLocaleString()}</td>
+                        <td className="py-0 px-4 text-sm">{new Date(category.created_at).toLocaleString()}</td>
                         <td className="py-0 flex justify-center">
                           <button
                             className="my-2"
@@ -275,7 +276,7 @@ const MenuManagement = () => {
                   <InputLabel id="demo-select-small-label">Category</InputLabel>
                   <Select labelId="demo-select-small-label" id="demo-select-small" value={newMenuFormCategory} label="Category" onChange={handleNewMenuCategoryChange}>
                     {categories?.map((category: any) => (
-                      <MenuItem value={category.name}>{category.name}</MenuItem>
+                      <MenuItem value={category.id}>{category.name}</MenuItem>
                     ))}
                   </Select>
                 </FormControl>

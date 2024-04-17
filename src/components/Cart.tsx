@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { IoFastFoodOutline } from 'react-icons/io5';
 import { FaMinus, FaPlus } from 'react-icons/fa6';
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, TextField } from '@mui/material';
 
 const Cart = (props: any) => {
   const { orders, setOrders, customerName, setCustomerName, paymentMethod, setPaymentMethod, note, setNote, setOpenSummary, totalOrder, setTotalOrder } = props;
+
+  const [customerNameIsEmpty, setCustomerNameIsEmpty] = useState(false);
+  const [paymentMethodIsEmpty, setPaymentMethodIsEmpty] = useState(false);
 
   const increaseAmount = (id: number) => {
     orders?.forEach((order: any) => {
@@ -30,6 +33,7 @@ const Cart = (props: any) => {
   };
 
   const handleCustomerNameChange = (event: any) => {
+    setCustomerNameIsEmpty(false);
     setCustomerName(event.target.value);
   };
 
@@ -42,7 +46,13 @@ const Cart = (props: any) => {
   };
 
   const handleConfirm = () => {
-    setOpenSummary(true);
+    if (!customerName) {
+      setCustomerNameIsEmpty(true);
+    } else if (!paymentMethod) {
+      setPaymentMethodIsEmpty(true);
+    } else {
+      setOpenSummary(true);
+    }
   };
 
   return (
@@ -97,14 +107,31 @@ const Cart = (props: any) => {
           <div>
             <div className="mb-5 grid grid-cols-2 gap-2">
               <FormControl size="small" sx={{ m: 0, minWidth: 120 }}>
-                <TextField id="outlined-basic" label="Customer Name" variant="outlined" size="small" onChange={handleCustomerNameChange} value={customerName} />
+                {customerNameIsEmpty ? (
+                  <TextField id="outlined-basic" error label="Customer Name" variant="outlined" size="small" onChange={handleCustomerNameChange} value={customerName} />
+                ) : (
+                  <TextField id="outlined-basic" label="Customer Name" variant="outlined" size="small" onChange={handleCustomerNameChange} value={customerName} />
+                )}
               </FormControl>
 
               <FormControl sx={{ m: 0, minWidth: 120 }} size="small">
-                <InputLabel id="demo-select-small-label">Payment</InputLabel>
-                <Select labelId="demo-select-small-label" id="demo-select-small" label="Payment" value={paymentMethod} onChange={handlePaymentMethodChange}>
-                  <MenuItem value="Cash">Cash</MenuItem>
-                </Select>
+                {paymentMethodIsEmpty ? (
+                  <InputLabel id="demo-select-small-label" error>
+                    Payment
+                  </InputLabel>
+                ) : (
+                  <InputLabel id="demo-select-small-label">Payment</InputLabel>
+                )}
+
+                {paymentMethodIsEmpty ? (
+                  <Select labelId="demo-select-small-label" id="demo-select-small" label="Payment" value={paymentMethod} onChange={handlePaymentMethodChange} error>
+                    <MenuItem value="Cash">Cash</MenuItem>
+                  </Select>
+                ) : (
+                  <Select labelId="demo-select-small-label" id="demo-select-small" label="Payment" value={paymentMethod} onChange={handlePaymentMethodChange}>
+                    <MenuItem value="Cash">Cash</MenuItem>
+                  </Select>
+                )}
               </FormControl>
 
               <FormControl size="small" sx={{ mt: 1, minWidth: 120 }}>

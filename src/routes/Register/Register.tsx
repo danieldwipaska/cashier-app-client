@@ -5,11 +5,16 @@ import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
   //   const [isConfirmed, setIsConfirmed] = useState(true);
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [registerError, setRegisterError] = useState(false);
+  const [registerStatus, setRegisterStatus] = useState('');
 
   const navigate = useNavigate();
+
+  const handleUsernameChange = (event: any) => {
+    setUsername(event.target.value);
+  };
 
   const handlePasswordChange = (event: any) => {
     setPassword(event.target.value);
@@ -21,13 +26,13 @@ const Register = () => {
 
   const handleSubmit = async () => {
     try {
-      const response = await axios.post('http://localhost:3001/auth/register');
+      await axios.post('http://localhost:3001/auth/signup', { username, password });
 
-      navigate('/login');
+      setRegisterStatus('success');
     } catch (error: any) {
       console.log(error.response.data);
-      if (error.response.data.statusCode === 404 || error.response.data.statusCode === 401) {
-        setRegisterError(true);
+      if (error.response.data.statusCode === 404 || error.response.data.statusCode === 401 || error.response.data.statusCode === 400) {
+        setRegisterStatus('error');
       }
     }
   };
@@ -39,7 +44,17 @@ const Register = () => {
           <div>
             <p className="text-2xl">Register</p>
           </div>
-          <div className="mt-4 mx-2">{registerError ? <Alert severity="error">Username Not Available</Alert> : null}</div>
+          <div className="mt-4 mx-2">
+            {registerStatus === 'error' ? <Alert severity="error">Username Not Available</Alert> : null}
+            {registerStatus === 'success' ? (
+              <Alert severity="success">
+                Register done! Back to
+                <button className="ml-1" onClick={() => navigate('/login')}>
+                  Login
+                </button>
+              </Alert>
+            ) : null}
+          </div>
           <div className="mt-2">
             <Box
               component="form"
@@ -50,7 +65,7 @@ const Register = () => {
               noValidate
               autoComplete="off"
             >
-              <TextField id="filled-basic" label="Username" variant="filled" size="small" />
+              <TextField id="filled-basic" label="Username" variant="filled" size="small" onChange={handleUsernameChange} value={username} />
               <TextField id="filled-basic" label="Password" variant="filled" size="small" type="password" onChange={handlePasswordChange} value={password} />
               {password?.includes(confirmPassword) ? (
                 <TextField id="filled-basic" label="Confirm Password" variant="filled" size="small" type="password" onChange={handleConfirmPasswordChange} value={confirmPassword} />

@@ -44,7 +44,7 @@ const SideNav = () => {
           </Link>
         )}
 
-        {location.pathname === '/' ? (
+        {location.pathname === '/setting' ? (
           <Link to={'/'} className="flex flex-col items-center my-5">
             <IoIosSettings size={30} color="#1eb254" />
             <p className="text-xs text-green-700">Settings</p>

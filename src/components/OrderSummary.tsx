@@ -2,18 +2,36 @@ import { ArrowBackIosNew } from '@mui/icons-material';
 import axios from 'axios';
 
 import { IoFastFoodOutline } from 'react-icons/io5';
+import { useAuth } from '../context/AuthContext';
 
 const OrderSummary = (props: any) => {
-  const { orders, setOrders, customerName, setCustomerName, paymentMethod, setPaymentMethod, note, setNote, setOpenSummary, openBackdrop, setOpenBackdrop, totalOrder, setTotalOrder } = props;
+  const { orders, setOrders, customerName, setCustomerName, paymentMethod, setPaymentMethod, note, setNote, setOpenSummary, setOpenBackdrop, totalOrder } = props;
+
+  const { user } = useAuth();
 
   const handlePay = async () => {
+    const order_name: string[] = [];
+    const order_category: string[] = [];
+    const order_amount: number[] = [];
+    const order_price: number[] = [];
+
+    orders.forEach((order: any) => {
+      order_name.push(order.name);
+      order_category.push(order.category.name);
+      order_amount.push(order.amount);
+      order_price.push(order.price);
+    });
+
     try {
       await axios.post('http://localhost:3001/reports', {
-        customerName,
-        collectedBy: 'Mike',
-        totalPayment: totalOrder,
-        paymentMethod,
-        orders,
+        customer_name: customerName,
+        collected_by: user.username,
+        total_payment: totalOrder,
+        payment_method: paymentMethod,
+        order_name,
+        order_category,
+        order_amount,
+        order_price,
         note,
       });
 
