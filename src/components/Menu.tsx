@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { IoFastFoodOutline } from 'react-icons/io5';
 
 const Menu = (props: any): JSX.Element => {
-  const { orders, setOrders, openSummary, setOpenSummary } = props;
+  const { orders, setOrders, openSummary } = props;
   const [selectedCategory, setSelectedCategory] = useState('All');
 
   const { data: categories } = useQuery({
@@ -21,8 +21,8 @@ const Menu = (props: any): JSX.Element => {
         }),
   });
 
-  const { data: fnbs, refetch: fnbsRefetch } = useQuery({
-    queryKey: ['fnbs'],
+  const { data: availableFnbsByCategory, refetch: fnbsRefetch } = useQuery({
+    queryKey: ['availableFnbsByCategory'],
     queryFn: async () => {
       try {
         const res = await axios.get('http://localhost:3001/fnbs');
@@ -102,7 +102,7 @@ const Menu = (props: any): JSX.Element => {
           <p className="">Menu</p>
         </div>
         <div className="grid grid-cols-5 gap-4 mt-8 px-2 h-5/6 overflow-y-auto">
-          {fnbs?.map((fnb: any) => (
+          {availableFnbsByCategory?.map((fnb: any) => (
             <div className="p-2 border border-black/40 rounded-lg grid grid-cols-1 content-between max-h-72">
               <div>
                 <div className="bg-slate-800 p-5 rounded-lg flex justify-center">

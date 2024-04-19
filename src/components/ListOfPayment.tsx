@@ -248,7 +248,7 @@ const ListOfPayment = () => {
                         const value = row[column.id];
                         return (
                           <TableCell key={column.id} align={column.align}>
-                            <p className={'truncate max-w-36'}>{column.format && typeof value === 'number' ? column.format(value) : value}</p>
+                            <p className={'truncate max-w-24'}>{column.format && typeof value === 'number' ? column.format(value) : value}</p>
                           </TableCell>
                         );
                       })}

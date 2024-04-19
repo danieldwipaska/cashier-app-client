@@ -8,6 +8,7 @@ import PaymentHistory from './routes/PaymentHistory/PaymentHistory';
 import Login from './routes/Login/Login';
 import { AuthProvider } from './context/AuthContext';
 import Register from './routes/Register/Register';
+import GiftCard from './routes/GiftCard/GiftCard';
 
 function App() {
   const client = new QueryClient({
@@ -27,6 +28,7 @@ function App() {
               <Route path="/report" element={<PaymentHistory />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/gift-card" element={<GiftCard />} />
             </Routes>
           </Router>
         </QueryClientProvider>

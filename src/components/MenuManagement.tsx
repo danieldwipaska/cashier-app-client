@@ -97,7 +97,7 @@ const MenuManagement = () => {
     };
 
     try {
-      const response = await axios.post('http://localhost:3001/fnbs', formData);
+      await axios.post('http://localhost:3001/fnbs', formData);
 
       fnbsRefetch();
       setNewMenuFormName('');
@@ -114,7 +114,7 @@ const MenuManagement = () => {
     };
 
     try {
-      const response = await axios.post('http://localhost:3001/categories', formData);
+      await axios.post('http://localhost:3001/categories', formData);
 
       categoriesRefetch();
 
