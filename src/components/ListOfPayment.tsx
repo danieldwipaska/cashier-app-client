@@ -7,7 +7,7 @@ import { MdDownload } from 'react-icons/md';
 import { RiArrowRightDoubleLine } from 'react-icons/ri';
 
 interface Column {
-  id: 'id' | 'customer_name' | 'collected_by' | 'total_payment' | 'payment_method' | 'orders' | 'dateCreatedAt' | 'timeCreatedAt' | 'note';
+  id: 'type' | 'customer_name' | 'collected_by' | 'total_payment' | 'payment_method' | 'orders' | 'dateCreatedAt' | 'timeCreatedAt';
   label: string;
   minWidth?: number;
   align?: 'right';
@@ -15,19 +15,19 @@ interface Column {
 }
 
 const columns: readonly Column[] = [
-  { id: 'id', label: 'ID', minWidth: 30 },
+  { id: 'type', label: 'Type', minWidth: 150 },
   { id: 'customer_name', label: 'Customer', minWidth: 100 },
-  { id: 'collected_by', label: 'Collected By', minWidth: 100 },
+  { id: 'collected_by', label: 'Collected By', minWidth: 50 },
   { id: 'total_payment', label: 'Total Payment', minWidth: 100 },
-  { id: 'payment_method', label: 'Method', minWidth: 100 },
+  { id: 'payment_method', label: 'Method', minWidth: 50 },
   { id: 'orders', label: 'Orders', minWidth: 180 },
   { id: 'dateCreatedAt', label: 'Date', minWidth: 100 },
-  { id: 'timeCreatedAt', label: 'Time', minWidth: 120 },
-  { id: 'note', label: 'Note', minWidth: 130 },
+  { id: 'timeCreatedAt', label: 'Time', minWidth: 100 },
 ];
 
 interface Data {
   id: string;
+  type: string;
   customer_name: string;
   collected_by: string;
   total_payment: number;
@@ -35,11 +35,10 @@ interface Data {
   orders: string;
   dateCreatedAt: string;
   timeCreatedAt: string;
-  note: string;
 }
 
-function createData(id: string, customer_name: string, collected_by: string, total_payment: number, payment_method: string, orders: string, dateCreatedAt: string, timeCreatedAt: string, note: string): Data {
-  return { id, customer_name, collected_by, total_payment, payment_method, orders, dateCreatedAt, timeCreatedAt, note };
+function createData(id: string, type: string, customer_name: string, collected_by: string, total_payment: number, payment_method: string, orders: string, dateCreatedAt: string, timeCreatedAt: string): Data {
+  return { id, type, customer_name, collected_by, total_payment, payment_method, orders, dateCreatedAt, timeCreatedAt };
 }
 
 // Modal Style
@@ -100,6 +99,7 @@ const ListOfPayment = () => {
   const [loading, setLoading] = React.useState(false);
   const [selectedPaymentData, setSelectedPaymentData] = React.useState<any>(null);
   const [totalPaymentSelectedData, setTotalPaymentSelectedData] = React.useState(0);
+  const [reportDataCSV, setReportDataCSV] = React.useState<any>([]);
 
   // Modal Interaction
   const [open, setOpen] = React.useState(false);
@@ -107,13 +107,13 @@ const ListOfPayment = () => {
     try {
       const res = await axios.get(`http://localhost:3001/reports/${id}`);
 
-      let result: number = 0;
+      // let result: number = 0;
 
-      res.data.data.order_price.forEach((price: number, i: number) => {
-        result += price * res.data.data.order_amount[i];
-      });
+      // res.data.data.order_price.forEach((price: number, i: number) => {
+      //   result += price * res.data.data.order_amount[i];
+      // });
 
-      setTotalPaymentSelectedData(result);
+      setTotalPaymentSelectedData(res.data.data.total_payment);
       setSelectedPaymentData(res.data.data);
 
       setOpen(true);
@@ -142,19 +142,21 @@ const ListOfPayment = () => {
           rows.push(
             createData(
               report.id,
+              report.type,
               report.customer_name,
               report.collected_by,
               report.total_payment,
               report.payment_method,
               ordersString,
               new Date(report.created_at).toLocaleDateString(),
-              new Date(report.created_at).toLocaleTimeString(),
-              report.note
+              new Date(report.created_at).toLocaleTimeString()
             )
           );
         });
+        setReportDataCSV(res.data.data);
 
         setLoading(false);
+        // console.log(reportDataCSV);
 
         return rows;
       } catch (error) {
@@ -175,13 +177,21 @@ const ListOfPayment = () => {
 
   const headers = [
     { label: 'ID', key: 'id' },
+    { label: 'Type', key: 'type' },
     { label: 'Customer Name', key: 'customer_name' },
+    { label: 'Customer ID', key: 'customer_id' },
+    { label: 'Served By', key: 'served_by' },
     { label: 'Collected By', key: 'collected_by' },
     { label: 'Total Payment', key: 'total_payment' },
+    { label: 'Initial Balance', key: 'initial_balance' },
+    { label: 'Final Balance', key: 'final_balance' },
     { label: 'Payment Method', key: 'payment_method' },
-    { label: 'Orders', key: 'orders' },
-    { label: 'Date', key: 'dateCreatedAt' },
-    { label: 'Time', key: 'timeCreatedAt' },
+    { label: 'Order Name', key: 'order_name' },
+    { label: 'Order Category', key: 'order_category' },
+    { label: 'Order Amount', key: 'order_amount' },
+    { label: 'Order Price', key: 'order_price' },
+    { label: 'Created At', key: 'created_at' },
+    { label: 'Updated At', key: 'updated_at' },
     { label: 'Note', key: 'note' },
   ];
 
@@ -221,7 +231,7 @@ const ListOfPayment = () => {
             }}
           />
           {reports ? (
-            <CSVLink data={reports} headers={headers}>
+            <CSVLink data={reportDataCSV} headers={headers}>
               <MdDownload size={28} />
             </CSVLink>
           ) : null}
@@ -248,7 +258,37 @@ const ListOfPayment = () => {
                         const value = row[column.id];
                         return (
                           <TableCell key={column.id} align={column.align}>
-                            <p className={'truncate max-w-24'}>{column.format && typeof value === 'number' ? column.format(value) : value}</p>
+                            {column.id === 'type' && value === 'topup and activate' ? (
+                              <div className="flex">
+                                <p className="px-3 py-1 bg-green-400 rounded-full">{value}</p>
+                              </div>
+                            ) : null}
+                            {column.id === 'type' && value === 'topup' ? (
+                              <div className="flex">
+                                <p className="px-3 py-1 bg-green-300 text-gray-800 rounded-full">{value}</p>
+                              </div>
+                            ) : null}
+                            {column.id === 'type' && value === 'checkout' ? (
+                              <div className="flex">
+                                <p className="px-3 py-1 bg-gray-300 text-black rounded-full">{value}</p>
+                              </div>
+                            ) : null}
+                            {column.id === 'type' && value === 'adjustment' ? (
+                              <div className="flex">
+                                <p className="px-3 py-1 bg-yellow-200 text-black rounded-full">{value}</p>
+                              </div>
+                            ) : null}
+                            {column.id === 'type' && value === 'pay' ? (
+                              <div className="flex">
+                                <p className="px-3 py-1 bg-teal-300 text-black rounded-full">{value}</p>
+                              </div>
+                            ) : null}
+                            {column.id !== 'type' ? (
+                              <p className={'truncate max-w-32'}>
+                                {column.format && typeof value === 'number' ? column.format(value) : value}
+                                {value ? null : '-'}
+                              </p>
+                            ) : null}
                           </TableCell>
                         );
                       })}
@@ -296,22 +336,30 @@ const ListOfPayment = () => {
                   <div>IDR {Intl.NumberFormat('en-us').format(selectedPaymentData.order_price[i] * selectedPaymentData.order_amount[i])}</div>
                 </div>
               ))}
+              {selectedPaymentData?.type !== 'pay' ? (
+                <div className="flex justify-between">
+                  <div>{selectedPaymentData?.type}</div>
+                  <div>IDR {Intl.NumberFormat('en-us').format(selectedPaymentData?.total_payment)}</div>
+                </div>
+              ) : null}
             </div>
 
-            <div className="font-serif border-t mb-6 text-sm">
-              <div className="flex justify-between">
-                <div>Subtotal</div>
-                <div>IDR {Intl.NumberFormat('en-us').format(totalPaymentSelectedData ? totalPaymentSelectedData : 0)}</div>
+            {selectedPaymentData?.type !== 'pay' ? null : (
+              <div className="font-serif border-t mb-6 text-sm">
+                <div className="flex justify-between">
+                  <div>Subtotal</div>
+                  <div>IDR {Intl.NumberFormat('en-us').format(totalPaymentSelectedData ? totalPaymentSelectedData : 0)}</div>
+                </div>
+                <div className="flex justify-between">
+                  <div>Service - included</div>
+                  <div></div>
+                </div>
+                <div className="flex justify-between">
+                  <div>Tax (PB1) - included</div>
+                  <div></div>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <div>Service - included</div>
-                <div></div>
-              </div>
-              <div className="flex justify-between">
-                <div>Tax (PB1) - included</div>
-                <div></div>
-              </div>
-            </div>
+            )}
 
             <div className="font-serif font-bold border-t py-4">
               <div className="flex justify-between">
@@ -326,7 +374,7 @@ const ListOfPayment = () => {
 
             <div className="font-serif border-t pt-2 mb-2">
               <div className="flex justify-between">
-                <div>Bahari Card</div>
+                <div>{selectedPaymentData?.payment_method}</div>
                 <div>IDR {Intl.NumberFormat('en-us').format(totalPaymentSelectedData ? totalPaymentSelectedData : 0)}</div>
               </div>
             </div>

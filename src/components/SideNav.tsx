@@ -3,6 +3,7 @@ import { FaCartShopping, FaFolderOpen } from 'react-icons/fa6';
 import { BiSolidFoodMenu } from 'react-icons/bi';
 import { IoIosSettings } from 'react-icons/io';
 import { FaAddressCard } from 'react-icons/fa';
+import { TbCards } from 'react-icons/tb';
 import { Link, useLocation } from 'react-router-dom';
 
 const SideNav = () => {
@@ -54,6 +55,18 @@ const SideNav = () => {
           <Link to={'/gift-card'} className="flex flex-col items-center my-3">
             <FaAddressCard size={30} color="#BDBDBD" />
             <p className="text-xs text-gray-400">Gift Card</p>
+          </Link>
+        )}
+
+        {location?.pathname === '/collections' ? (
+          <Link to={'/collections'} className="flex flex-col items-center my-3">
+            <TbCards size={30} color="#1eb254" />
+            <p className="text-xs text-green-700">Collections</p>
+          </Link>
+        ) : (
+          <Link to={'/collections'} className="flex flex-col items-center my-3">
+            <TbCards size={30} color="#BDBDBD" />
+            <p className="text-xs text-gray-400">Collections</p>
           </Link>
         )}
 

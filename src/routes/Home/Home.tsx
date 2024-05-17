@@ -11,8 +11,11 @@ import { useAuth } from '../../context/AuthContext';
 import { useCheckToken } from '../../hooks/useCheckToken';
 
 const Home = () => {
+  const [cardId, setCardId] = useState('');
+  const [cardNumber, setCardNumber] = useState('');
   const [orders, setOrders] = useState([]);
   const [customerName, setCustomerName] = useState('');
+  const [customerId, setCustomerId] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
   const [note, setNote] = useState('');
   const [totalOrder, setTotalOrder] = useState(0);
@@ -40,9 +43,15 @@ const Home = () => {
 
         {openSummary ? (
           <OrderSummary
+            cardId={cardId}
+            setCardId={setCardId}
+            cardNumber={cardNumber}
+            setCardNumber={setCardNumber}
             orders={orders}
             setOrders={setOrders}
             customerName={customerName}
+            customerId={customerId}
+            setCustomerId={setCustomerId}
             setCustomerName={setCustomerName}
             paymentMethod={paymentMethod}
             setPaymentMethod={setPaymentMethod}
@@ -57,9 +66,15 @@ const Home = () => {
           />
         ) : (
           <Cart
+            cardId={cardId}
+            setCardId={setCardId}
+            cardNumber={cardNumber}
+            setCardNumber={setCardNumber}
             orders={orders}
             setOrders={setOrders}
             customerName={customerName}
+            customerId={customerId}
+            setCustomerId={setCustomerId}
             setCustomerName={setCustomerName}
             paymentMethod={paymentMethod}
             setPaymentMethod={setPaymentMethod}

@@ -27,11 +27,15 @@ const Menu = (props: any): JSX.Element => {
       try {
         const res = await axios.get('http://localhost:3001/fnbs');
 
+        const availableFnbs = res.data.data.filter((fnb: any) => {
+          return fnb.availability === true;
+        });
+
         if (selectedCategory === 'All') {
-          return res.data.data;
+          return availableFnbs;
         }
 
-        const data: any = res.data.data.filter((fnb: any) => {
+        const data: any = availableFnbs.filter((fnb: any) => {
           return fnb.category.id === selectedCategory;
         });
 
