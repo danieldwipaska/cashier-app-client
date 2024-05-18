@@ -5,6 +5,7 @@ import { IoFastFoodOutline } from 'react-icons/io5';
 import { useAuth } from '../context/AuthContext';
 import { useState } from 'react';
 import { CircularProgress } from '@mui/material';
+import CrewAuthAlertDialogSlide from './CrewAuthAlertDialogSlide';
 
 const OrderSummary = (props: any) => {
   const { cardId, setCardId, cardNumber, setCardNumber, orders, setOrders, customerName, setCustomerName, customerId, setCustomerId, paymentMethod, setPaymentMethod, note, setNote, setOpenSummary, setOpenBackdrop, totalOrder } = props;
@@ -13,88 +14,110 @@ const OrderSummary = (props: any) => {
   const { user } = useAuth();
 
   const [openConfirmProgressSpinner, setOpenConfirmProgressSpinner] = useState(false);
+  const [openCrewAuthAlertDialog, setOpenCrewAuthAlertDialog] = useState(false);
+  const [crewCredential, setCrewCredential] = useState('');
+  const [errorCrewCredential, setErrorCrewCredential] = useState(false);
+  const [errorUnauthorizedCrew, setErrorUnauthorizedCrew] = useState(false);
+
+  const handleClickOpenCrewAuthAlertDialog = () => {
+    setOpenCrewAuthAlertDialog(true);
+  };
 
   const handlePay = async () => {
-    const order_name: string[] = [];
-    const order_category: string[] = [];
-    const order_amount: number[] = [];
-    const order_price: number[] = [];
+    if (!crewCredential) return setErrorCrewCredential(true);
 
-    setOpenConfirmProgressSpinner(true);
+    try {
+      const crew = await axios.post(`http://localhost:3001/crews/code`, { code: crewCredential });
+      if (!crew.data.data) return setErrorUnauthorizedCrew(true);
 
-    orders.forEach((order: any) => {
-      order_name.push(order.name);
-      order_category.push(order.category.name);
-      order_amount.push(order.amount);
-      order_price.push(order.price);
-    });
+      const order_name: string[] = [];
+      const order_category: string[] = [];
+      const order_amount: number[] = [];
+      const order_price: number[] = [];
 
-    if (paymentMethod === 'Gift Card') {
-      try {
-        await axios.patch(`http://localhost:3001/cards/${cardId}/pay`, {
-          customer_name: customerName,
-          customer_id: customerId,
-          card_number: cardNumber,
-          collected_by: user.username,
-          total_payment: totalOrder,
-          payment_method: paymentMethod,
-          order_name,
-          order_category,
-          order_amount,
-          order_price,
-          note,
-        });
+      setOpenConfirmProgressSpinner(true);
 
-        setOpenSummary(false);
-        setCardId('');
-        setCardNumber('');
-        setOrders([]);
-        setCustomerName('');
-        setCustomerId('');
-        setPaymentMethod('');
-        setNote('');
+      orders.forEach((order: any) => {
+        order_name.push(order.name);
+        order_category.push(order.category.name);
+        order_amount.push(order.amount);
+        order_price.push(order.price);
+      });
 
-        setOpenConfirmProgressSpinner(false);
-        setOpenBackdrop(true);
+      if (paymentMethod === 'Gift Card') {
+        try {
+          await axios.patch(`http://localhost:3001/cards/${cardId}/pay`, {
+            customer_name: customerName,
+            customer_id: customerId,
+            card_number: cardNumber,
+            collected_by: user.username,
+            crew_id: crew.data.data.id,
+            total_payment: totalOrder,
+            payment_method: paymentMethod,
+            order_name,
+            order_category,
+            order_amount,
+            order_price,
+            note,
+          });
 
-        setTimeout(() => {
-          setOpenBackdrop(false);
-        }, 3000);
-      } catch (error) {
-        console.log(error);
+          setOpenSummary(false);
+          setCardId('');
+          setCardNumber('');
+          setOrders([]);
+          setCustomerName('');
+          setCustomerId('');
+          setPaymentMethod('');
+          setNote('');
+          setCrewCredential('');
+          setErrorCrewCredential(false);
+          setErrorUnauthorizedCrew(false);
+
+          setOpenConfirmProgressSpinner(false);
+          setOpenBackdrop(true);
+
+          setTimeout(() => {
+            setOpenBackdrop(false);
+          }, 3000);
+        } catch (error) {
+          console.log(error);
+        }
+      } else {
+        try {
+          await axios.post('http://localhost:3001/reports', {
+            type: 'pay',
+            customer_name: customerName,
+            served_by: 'Greeter',
+            crew_id: crew.data.data.id,
+            collected_by: user.username,
+            total_payment: totalOrder,
+            payment_method: paymentMethod,
+            order_name,
+            order_category,
+            order_amount,
+            order_price,
+            note,
+          });
+
+          setOpenSummary(false);
+          setOrders([]);
+          setCustomerName('');
+          setCustomerId('');
+          setPaymentMethod('');
+          setNote('');
+
+          setOpenConfirmProgressSpinner(false);
+          setOpenBackdrop(true);
+
+          setTimeout(() => {
+            setOpenBackdrop(false);
+          }, 3000);
+        } catch (error) {
+          console.log(error);
+        }
       }
-    } else {
-      try {
-        await axios.post('http://localhost:3001/reports', {
-          type: 'pay',
-          customer_name: customerName,
-          served_by: 'Greeter',
-          collected_by: user.username,
-          total_payment: totalOrder,
-          payment_method: paymentMethod,
-          order_name,
-          order_category,
-          order_amount,
-          order_price,
-          note,
-        });
-
-        setOpenSummary(false);
-        setOrders([]);
-        setCustomerName('');
-        setCustomerId('');
-        setPaymentMethod('');
-        setNote('');
-
-        setOpenConfirmProgressSpinner(false);
-        setOpenBackdrop(true);
-
-        setTimeout(() => {
-          setOpenBackdrop(false);
-        }, 3000);
-      } catch (error) {
-        console.log(error);
-      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -168,11 +191,22 @@ const OrderSummary = (props: any) => {
             </div>
           </div>
           <div>
-            <button className="text-center w-full my-6 py-2 bg-green-500 hover:opacity-70 duration-500 rounded-lg" onClick={handlePay}>
+            <button className="text-center w-full my-6 py-2 bg-green-500 hover:opacity-70 duration-500 rounded-lg" onClick={handleClickOpenCrewAuthAlertDialog}>
               {openConfirmProgressSpinner ? <CircularProgress color="secondary" size={15} /> : 'Pay'}
             </button>
           </div>
         </div>
+        <CrewAuthAlertDialogSlide
+          openCrewAuthAlertDialog={openCrewAuthAlertDialog}
+          setOpenCrewAuthAlertDialog={setOpenCrewAuthAlertDialog}
+          handleConfirm={handlePay}
+          crewCredential={crewCredential}
+          setCrewCredential={setCrewCredential}
+          errorCrewCredential={errorCrewCredential}
+          setErrorCrewCredential={setErrorCrewCredential}
+          errorUnauthorizedCrew={errorUnauthorizedCrew}
+          setErrorUnauthorizedCrew={setErrorUnauthorizedCrew}
+        />
       </div>
     </div>
   );
