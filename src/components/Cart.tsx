@@ -114,8 +114,21 @@ const Cart = (props: any) => {
                   </div>
                 </div>
                 <div className="mx-3">
-                  <div>
-                    <p className="text-sm">{order.name}</p>
+                  <div className="flex justify-between">
+                    <div>
+                      <p className="text-sm">{order.name}</p>
+                    </div>
+
+                    {order.discount_status ? (
+                      <div className="flex items-center">
+                        <p className="text-sm text-orange-500 mr-1">(-{order.discount_percent}%)</p>
+                        <p className="text-sm">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(order.price * order.amount - (order.price * order.amount * order.discount_percent) / 100)}</p>
+                      </div>
+                    ) : (
+                      <div className="">
+                        <p className="text-sm">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(order.price * order.amount)}</p>
+                      </div>
+                    )}
                   </div>
                   <div className="flex items-center mt-2">
                     <button
@@ -196,8 +209,7 @@ const Cart = (props: any) => {
               </div>
               <div>
                 <div className="flex text-black/60">
-                  <p>IDR</p>
-                  <p className="mx-2">{Intl.NumberFormat('en-us').format(totalOrder)}</p>
+                  <p className="mx-2">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalOrder)}</p>
                 </div>
               </div>
             </div>

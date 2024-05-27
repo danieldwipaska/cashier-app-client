@@ -1,4 +1,4 @@
-import { Box, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
+import { Badge, Box, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import React, { useState } from 'react';
@@ -70,6 +70,8 @@ const Menu = (props: any): JSX.Element => {
               name: response.data.data.name,
               category: response.data.data.category,
               price: response.data.data.price,
+              discount_status: response.data.data.discount_status,
+              discount_percent: response.data.data.discount_percent,
               amount: 1,
             },
           ]);
@@ -119,20 +121,45 @@ const Menu = (props: any): JSX.Element => {
                   <p className="text-sm">{fnb.name}</p>
                 </div>
                 <div className="mt-1 mx-1">
-                  <p className="text-sm text-end">{Intl.NumberFormat('en-us').format(fnb.price)}</p>
+                  <p className="text-xs text-end">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(fnb.price)}</p>
                 </div>
               </div>
               <div className="mt-2">
                 {openSummary ? (
-                  <button
-                    className="text-center text-xs bg-green-500 w-full rounded-md py-1"
-                    onClick={() => {
-                      addFnbToOrder(fnb.id);
-                    }}
-                    disabled
-                  >
-                    Add
-                  </button>
+                  fnb.discount_status ? (
+                    <Badge badgeContent={`-${fnb.discount_percent}%`} color="warning" sx={{ width: '100%' }}>
+                      <button
+                        className="text-center text-xs bg-green-500 w-full rounded-md py-1"
+                        onClick={() => {
+                          addFnbToOrder(fnb.id);
+                        }}
+                        disabled
+                      >
+                        Add
+                      </button>
+                    </Badge>
+                  ) : (
+                    <button
+                      className="text-center text-xs bg-green-500 w-full rounded-md py-1"
+                      onClick={() => {
+                        addFnbToOrder(fnb.id);
+                      }}
+                      disabled
+                    >
+                      Add
+                    </button>
+                  )
+                ) : fnb.discount_status ? (
+                  <Badge badgeContent={`-${fnb.discount_percent}%`} color="warning" sx={{ width: '100%' }}>
+                    <button
+                      className="text-center text-xs bg-green-500 hover:opacity-70 duration-500 w-full rounded-md py-1"
+                      onClick={() => {
+                        addFnbToOrder(fnb.id);
+                      }}
+                    >
+                      Add
+                    </button>
+                  </Badge>
                 ) : (
                   <button
                     className="text-center text-xs bg-green-500 hover:opacity-70 duration-500 w-full rounded-md py-1"

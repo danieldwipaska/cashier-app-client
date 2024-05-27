@@ -15,7 +15,7 @@ const Nav = () => {
     setAnchorEl(null);
   };
 
-  const handleLogout = () => {
+  const handleLogout = (): void => {
     signOut();
   };
 

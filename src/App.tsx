@@ -10,6 +10,7 @@ import { AuthProvider } from './context/AuthContext';
 import Register from './routes/Register/Register';
 import GiftCard from './routes/GiftCard/GiftCard';
 import Collections from './routes/Collections/Collections';
+import Settings from './routes/Settings/Settings';
 
 function App() {
   const client = new QueryClient({
@@ -31,6 +32,7 @@ function App() {
               <Route path="/register" element={<Register />} />
               <Route path="/gift-card" element={<GiftCard />} />
               <Route path="/collections" element={<Collections />} />
+              <Route path="/settings" element={<Settings />} />
             </Routes>
           </Router>
         </QueryClientProvider>

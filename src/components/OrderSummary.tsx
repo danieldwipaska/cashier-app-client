@@ -34,6 +34,8 @@ const OrderSummary = (props: any) => {
       const order_category: string[] = [];
       const order_amount: number[] = [];
       const order_price: number[] = [];
+      const order_discount_status: boolean[] = [];
+      const order_discount_percent: number[] = [];
 
       setOpenConfirmProgressSpinner(true);
 
@@ -42,6 +44,8 @@ const OrderSummary = (props: any) => {
         order_category.push(order.category.name);
         order_amount.push(order.amount);
         order_price.push(order.price);
+        order_discount_status.push(order.discount_status);
+        order_discount_percent.push(order.discount_percent);
       });
 
       if (paymentMethod === 'Gift Card') {
@@ -58,6 +62,8 @@ const OrderSummary = (props: any) => {
             order_category,
             order_amount,
             order_price,
+            order_discount_status,
+            order_discount_percent,
             note,
           });
 
@@ -96,6 +102,8 @@ const OrderSummary = (props: any) => {
             order_category,
             order_amount,
             order_price,
+            order_discount_status,
+            order_discount_percent,
             note,
           });
 
@@ -167,9 +175,25 @@ const OrderSummary = (props: any) => {
                     <p className="text-sm">{order.name}</p>
                   </div>
                   <div className="flex items-center mt-2">
-                    <div className="mx-1">
-                      <input type="text" className="text-xs text-black/60 py-1" readOnly value={`${order.amount} x ${order.price}`} />
-                    </div>
+                    {order.discount_status ? (
+                      <div className="flex items-center mx-1">
+                        <div>
+                          <input
+                            type="text"
+                            className="text-xs text-black/60 py-1 w-28"
+                            readOnly
+                            value={`${order.amount} x ${Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(order.price - order.price * (order.discount_percent / 100))}`}
+                          />
+                        </div>
+                        <div>
+                          <p className="text-xs text-orange-500">(-{order.discount_percent}%)</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="mx-1">
+                        <input type="text" className="text-xs text-black/60 py-1" readOnly value={`${order.amount} x ${Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(order.price)}`} />
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -184,8 +208,7 @@ const OrderSummary = (props: any) => {
               </div>
               <div>
                 <div className="flex text-black/60">
-                  <p>IDR</p>
-                  <p className="mx-2">{Intl.NumberFormat('en-us').format(totalOrder)}</p>
+                  <p className="mx-2">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalOrder)}</p>
                 </div>
               </div>
             </div>

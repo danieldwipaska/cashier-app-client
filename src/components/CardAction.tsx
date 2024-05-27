@@ -21,6 +21,12 @@ const CardAction = () => {
   const [note, setNote] = useState('');
   const [adjustedBalance, setAdjustedBalance] = useState(0);
 
+  const [customerNameIsEmpty, setCustomerNameIsEmpty] = useState(false);
+  const [customerIdIsEmpty, setCustomerIdIsEmpty] = useState(false);
+  const [paymentMethodIsEmpty, setPaymentMethodIsEmpty] = useState(false);
+  const [addBalanceIsEmpty, setAddBalanceIsEmpty] = useState(false);
+  const [adjustedBalanceIsEmpty, setAdjustedBalanceIsEmpty] = useState(false);
+
   const handleOpenCardDetails = async () => {
     try {
       const card = await axios.get(`http://localhost:3001/cards/${cardNumber}`);
@@ -74,18 +80,22 @@ const CardAction = () => {
   };
 
   const handleChangeCustomerName = (event: any) => {
+    setCustomerNameIsEmpty(false);
     setCustomerName(event.target.value);
   };
 
   const handleChangeCustomerId = (event: any) => {
+    setCustomerIdIsEmpty(false);
     setCustomerId(event.target.value);
   };
 
   const handleChangeAddBalance = (event: any) => {
+    setAddBalanceIsEmpty(false);
     setAddBalance(event.target.value);
   };
 
   const handleChangePaymentMethod = (event: any) => {
+    setPaymentMethodIsEmpty(false);
     setPaymentMethod(event.target.value);
   };
 
@@ -94,6 +104,7 @@ const CardAction = () => {
   };
 
   const handleChangeAdjustedBalance = (event: any) => {
+    setAdjustedBalanceIsEmpty(false);
     setAdjustedBalance(event.target.value);
   };
 
@@ -104,6 +115,11 @@ const CardAction = () => {
   };
 
   const topUpAndActivate = async (id: string) => {
+    if (!customerName) return setCustomerNameIsEmpty(true);
+    if (!customerId) return setCustomerIdIsEmpty(true);
+    if (!paymentMethod) return setPaymentMethodIsEmpty(true);
+    if (!addBalance) return setAddBalanceIsEmpty(true);
+
     try {
       const data = {
         customerId,
@@ -127,6 +143,9 @@ const CardAction = () => {
   };
 
   const topUpCardBalance = async (id: string) => {
+    if (!addBalance) return setAddBalanceIsEmpty(true);
+    if (!paymentMethod) return setPaymentMethodIsEmpty(true);
+
     try {
       const data = {
         addBalance,
@@ -146,6 +165,8 @@ const CardAction = () => {
   };
 
   const checkoutCard = async (id: string) => {
+    if (!paymentMethod) return setPaymentMethodIsEmpty(true);
+
     try {
       const data = {
         paymentMethod,
@@ -163,6 +184,8 @@ const CardAction = () => {
   };
 
   const adjustCardBalance = async (id: string) => {
+    if (!adjustedBalance) return setAdjustedBalanceIsEmpty(true);
+
     try {
       const data = {
         adjustedBalance,
@@ -380,27 +403,49 @@ const CardAction = () => {
                     <div className="flex items-center">
                       <div className="flex flex-col">
                         <label htmlFor="customerName">Customer Name</label>
-                        <input type="text" className="border border-black/40 py-1 px-2 rounded-md w-40" id="customerName" placeholder="Customer Name" value={customerName} onChange={handleChangeCustomerName} />
+                        {customerNameIsEmpty ? (
+                          <input type="text" className="border border-red-500 py-1 px-2 rounded-md w-40" id="customerName" placeholder="Customer Name" value={customerName} onChange={handleChangeCustomerName} />
+                        ) : (
+                          <input type="text" className="border border-black/40 py-1 px-2 rounded-md w-40" id="customerName" placeholder="Customer Name" value={customerName} onChange={handleChangeCustomerName} />
+                        )}
                       </div>
                       <div className="flex flex-col">
                         <label htmlFor="customerId" className="mx-3">
                           Phone Number
                         </label>
-                        <input type="text" className="border border-black/40 py-1 px-2 rounded-md w-44 mx-3" id="customerId" placeholder="Phone Number" value={customerId} onChange={handleChangeCustomerId} />
+                        {customerIdIsEmpty ? (
+                          <input type="text" className="border border-red-500 py-1 px-2 rounded-md w-44 mx-3" id="customerId" placeholder="Phone Number" value={customerId} onChange={handleChangeCustomerId} />
+                        ) : (
+                          <input type="text" className="border border-black/40 py-1 px-2 rounded-md w-44 mx-3" id="customerId" placeholder="Phone Number" value={customerId} onChange={handleChangeCustomerId} />
+                        )}
                       </div>
                     </div>
                   )}
+
                   <div className="mt-3 flex flex-col">
                     <label htmlFor="addBalance">Amount of Top-Up</label>
-                    <input type="number" className="border border-black/40 py-1 px-2 rounded-md w-56" id="addBalance" placeholder="Amount of Top-Up" value={addBalance} onChange={handleChangeAddBalance} />
+                    {addBalanceIsEmpty ? (
+                      <input type="number" className="border border-red-500 py-1 px-2 rounded-md w-56" id="addBalance" placeholder="Amount of Top-Up" value={addBalance} onChange={handleChangeAddBalance} />
+                    ) : (
+                      <input type="number" className="border border-black/40 py-1 px-2 rounded-md w-56" id="addBalance" placeholder="Amount of Top-Up" value={addBalance} onChange={handleChangeAddBalance} />
+                    )}
                   </div>
 
-                  <FormControl sx={{ mt: 2, minWidth: 120 }} size="small">
-                    <InputLabel id="demo-select-small-label">Payment</InputLabel>
-                    <Select labelId="demo-select-small-label" id="demo-select-small" label="Payment" value={paymentMethod} onChange={handleChangePaymentMethod}>
-                      <MenuItem value="Cash">Cash</MenuItem>
-                    </Select>
-                  </FormControl>
+                  {paymentMethodIsEmpty ? (
+                    <FormControl sx={{ mt: 2, minWidth: 120 }} size="small" error>
+                      <InputLabel id="demo-select-small-label">Payment</InputLabel>
+                      <Select labelId="demo-select-small-label" id="demo-select-small" label="Payment" value={paymentMethod} onChange={handleChangePaymentMethod}>
+                        <MenuItem value="Cash">Cash</MenuItem>
+                      </Select>
+                    </FormControl>
+                  ) : (
+                    <FormControl sx={{ mt: 2, minWidth: 120 }} size="small">
+                      <InputLabel id="demo-select-small-label">Payment</InputLabel>
+                      <Select labelId="demo-select-small-label" id="demo-select-small" label="Payment" value={paymentMethod} onChange={handleChangePaymentMethod}>
+                        <MenuItem value="Cash">Cash</MenuItem>
+                      </Select>
+                    </FormControl>
+                  )}
 
                   <div className="mt-3">
                     <div>
@@ -523,7 +568,11 @@ const CardAction = () => {
                   </div>
                   <div className="mt-2 flex flex-col">
                     <label htmlFor="adjustedBalance">Adjust to</label>
-                    <input type="number" className="border border-black/40 py-1 px-2 rounded-md w-56" id="adjustedBalance" placeholder="Amount of Top-Up" value={adjustedBalance} onChange={handleChangeAdjustedBalance} />
+                    {adjustedBalanceIsEmpty ? (
+                      <input type="number" className="border border-red-500 py-1 px-2 rounded-md w-56" id="adjustedBalance" placeholder="Amount of Top-Up" value={adjustedBalance} onChange={handleChangeAdjustedBalance} />
+                    ) : (
+                      <input type="number" className="border border-black/40 py-1 px-2 rounded-md w-56" id="adjustedBalance" placeholder="Amount of Top-Up" value={adjustedBalance} onChange={handleChangeAdjustedBalance} />
+                    )}
                   </div>
                   <div className="mt-3">
                     <div>
