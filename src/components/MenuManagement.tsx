@@ -5,12 +5,25 @@ import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 
 import { FaTrash } from 'react-icons/fa6';
-import { Alert, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, Stack, TextField } from '@mui/material';
+import { FaEdit } from 'react-icons/fa';
+import { Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, Modal, Stack, TextField, Typography } from '@mui/material';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
 const label = { inputProps: { 'aria-label': 'Switch demo' } };
+
+const updateFnbModalStyle = {
+  position: 'absolute' as 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
 
 const MenuManagement = () => {
   const [newMenuFormCategory, setNewMenuFormCategory] = useState('');
@@ -21,12 +34,53 @@ const MenuManagement = () => {
   const [fnbSubmitIsSuccess, setFnbSubmitIsSuccess] = useState(false);
   const [openFnbDialog, setOpenFnbDialog] = useState(false);
   const [openCategoryDialog, setOpenCategoryDialog] = useState(false);
-  const [updatedFnbId, setUpdatedFnbId] = useState('');
 
   const [deletedFnbId, setDeletedFnbId] = useState('');
   const [deletedFnbName, setDeletedFnbName] = useState('');
   const [deletedCategoryId, setDeletedCategoryId] = useState('');
   const [deletedCategoryName, setDeletedCategoryName] = useState('');
+
+  // Handle Update Fnb Modal
+  const [openUpdateFnbModal, setOpenUpdateFnbModal] = useState(false);
+  const handleOpenUpdateFnbModal = async (id: string) => {
+    try {
+      const res = await axios.get(`http://localhost:3001/fnbs/${id}`);
+
+      setFnbId(res.data.data.id);
+      setFnbName(res.data.data.name);
+      setFnbPrice(res.data.data.price);
+      setFnbCategory(res.data.data.category.name);
+      setFnbDiscountPercent(res.data.data.discount_percent);
+      setOpenUpdateFnbModal(true);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const handleCloseUpdateFnbModal = () => setOpenUpdateFnbModal(false);
+
+  // Fnb Data for Update Modal
+  const [fnbId, setFnbId] = useState('');
+  const [fnbName, setFnbName] = useState('');
+  const [fnbPrice, setFnbPrice] = useState('');
+  const [fnbCategory, setFnbCategory] = useState('');
+  const [fnbDiscountPercent, setFnbDiscountPercent] = useState(0);
+
+  // Handle Change Fnb Data for Update Modal
+  const handleChangeFnbName = (event: any) => {
+    setFnbName(event.target.value);
+  };
+
+  const handleChangeFnbPrice = (event: any) => {
+    setFnbPrice(event.target.value);
+  };
+
+  const handleChangeFnbCategory = (event: any) => {
+    setFnbCategory(event.target.value);
+  };
+
+  const handleChangeFnbDiscountPercent = (event: any) => {
+    setFnbDiscountPercent(Number(event.target.value));
+  };
 
   const handleClickOpenFnbDialog = (id: string, name: string) => {
     setDeletedFnbId(id);
@@ -88,20 +142,6 @@ const MenuManagement = () => {
 
   const handleNewCategoryNameChange = (event: any) => {
     setNewCategoryFormName(event.target.value);
-  };
-
-  const handleChangeDiscountPercent = async (event: any) => {
-    try {
-      console.log(updatedFnbId);
-      console.log(+event.target.value);
-      await axios.patch(`http://localhost:3001/fnbs/${updatedFnbId}`, {
-        discount_percent: +event.target.value,
-      });
-
-      fnbsRefetch();
-    } catch (error) {
-      console.log(error);
-    }
   };
 
   const submitNewMenu = async () => {
@@ -189,6 +229,18 @@ const MenuManagement = () => {
     }
   };
 
+  // Update Fnb Data
+  const updateFnb = async () => {
+    try {
+      await axios.patch(`http://localhost:3001/fnbs/${fnbId}`, { name: fnbName, price: Number(fnbPrice), categoryId: categories.find((category: any) => category.name === fnbCategory).id, discount_percent: Number(fnbDiscountPercent) });
+
+      fnbsRefetch();
+      handleCloseUpdateFnbModal();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="bg-gray-200 max-h-screen pt-20 px-8 w-11/12">
       <div className="bg-white mt-2 pt-4 pb-8 px-5 rounded-md h-5/6 overflow-y-auto">
@@ -269,9 +321,7 @@ const MenuManagement = () => {
                         />
                       )}
                     </td>
-                    <td className="py-0 px-4 text-sm">
-                      <input type="text" className="w-24" onChange={handleChangeDiscountPercent} onClick={() => setUpdatedFnbId(fnb.id)} value={fnb.discount_percent} />
-                    </td>
+                    <td className="py-0 px-4 text-sm">{fnb.discount_percent}</td>
                     <td className="py-0 px-4 text-sm flex justify-center">
                       {fnb.availability ? (
                         <Switch
@@ -297,7 +347,15 @@ const MenuManagement = () => {
                     <td className="py-0 px-4 text-sm">{new Date(fnb.created_at).toLocaleDateString()}</td>
                     <td className="py-0 flex justify-center">
                       <button
-                        className="my-2"
+                        className="my-2 mx-1"
+                        onClick={() => {
+                          handleOpenUpdateFnbModal(fnb.id);
+                        }}
+                      >
+                        <FaEdit size={15} color="#000000" />
+                      </button>
+                      <button
+                        className="my-2 mx-1"
                         onClick={() => {
                           handleClickOpenFnbDialog(fnb.id, fnb.name);
                         }}
@@ -401,6 +459,46 @@ const MenuManagement = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      <Modal open={openUpdateFnbModal} onClose={handleCloseUpdateFnbModal} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+        <Box sx={updateFnbModalStyle}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Edit Food / Beverages
+          </Typography>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            <div className="my-3">
+              <TextField id="outlined-basic" label="Name" variant="outlined" size="small" onChange={handleChangeFnbName} value={fnbName} />
+            </div>
+            <div className="my-3">
+              <FormControl size="small">
+                <InputLabel id="demo-simple-select-label">Category</InputLabel>
+                <Select labelId="demo-simple-select-label" id="demo-simple-select" value={fnbCategory} label="Category" onChange={handleChangeFnbCategory}>
+                  {categories?.map((category: any) => (
+                    <MenuItem value={category.name}>{category.name}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
+            <div className="my-3">
+              <TextField id="outlined-basic" label="Outlined" variant="outlined" size="small" onChange={handleChangeFnbPrice} value={fnbPrice} />
+            </div>
+            <div className="my-3">
+              <TextField id="outlined-basic" label="Outlined" variant="outlined" size="small" onChange={handleChangeFnbDiscountPercent} value={fnbDiscountPercent} />
+            </div>
+          </Typography>
+          <Typography id="modal-modal-footer" sx={{ mt: 4 }}>
+            <div className="flex justify-end">
+              <div>
+                <Button variant="contained" color="inherit" sx={{ mx: 1 }} onClick={handleCloseUpdateFnbModal}>
+                  Cancel
+                </Button>
+                <Button variant="contained" color="success" onClick={updateFnb}>
+                  Submit
+                </Button>
+              </div>
+            </div>
+          </Typography>
+        </Box>
+      </Modal>
     </div>
   );
 };
