@@ -115,7 +115,7 @@ const AccountSettings = () => {
             />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={1}>
-            <MultiUserAndCrew />
+            <MultiUserAndCrew shopId={shopId} />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={2}>
             <PaymentMethod />
