@@ -26,6 +26,11 @@ const MultiUserAndCrew = ({ shopId }: { shopId: string }) => {
   const [deletedCrewId, setDeletedCrewId] = React.useState('');
   const [deletedCrewName, setDeletedCrewName] = React.useState('');
 
+  // User Delete Dialog
+  const [openUserDialog, setOpenUserDialog] = React.useState(false);
+  const [deletedUserId, setDeletedUserId] = React.useState('');
+  const [deletedUsername, setDeletedUsername] = React.useState('');
+
   // Crew Update Modal
   const [openUpdateCrewModal, setOpenUpdateCrewModal] = React.useState(false);
   const [updatedCrewId, setUpdatedCrewId] = React.useState('');
@@ -122,8 +127,17 @@ const MultiUserAndCrew = ({ shopId }: { shopId: string }) => {
   };
 
   const handleAddUserClick = async () => {
+    console.log(username, password, role, shopId);
     try {
-      await axios.post('http://localhost:3001/multiusers', { username, password, role, shopId });
+      await axios.post(
+        'http://localhost:3001/multiusers',
+        { username, password, role, shopId },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        }
+      );
 
       multiusersRefetch();
       setUsername('');
@@ -145,8 +159,18 @@ const MultiUserAndCrew = ({ shopId }: { shopId: string }) => {
     setOpenCrewDialog(true);
   };
 
+  const handleClickOpenUserDialog = (id: string, name: string) => {
+    setDeletedUserId(id);
+    setDeletedUsername(name);
+    setOpenUserDialog(true);
+  };
+
   const handleCloseCrewDialog = () => {
     setOpenCrewDialog(false);
+  };
+
+  const handleCloseUserDialog = () => {
+    setOpenUserDialog(false);
   };
 
   const deleteCrew = async (id: string) => {
@@ -154,6 +178,20 @@ const MultiUserAndCrew = ({ shopId }: { shopId: string }) => {
       await axios.delete(`http://localhost:3001/crews/${id}`);
 
       crewsRefetch();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const deleteUser = async (id: string) => {
+    try {
+      await axios.delete(`http://localhost:3001/multiusers/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+        },
+      });
+
+      multiusersRefetch();
     } catch (error) {
       console.log(error);
     }
@@ -264,8 +302,8 @@ const MultiUserAndCrew = ({ shopId }: { shopId: string }) => {
               <FormControl sx={{ minWidth: 120 }} size="small">
                 <InputLabel id="demo-select-small-label">Role</InputLabel>
                 <Select labelId="demo-select-small-label" id="demo-select-small" value={role} label="Role" onChange={handleRoleChange}>
-                  <MenuItem value="server">Greeter</MenuItem>
-                  <MenuItem value="bartender">Server</MenuItem>
+                  <MenuItem value="greeter">Greeter</MenuItem>
+                  <MenuItem value="server">Server</MenuItem>
                 </Select>
               </FormControl>
             </div>
@@ -304,7 +342,12 @@ const MultiUserAndCrew = ({ shopId }: { shopId: string }) => {
                       <button className="my-2 mx-1">
                         <FaEdit size={15} color="#000000" />
                       </button>
-                      <button className="my-2 mx-1">
+                      <button
+                        className="my-2 mx-1"
+                        onClick={() => {
+                          handleClickOpenUserDialog(multiuser.id, multiuser.username);
+                        }}
+                      >
                         <FaTrash size={15} color="#DE4547" />
                       </button>
                     </td>
@@ -326,6 +369,24 @@ const MultiUserAndCrew = ({ shopId }: { shopId: string }) => {
             onClick={() => {
               deleteCrew(deletedCrewId);
               setOpenCrewDialog(false);
+            }}
+            autoFocus
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={openUserDialog} onClose={handleCloseUserDialog} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
+        <DialogTitle id="alert-dialog-title">{'Warning!!!'}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">Are you sure to delete "{deletedUsername}" from list of User?</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseUserDialog}>Cancel</Button>
+          <Button
+            onClick={() => {
+              deleteUser(deletedUserId);
+              setOpenUserDialog(false);
             }}
             autoFocus
           >

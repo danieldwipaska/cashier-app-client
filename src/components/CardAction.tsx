@@ -6,6 +6,7 @@ import { MdCancel } from 'react-icons/md';
 import { IoIosArrowBack } from 'react-icons/io';
 import axios from 'axios';
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { useQuery } from '@tanstack/react-query';
 
 const CardAction = () => {
   const [openCardDetails, setOpenCardDetails] = useState(false);
@@ -26,6 +27,19 @@ const CardAction = () => {
   const [paymentMethodIsEmpty, setPaymentMethodIsEmpty] = useState(false);
   const [addBalanceIsEmpty, setAddBalanceIsEmpty] = useState(false);
   const [adjustedBalanceIsEmpty, setAdjustedBalanceIsEmpty] = useState(false);
+
+  const { data: paymentMethodData, refetch: paymentMethodDataRefetch } = useQuery({
+    queryKey: ['paymentMethodData'],
+    queryFn: () =>
+      axios
+        .get('http://localhost:3001/methods')
+        .then((res) => {
+          return res.data.data;
+        })
+        .catch((err) => {
+          return console.log(err);
+        }),
+  });
 
   const handleOpenCardDetails = async () => {
     try {
@@ -203,7 +217,7 @@ const CardAction = () => {
 
   return (
     <div className="bg-gray-200 max-h-screen pt-20 px-8 w-11/12">
-      <div className="bg-white mt-2 py-5 px-6 rounded-md">
+      <div className="bg-white mt-2 py-5 px-6 rounded-md" style={{ maxHeight: '92%' }}>
         <div className="grid grid-cols-2 gap-8">
           <div>
             <div className="flex justify-between items-center">
@@ -362,21 +376,23 @@ const CardAction = () => {
                   <h4>Transactions</h4>
                 </div>
               </div>
-              {cardTransactions?.map((transaction: any) => (
-                <div className="flex mt-2 border-b-2 py-3">
-                  <div className="flex-initial w-36 px-3 text-black/40 font-serif">
-                    <div>{new Date(transaction.created_at).toLocaleDateString()}</div>
-                    <div>{new Date(transaction.created_at).toLocaleTimeString()}</div>
-                  </div>
-                  <div className="flex justify-between w-full px-3">
-                    <div>
-                      <div className="italic">{transaction.type}</div>
-                      <div className="text-black/40 font-serif text-xs">{transaction.id}</div>
+              <div className="flex flex-col overflow-y-auto" style={{ maxHeight: '300px' }}>
+                {cardTransactions?.map((transaction: any) => (
+                  <div className="flex mt-2 border-b-2 py-3">
+                    <div className="flex-initial w-36 px-3 text-black/40 font-serif">
+                      <div>{new Date(transaction.created_at).toLocaleDateString()}</div>
+                      <div>{new Date(transaction.created_at).toLocaleTimeString()}</div>
                     </div>
-                    <div>IDR {Intl.NumberFormat('en-us').format(transaction.total_payment)}</div>
+                    <div className="flex justify-between w-full px-3">
+                      <div>
+                        <div className="italic">{transaction.type}</div>
+                        <div className="text-black/40 font-serif text-xs">{transaction.id}</div>
+                      </div>
+                      <div>IDR {Intl.NumberFormat('en-us').format(transaction.total_payment)}</div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           ) : null}
           {/* Menu Top-Up */}
@@ -435,6 +451,13 @@ const CardAction = () => {
                     <FormControl sx={{ mt: 2, minWidth: 120 }} size="small" error>
                       <InputLabel id="demo-select-small-label">Payment</InputLabel>
                       <Select labelId="demo-select-small-label" id="demo-select-small" label="Payment" value={paymentMethod} onChange={handleChangePaymentMethod}>
+                        {paymentMethodData
+                          ? paymentMethodData.map((payment: any) => (
+                              <MenuItem key={payment.name} value={payment.name}>
+                                {payment.name}
+                              </MenuItem>
+                            ))
+                          : null}
                         <MenuItem value="Cash">Cash</MenuItem>
                       </Select>
                     </FormControl>
@@ -442,7 +465,13 @@ const CardAction = () => {
                     <FormControl sx={{ mt: 2, minWidth: 120 }} size="small">
                       <InputLabel id="demo-select-small-label">Payment</InputLabel>
                       <Select labelId="demo-select-small-label" id="demo-select-small" label="Payment" value={paymentMethod} onChange={handleChangePaymentMethod}>
-                        <MenuItem value="Cash">Cash</MenuItem>
+                        {paymentMethodData
+                          ? paymentMethodData.map((payment: any) => (
+                              <MenuItem key={payment.name} value={payment.name}>
+                                {payment.name}
+                              </MenuItem>
+                            ))
+                          : null}
                       </Select>
                     </FormControl>
                   )}

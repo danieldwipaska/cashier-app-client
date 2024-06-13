@@ -9,6 +9,8 @@ import PaymentMethod from './settings/PaymentMethod';
 import Account from './settings/Account';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
+import { useCheckToken } from '../hooks/useCheckToken';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -38,6 +40,11 @@ function a11yProps(index: number) {
 }
 
 const AccountSettings = () => {
+  const { user } = useAuth();
+
+  // useEffect
+  useCheckToken(user);
+
   const [value, setValue] = React.useState(0);
 
   // User Data for General
@@ -54,7 +61,7 @@ const AccountSettings = () => {
     queryKey: ['userData'],
     queryFn: () =>
       axios
-        .get('http://localhost:3001/users', {
+        .get(`http://localhost:3001/multiusers/configuration/${user?.username}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access-token')}`,
           },
