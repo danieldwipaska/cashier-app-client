@@ -1,11 +1,46 @@
 import React, { useState } from 'react';
 import { IoFastFoodOutline } from 'react-icons/io5';
 import { FaMinus, FaPlus } from 'react-icons/fa6';
+import { FiSave } from 'react-icons/fi';
+import { VscNewFile } from 'react-icons/vsc';
 import { Alert, CircularProgress, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, TextField } from '@mui/material';
 import axios from 'axios';
+import CrewAuthAlertDialogSlide from './CrewAuthAlertDialogSlide';
+import { useAuth } from '../context/AuthContext';
+import { useQuery } from '@tanstack/react-query';
 
 const Cart = (props: any) => {
-  const { setCardId, cardNumber, setCardNumber, orders, setOrders, customerName, setCustomerId, setCustomerName, paymentMethod, setPaymentMethod, note, setNote, setOpenSummary, totalOrder, setTotalOrder } = props;
+  const {
+    setCardId,
+    cardNumber,
+    setCardNumber,
+    orders,
+    setOrders,
+    customerName,
+    setCustomerId,
+    setCustomerName,
+    paymentMethod,
+    setPaymentMethod,
+    note,
+    setNote,
+    setOpenSummary,
+    totalOrder,
+    setTotalOrder,
+    crewCredential,
+    setCrewCredential,
+    openCrewAuthAlertDialog,
+    setOpenCrewAuthAlertDialog,
+    errorCrewCredential,
+    setErrorCrewCredential,
+    errorUnauthorizedCrew,
+    setErrorUnauthorizedCrew,
+    openBill,
+    setOpenBill,
+    reports,
+    reportsRefetch,
+  } = props;
+
+  const { user } = useAuth();
 
   const [customerNameIsEmpty, setCustomerNameIsEmpty] = useState(false);
   const [paymentMethodIsEmpty, setPaymentMethodIsEmpty] = useState(false);
@@ -13,6 +48,68 @@ const Cart = (props: any) => {
   const [orderIsEmpty, setOrderIsEmpty] = useState(false);
 
   const [openConfirmProgressSpinner, setOpenConfirmProgressSpinner] = useState(false);
+  const [openSaveProgressSpinner, setOpenSaveProgressSpinner] = useState(false);
+
+  const handleClickNewOrder = () => {
+    setCardNumber('');
+    setCustomerName('');
+    setCustomerId('');
+    setPaymentMethod('');
+    setNote('');
+    setOrders([]);
+    setCrewCredential('');
+    return;
+  };
+
+  const handleChangeOpenBill = async (event: any) => {
+    setOpenBill(event.target.value);
+    if (!event.target.value) {
+      setCardNumber('');
+      setCustomerName('');
+      setCustomerId('');
+      setPaymentMethod('');
+      setNote('');
+      setOrders([]);
+      setCrewCredential('');
+      return;
+    }
+
+    try {
+      const res = await axios.get(`http://localhost:3001/reports/${event.target.value}`);
+
+      setCardNumber(res.data.data.card_number);
+      setCustomerName(res.data.data.customer_name);
+      setCustomerId(res.data.data.customer_id);
+      setPaymentMethod(res.data.data.payment_method);
+      setNote(res.data.data.note);
+
+      const ordersData: any = [];
+      res.data.data.order_id.forEach((orderId: any, i: number) => {
+        const order = {
+          id: orderId,
+          name: res.data.data.order_name[i],
+          category: {
+            name: res.data.data.order_category[i],
+          },
+          price: res.data.data.order_price[i],
+          discount_status: res.data.data.order_discount_status[i],
+          discount_percent: res.data.data.order_discount_percent[i],
+          amount: res.data.data.order_amount[i],
+        };
+
+        ordersData.push(order);
+      });
+
+      setOrders(ordersData);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleClickOpenCrewAuthAlertDialog = () => {
+    if (!customerName) return setCustomerNameIsEmpty(true);
+    setOpenCrewAuthAlertDialog(true);
+  };
 
   const handleCardNumberChange = (event: any) => {
     setCardNumberIsEmpty(false);
@@ -55,6 +152,72 @@ const Cart = (props: any) => {
     setNote(event.target.value);
   };
 
+  const handleSave = async () => {
+    setOpenSaveProgressSpinner(true);
+    if (!crewCredential) return setErrorCrewCredential(true);
+
+    try {
+      const crew = await axios.post(`http://localhost:3001/crews/code`, { code: crewCredential });
+      if (!crew.data.data) return setErrorUnauthorizedCrew(true);
+
+      const order_id: string[] = [];
+      const order_name: string[] = [];
+      const order_category: string[] = [];
+      const order_amount: number[] = [];
+      const order_price: number[] = [];
+      const order_discount_status: boolean[] = [];
+      const order_discount_percent: number[] = [];
+
+      orders.forEach((order: any) => {
+        order_id.push(order.id);
+        order_name.push(order.name);
+        order_category.push(order.category.name);
+        order_amount.push(order.amount);
+        order_price.push(order.price);
+        order_discount_status.push(order.discount_status);
+        order_discount_percent.push(order.discount_percent);
+      });
+
+      try {
+        await axios.post('http://localhost:3001/reports', {
+          type: 'pay',
+          status: 'unpaid',
+          card_number: cardNumber,
+          customer_name: customerName,
+          served_by: user.username,
+          crew_id: crew.data.data.id,
+          collected_by: user.username,
+          total_payment: totalOrder,
+          payment_method: paymentMethod,
+          order_id,
+          order_name,
+          order_category,
+          order_amount,
+          order_price,
+          order_discount_status,
+          order_discount_percent,
+          note,
+        });
+
+        setOpenCrewAuthAlertDialog(false);
+        setOrders([]);
+        setCustomerName('');
+        setCustomerId('');
+        setPaymentMethod('');
+        setNote('');
+        setOpenBill('');
+        reportsRefetch();
+        setCrewCredential('');
+
+        setOpenSaveProgressSpinner(false);
+      } catch (error) {
+        console.log(error);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const handleConfirm = async () => {
     if (orders.length === 0) {
       setOrderIsEmpty(true);
@@ -92,8 +255,27 @@ const Cart = (props: any) => {
     <div className="h-screen w-3/12 pt-20 mx-8">
       <div className="grid grid-cols-1 content-between h-full">
         <div className="h-full">
-          <div>
-            <p className="text-lg font-semibold">Your Order</p>
+          <div className="flex justify-between items-center">
+            <div>
+              <p className="text-lg font-semibold ">Your Order</p>
+            </div>
+            <div className="flex items-center">
+              <div className="flex place-content-center">
+                <button onClick={handleClickNewOrder} className=" hover:opacity-30 duration-300">
+                  <VscNewFile size={30} color="3F3E3E" />
+                </button>
+              </div>
+              <FormControl sx={{ ml: 2, minWidth: 120 }} size="small">
+                <Select value={openBill} onChange={handleChangeOpenBill} displayEmpty inputProps={{ 'aria-label': 'Without label' }}>
+                  <MenuItem value="">New</MenuItem>
+                  {reports?.map((report: any) => (
+                    <MenuItem value={report.id}>
+                      OpenBill-{report.customer_name}-{report.served_by}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
           </div>
           <div className="mt-2">
             <p className="font-normal">Menu Detail</p>
@@ -214,13 +396,34 @@ const Cart = (props: any) => {
               </div>
             </div>
           </div>
-          <div>
+          <div className="flex">
+            {paymentMethod === 'Gift Card' || !paymentMethod ? (
+              <button className="text-center my-6 mr-2 py-1 px-3 border border-black/60 duration-500 rounded-lg opacity-30" onClick={handleClickOpenCrewAuthAlertDialog} disabled>
+                {openSaveProgressSpinner ? <CircularProgress color="secondary" size={15} /> : <FiSave size={25} color="#3F3E3E" />}
+              </button>
+            ) : (
+              <button className="text-center my-6 mr-2 py-1 px-3 border border-black/60 hover:border-green-500 hover:bg-green-500 duration-500 rounded-lg" onClick={handleClickOpenCrewAuthAlertDialog}>
+                {openSaveProgressSpinner ? <CircularProgress color="secondary" size={15} /> : <FiSave size={25} color="#3F3E3E" />}
+              </button>
+            )}
+
             <button className="text-center w-full my-6 py-2 bg-green-500 hover:opacity-70 duration-500 rounded-lg" onClick={handleConfirm}>
               {openConfirmProgressSpinner ? <CircularProgress color="secondary" size={15} /> : 'Confirm'}
             </button>
           </div>
         </div>
       </div>
+      <CrewAuthAlertDialogSlide
+        openCrewAuthAlertDialog={openCrewAuthAlertDialog}
+        setOpenCrewAuthAlertDialog={setOpenCrewAuthAlertDialog}
+        handleConfirm={handleSave}
+        crewCredential={crewCredential}
+        setCrewCredential={setCrewCredential}
+        errorCrewCredential={errorCrewCredential}
+        setErrorCrewCredential={setErrorCrewCredential}
+        errorUnauthorizedCrew={errorUnauthorizedCrew}
+        setErrorUnauthorizedCrew={setErrorUnauthorizedCrew}
+      />
     </div>
   );
 };

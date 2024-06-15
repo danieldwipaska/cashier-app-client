@@ -8,16 +8,42 @@ import { CircularProgress } from '@mui/material';
 import CrewAuthAlertDialogSlide from './CrewAuthAlertDialogSlide';
 
 const OrderSummary = (props: any) => {
-  const { cardId, setCardId, cardNumber, setCardNumber, orders, setOrders, customerName, setCustomerName, customerId, setCustomerId, paymentMethod, setPaymentMethod, note, setNote, setOpenSummary, setOpenBackdrop, totalOrder } = props;
+  const {
+    cardId,
+    setCardId,
+    cardNumber,
+    setCardNumber,
+    orders,
+    setOrders,
+    customerName,
+    setCustomerName,
+    customerId,
+    setCustomerId,
+    paymentMethod,
+    setPaymentMethod,
+    note,
+    setNote,
+    setOpenSummary,
+    setOpenBackdrop,
+    totalOrder,
+    crewCredential,
+    setCrewCredential,
+    openCrewAuthAlertDialog,
+    setOpenCrewAuthAlertDialog,
+    errorCrewCredential,
+    setErrorCrewCredential,
+    errorUnauthorizedCrew,
+    setErrorUnauthorizedCrew,
+    openBill,
+    setOpenBill,
+    reports,
+    reportsRefetch,
+  } = props;
 
   // console.log(customerName);
   const { user } = useAuth();
 
   const [openConfirmProgressSpinner, setOpenConfirmProgressSpinner] = useState(false);
-  const [openCrewAuthAlertDialog, setOpenCrewAuthAlertDialog] = useState(false);
-  const [crewCredential, setCrewCredential] = useState('');
-  const [errorCrewCredential, setErrorCrewCredential] = useState(false);
-  const [errorUnauthorizedCrew, setErrorUnauthorizedCrew] = useState(false);
 
   const handleClickOpenCrewAuthAlertDialog = () => {
     setOpenCrewAuthAlertDialog(true);
@@ -30,6 +56,7 @@ const OrderSummary = (props: any) => {
       const crew = await axios.post(`http://localhost:3001/crews/code`, { code: crewCredential });
       if (!crew.data.data) return setErrorUnauthorizedCrew(true);
 
+      const order_id: string[] = [];
       const order_name: string[] = [];
       const order_category: string[] = [];
       const order_amount: number[] = [];
@@ -40,6 +67,7 @@ const OrderSummary = (props: any) => {
       setOpenConfirmProgressSpinner(true);
 
       orders.forEach((order: any) => {
+        order_id.push(order.id);
         order_name.push(order.name);
         order_category.push(order.category.name);
         order_amount.push(order.amount);
@@ -58,6 +86,7 @@ const OrderSummary = (props: any) => {
             crew_id: crew.data.data.id,
             total_payment: totalOrder,
             payment_method: paymentMethod,
+            order_id,
             order_name,
             order_category,
             order_amount,
@@ -79,6 +108,8 @@ const OrderSummary = (props: any) => {
           setErrorCrewCredential(false);
           setErrorUnauthorizedCrew(false);
 
+          reportsRefetch();
+
           setOpenConfirmProgressSpinner(false);
           setOpenBackdrop(true);
 
@@ -98,6 +129,7 @@ const OrderSummary = (props: any) => {
             collected_by: user.username,
             total_payment: totalOrder,
             payment_method: paymentMethod,
+            order_id,
             order_name,
             order_category,
             order_amount,
@@ -123,6 +155,89 @@ const OrderSummary = (props: any) => {
         } catch (error) {
           console.log(error);
         }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handlePayUpdate = async () => {
+    if (!crewCredential) return setErrorCrewCredential(true);
+
+    try {
+      const report = await axios.get(`http://localhost:3001/reports/${openBill}`);
+      if (!report.data.data) return;
+
+      try {
+        const crew = await axios.post(`http://localhost:3001/crews/code`, { code: crewCredential });
+        if (!crew.data.data || report.data.data.served_by !== crew.data.data.name) return setErrorUnauthorizedCrew(true);
+
+        const order_id: string[] = [];
+        const order_name: string[] = [];
+        const order_category: string[] = [];
+        const order_amount: number[] = [];
+        const order_price: number[] = [];
+        const order_discount_status: boolean[] = [];
+        const order_discount_percent: number[] = [];
+
+        setOpenConfirmProgressSpinner(true);
+
+        orders.forEach((order: any) => {
+          order_id.push(order.id);
+          order_name.push(order.name);
+          order_category.push(order.category.name);
+          order_amount.push(order.amount);
+          order_price.push(order.price);
+          order_discount_status.push(order.discount_status);
+          order_discount_percent.push(order.discount_percent);
+        });
+
+        try {
+          await axios.patch(`http://localhost:3001/reports/${openBill}`, {
+            status: 'paid',
+            customer_name: customerName,
+            served_by: crew.data.data.name,
+            crew_id: crew.data.data.id,
+            collected_by: user.username,
+            total_payment: totalOrder,
+            payment_method: paymentMethod,
+            order_id,
+            order_name,
+            order_category,
+            order_amount,
+            order_price,
+            order_discount_status,
+            order_discount_percent,
+            note,
+          });
+
+          setOpenSummary(false);
+          setCardId('');
+          setCardNumber('');
+          setOrders([]);
+          setCustomerName('');
+          setCustomerId('');
+          setPaymentMethod('');
+          setNote('');
+          setCrewCredential('');
+          setErrorCrewCredential(false);
+          setErrorUnauthorizedCrew(false);
+
+          setOpenBill('');
+
+          setOpenCrewAuthAlertDialog(false);
+
+          setOpenConfirmProgressSpinner(false);
+          setOpenBackdrop(true);
+
+          setTimeout(() => {
+            setOpenBackdrop(false);
+          }, 3000);
+        } catch (error) {
+          console.log(error);
+        }
+      } catch (error) {
+        console.log(error);
       }
     } catch (error) {
       console.log(error);
@@ -222,7 +337,7 @@ const OrderSummary = (props: any) => {
         <CrewAuthAlertDialogSlide
           openCrewAuthAlertDialog={openCrewAuthAlertDialog}
           setOpenCrewAuthAlertDialog={setOpenCrewAuthAlertDialog}
-          handleConfirm={handlePay}
+          handleConfirm={openBill ? handlePayUpdate : handlePay}
           crewCredential={crewCredential}
           setCrewCredential={setCrewCredential}
           errorCrewCredential={errorCrewCredential}

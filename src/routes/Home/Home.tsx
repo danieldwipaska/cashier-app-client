@@ -9,6 +9,8 @@ import { CheckCircle } from '@mui/icons-material';
 import sum from '../../functions/sum';
 import { useAuth } from '../../context/AuthContext';
 import { useCheckToken } from '../../hooks/useCheckToken';
+import axios from 'axios';
+import { useQuery } from '@tanstack/react-query';
 
 const Home = () => {
   const [cardId, setCardId] = useState('');
@@ -23,6 +25,13 @@ const Home = () => {
   const [openSummary, setOpenSummary] = useState(false);
   const [openBackdrop, setOpenBackdrop] = useState(false);
 
+  const [crewCredential, setCrewCredential] = useState('');
+  const [openCrewAuthAlertDialog, setOpenCrewAuthAlertDialog] = useState(false);
+  const [errorCrewCredential, setErrorCrewCredential] = useState(false);
+  const [errorUnauthorizedCrew, setErrorUnauthorizedCrew] = useState(false);
+
+  const [openBill, setOpenBill] = useState('');
+
   const { user } = useAuth();
 
   // useEffect
@@ -30,7 +39,21 @@ const Home = () => {
 
   useEffect(() => {
     setTotalOrder(sum(orders));
+    console.log(orders);
   }, [orders]);
+
+  const { data: reports, refetch: reportsRefetch } = useQuery({
+    queryKey: ['unpaidReports'],
+    queryFn: () =>
+      axios
+        .get(`http://localhost:3001/reports?status=unpaid`)
+        .then((res) => {
+          return res.data.data;
+        })
+        .catch((err) => {
+          return console.log(err);
+        }),
+  });
 
   return (
     <div>
@@ -63,6 +86,18 @@ const Home = () => {
             setOpenBackdrop={setOpenBackdrop}
             totalOrder={totalOrder}
             setTotalOrder={setTotalOrder}
+            crewCredential={crewCredential}
+            setCrewCredential={setCrewCredential}
+            openCrewAuthAlertDialog={openCrewAuthAlertDialog}
+            setOpenCrewAuthAlertDialog={setOpenCrewAuthAlertDialog}
+            errorCrewCredential={errorCrewCredential}
+            setErrorCrewCredential={setErrorCrewCredential}
+            errorUnauthorizedCrew={errorUnauthorizedCrew}
+            setErrorUnauthorizedCrew={setErrorUnauthorizedCrew}
+            openBill={openBill}
+            setOpenBill={setOpenBill}
+            reports={reports}
+            reportsRefetch={reportsRefetch}
           />
         ) : (
           <Cart
@@ -84,6 +119,18 @@ const Home = () => {
             setOpenSummary={setOpenSummary}
             totalOrder={totalOrder}
             setTotalOrder={setTotalOrder}
+            crewCredential={crewCredential}
+            setCrewCredential={setCrewCredential}
+            openCrewAuthAlertDialog={openCrewAuthAlertDialog}
+            setOpenCrewAuthAlertDialog={setOpenCrewAuthAlertDialog}
+            errorCrewCredential={errorCrewCredential}
+            setErrorCrewCredential={setErrorCrewCredential}
+            errorUnauthorizedCrew={errorUnauthorizedCrew}
+            setErrorUnauthorizedCrew={setErrorUnauthorizedCrew}
+            openBill={openBill}
+            setOpenBill={setOpenBill}
+            reports={reports}
+            reportsRefetch={reportsRefetch}
           />
         )}
       </div>

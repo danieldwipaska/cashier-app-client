@@ -148,8 +148,8 @@ const ListOfPayment = () => {
               report.total_payment,
               report.payment_method,
               ordersString,
-              new Date(report.created_at).toLocaleDateString(),
-              new Date(report.created_at).toLocaleTimeString()
+              new Date(report.updated_at).toLocaleDateString(),
+              new Date(report.updated_at).toLocaleTimeString()
             )
           );
         });
