@@ -182,7 +182,7 @@ const ListOfPayment = () => {
     { label: 'Customer ID', key: 'customer_id' },
     { label: 'Served By', key: 'served_by' },
     { label: 'Collected By', key: 'collected_by' },
-    { label: 'Total Payment', key: 'total_payment' },
+    { label: 'Total Payment', key: 'total_payment_after_tax_service' },
     { label: 'Initial Balance', key: 'initial_balance' },
     { label: 'Final Balance', key: 'final_balance' },
     { label: 'Payment Method', key: 'payment_method' },

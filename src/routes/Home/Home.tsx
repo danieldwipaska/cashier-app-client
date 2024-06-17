@@ -6,7 +6,7 @@ import Cart from '../../components/Cart';
 import OrderSummary from '../../components/OrderSummary';
 import { Backdrop } from '@mui/material';
 import { CheckCircle } from '@mui/icons-material';
-import sum from '../../functions/sum';
+import sumOrders from '../../functions/sum';
 import { useAuth } from '../../context/AuthContext';
 import { useCheckToken } from '../../hooks/useCheckToken';
 import axios from 'axios';
@@ -21,6 +21,9 @@ const Home = () => {
   const [paymentMethod, setPaymentMethod] = useState('');
   const [note, setNote] = useState('');
   const [totalOrder, setTotalOrder] = useState(0);
+  const [taxPercent, setTaxPercent] = useState(0);
+  const [servicePercent, setServicePercent] = useState(0);
+  const [totalTaxService, setTotalTaxService] = useState(0);
 
   const [openSummary, setOpenSummary] = useState(false);
   const [openBackdrop, setOpenBackdrop] = useState(false);
@@ -38,12 +41,25 @@ const Home = () => {
   useCheckToken(user);
 
   useEffect(() => {
-    setTotalOrder(sum(orders));
-    console.log(orders);
+    axios
+      .get(`http://localhost:3001/multiusers/configuration/${user?.username}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+        },
+      })
+      .then((res) => {
+        setTotalOrder(sumOrders(orders));
+        setTaxPercent(res.data.data.shop.tax);
+        setServicePercent(res.data.data.shop.service);
+        setTotalTaxService(((res.data.data.shop.service / 100) * sumOrders(orders) + sumOrders(orders)) * (res.data.data.shop.tax / 100));
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }, [orders]);
 
   const { data: reports, refetch: reportsRefetch } = useQuery({
-    queryKey: ['unpaidReports'],
+    queryKey: ['reports'],
     queryFn: () =>
       axios
         .get(`http://localhost:3001/reports?status=unpaid`)
@@ -96,8 +112,14 @@ const Home = () => {
             setErrorUnauthorizedCrew={setErrorUnauthorizedCrew}
             openBill={openBill}
             setOpenBill={setOpenBill}
-            reports={reports}
-            reportsRefetch={reportsRefetch}
+            reports={reports?.length ? reports : []}
+            reportsRefetch={reports?.length ? reportsRefetch : null}
+            taxPercent={taxPercent}
+            setTaxPercent={setTaxPercent}
+            servicePercent={servicePercent}
+            setServicePercent={setServicePercent}
+            totalTaxService={totalTaxService}
+            setTotalTaxService={setTotalTaxService}
           />
         ) : (
           <Cart
@@ -129,8 +151,14 @@ const Home = () => {
             setErrorUnauthorizedCrew={setErrorUnauthorizedCrew}
             openBill={openBill}
             setOpenBill={setOpenBill}
-            reports={reports}
+            reports={reports ? reports : []}
             reportsRefetch={reportsRefetch}
+            taxPercent={taxPercent}
+            setTaxPercent={setTaxPercent}
+            servicePercent={servicePercent}
+            setServicePercent={setServicePercent}
+            totalTaxService={totalTaxService}
+            setTotalTaxService={setTotalTaxService}
           />
         )}
       </div>

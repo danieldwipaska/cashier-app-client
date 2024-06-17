@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { IoFastFoodOutline } from 'react-icons/io5';
 import { FaMinus, FaPlus } from 'react-icons/fa6';
 import { FiSave } from 'react-icons/fi';
@@ -8,6 +8,7 @@ import axios from 'axios';
 import CrewAuthAlertDialogSlide from './CrewAuthAlertDialogSlide';
 import { useAuth } from '../context/AuthContext';
 import { useQuery } from '@tanstack/react-query';
+import SimpleSnackbar from './SimpleSnackbar';
 
 const Cart = (props: any) => {
   const {
@@ -38,6 +39,12 @@ const Cart = (props: any) => {
     setOpenBill,
     reports,
     reportsRefetch,
+    taxPercent,
+    setTaxPercent,
+    servicePercent,
+    setServicePercent,
+    totalTaxService,
+    setTotalTaxService,
   } = props;
 
   const { user } = useAuth();
@@ -49,6 +56,9 @@ const Cart = (props: any) => {
 
   const [openConfirmProgressSpinner, setOpenConfirmProgressSpinner] = useState(false);
   const [openSaveProgressSpinner, setOpenSaveProgressSpinner] = useState(false);
+
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   const handleClickNewOrder = () => {
     setCardNumber('');
@@ -188,6 +198,10 @@ const Cart = (props: any) => {
           crew_id: crew.data.data.id,
           collected_by: user.username,
           total_payment: totalOrder,
+          tax_percent: taxPercent,
+          service_percent: servicePercent,
+          total_tax_service: totalTaxService,
+          total_payment_after_tax_service: totalOrder + totalTaxService,
           payment_method: paymentMethod,
           order_id,
           order_name,
@@ -199,6 +213,7 @@ const Cart = (props: any) => {
           note,
         });
 
+        reportsRefetch();
         setOpenCrewAuthAlertDialog(false);
         setOrders([]);
         setCustomerName('');
@@ -206,7 +221,7 @@ const Cart = (props: any) => {
         setPaymentMethod('');
         setNote('');
         setOpenBill('');
-        reportsRefetch();
+
         setCrewCredential('');
 
         setOpenSaveProgressSpinner(false);
@@ -243,7 +258,9 @@ const Cart = (props: any) => {
           setOpenSummary(true);
           setOpenConfirmProgressSpinner(false);
         } catch (error) {
-          console.log(error);
+          setOpenSnackbar(true);
+          setSnackbarMessage('Invalid Card');
+          setOpenConfirmProgressSpinner(false);
         }
       } else {
         setOpenSummary(true);
@@ -391,7 +408,7 @@ const Cart = (props: any) => {
               </div>
               <div>
                 <div className="flex text-black/60">
-                  <p className="mx-2">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalOrder)}</p>
+                  <p className="mx-2">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalOrder + totalTaxService)}</p>
                 </div>
               </div>
             </div>
@@ -424,6 +441,7 @@ const Cart = (props: any) => {
         errorUnauthorizedCrew={errorUnauthorizedCrew}
         setErrorUnauthorizedCrew={setErrorUnauthorizedCrew}
       />
+      <SimpleSnackbar open={openSnackbar} setOpen={setOpenSnackbar} message={snackbarMessage} />
     </div>
   );
 };

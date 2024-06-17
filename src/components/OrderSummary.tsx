@@ -3,7 +3,7 @@ import axios from 'axios';
 
 import { IoFastFoodOutline } from 'react-icons/io5';
 import { useAuth } from '../context/AuthContext';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CircularProgress } from '@mui/material';
 import CrewAuthAlertDialogSlide from './CrewAuthAlertDialogSlide';
 
@@ -38,6 +38,12 @@ const OrderSummary = (props: any) => {
     setOpenBill,
     reports,
     reportsRefetch,
+    taxPercent,
+    setTaxPercent,
+    servicePercent,
+    setServicePercent,
+    totalTaxService,
+    setTotalTaxService,
   } = props;
 
   // console.log(customerName);
@@ -85,6 +91,10 @@ const OrderSummary = (props: any) => {
             collected_by: user.username,
             crew_id: crew.data.data.id,
             total_payment: totalOrder,
+            tax_percent: taxPercent,
+            service_percent: servicePercent,
+            total_tax_service: totalTaxService,
+            total_payment_after_tax_service: totalOrder + totalTaxService,
             payment_method: paymentMethod,
             order_id,
             order_name,
@@ -107,6 +117,7 @@ const OrderSummary = (props: any) => {
           setCrewCredential('');
           setErrorCrewCredential(false);
           setErrorUnauthorizedCrew(false);
+          setOpenCrewAuthAlertDialog(false);
 
           reportsRefetch();
 
@@ -128,6 +139,10 @@ const OrderSummary = (props: any) => {
             crew_id: crew.data.data.id,
             collected_by: user.username,
             total_payment: totalOrder,
+            tax_percent: taxPercent,
+            service_percent: servicePercent,
+            total_tax_service: totalTaxService,
+            total_payment_after_tax_service: totalOrder + totalTaxService,
             payment_method: paymentMethod,
             order_id,
             order_name,
@@ -145,6 +160,8 @@ const OrderSummary = (props: any) => {
           setCustomerId('');
           setPaymentMethod('');
           setNote('');
+
+          reportsRefetch();
 
           setOpenConfirmProgressSpinner(false);
           setOpenBackdrop(true);
@@ -200,6 +217,10 @@ const OrderSummary = (props: any) => {
             crew_id: crew.data.data.id,
             collected_by: user.username,
             total_payment: totalOrder,
+            tax_percent: taxPercent,
+            service_percent: servicePercent,
+            total_tax_service: totalTaxService,
+            total_payment_after_tax_service: totalOrder + totalTaxService,
             payment_method: paymentMethod,
             order_id,
             order_name,
@@ -211,7 +232,8 @@ const OrderSummary = (props: any) => {
             note,
           });
 
-          setOpenSummary(false);
+          reportsRefetch();
+
           setCardId('');
           setCardNumber('');
           setOrders([]);
@@ -224,6 +246,8 @@ const OrderSummary = (props: any) => {
           setErrorUnauthorizedCrew(false);
 
           setOpenBill('');
+
+          setOpenSummary(false);
 
           setOpenCrewAuthAlertDialog(false);
 
@@ -323,7 +347,7 @@ const OrderSummary = (props: any) => {
               </div>
               <div>
                 <div className="flex text-black/60">
-                  <p className="mx-2">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalOrder)}</p>
+                  <p className="mx-2">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalOrder + totalTaxService)}</p>
                 </div>
               </div>
             </div>
