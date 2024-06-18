@@ -166,7 +166,7 @@ function PartialRefundModal({ selectedPaymentData }: any) {
           <div className="flex flex-col overflow-y-auto mt-2 h-60 2xl:h-96">
             {amountOfRefunds?.map((amount: number, index: number) => (
               <div className="flex items-center mt-5">
-                <div className="mx-3">
+                <div>
                   <div className="flex justify-between">
                     <div className="mr-2">
                       <p className="text-sm">{data?.order_name[index]}</p>
@@ -212,9 +212,6 @@ const ListOfPayment = () => {
   const [totalPaymentAfterTaxServiceSelectedData, setTotalPaymentAfterTaxServiceSelectedData] = React.useState(0);
   const [statusSelectedPaymentData, setStatusSelectedPaymentData] = React.useState('');
   const [reportDataCSV, setReportDataCSV] = React.useState<any>([]);
-
-  // Refund Data
-  const [refundData, setRefundData] = React.useState<any>([]);
 
   // Modal Interaction
   const [open, setOpen] = React.useState(false);

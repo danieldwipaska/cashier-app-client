@@ -207,6 +207,7 @@ const Cart = (props: any) => {
           order_name,
           order_category,
           order_amount,
+          refunded_order_amount: new Array(order_id.length).fill(0),
           order_price,
           order_discount_status,
           order_discount_percent,
