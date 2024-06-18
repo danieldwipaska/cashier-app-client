@@ -1,4 +1,4 @@
-import { Badge, Box, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
+import { Badge, Box, Chip, FormControl, InputLabel, List, ListItem, ListItemButton, ListItemIcon, ListItemText, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import React, { useState } from 'react';
@@ -103,12 +103,47 @@ const Menu = (props: any): JSX.Element => {
           </FormControl>
         </Box>
       </div>
-      <div className="bg-white mt-5 rounded-md px-5 py-3 h-4/5">
+      <div className="bg-white mt-5 rounded-md px-5 py-3 h-4/5 w-full">
         <div>
-          <p className="">Menu</p>
+          <p className="text-xl mx-2 font-semibold">Menu</p>
         </div>
-        <div className="grid grid-cols-5 gap-4 mt-8 px-2 h-5/6 overflow-y-auto">
-          {availableFnbsByCategory?.map((fnb: any) => (
+        <div className="mt-6 h-5/6 overflow-y-auto border rounded-md" style={{ width: '100%' }}>
+          <Box sx={{ m: 0, width: 'inherit', bgcolor: 'background.paper' }}>
+            <div aria-label="main mailbox folders">
+              <List disablePadding>
+                {availableFnbsByCategory?.map((fnb: any) => (
+                  <ListItem disablePadding sx={{ borderBottom: '1px solid #e0e0e0' }}>
+                    {openSummary ? (
+                      <ListItemButton sx={{ p: 2 }} disabled>
+                        <ListItemIcon sx={{ width: 100 }}>
+                          <div className="w-full flex justify-end">
+                            <p className="text-xs rounded-full bg-green-200 px-3 py-1">{fnb.category.name}</p>
+                          </div>
+                        </ListItemIcon>
+                        <ListItemText primary={fnb.name} sx={{ mx: 2 }} />
+                      </ListItemButton>
+                    ) : (
+                      <ListItemButton sx={{ p: 2 }} onClick={() => addFnbToOrder(fnb.id)}>
+                        <ListItemIcon sx={{ width: 100 }}>
+                          <div className="w-full flex justify-end">
+                            <p className="text-xs rounded-full bg-green-200 px-3 py-1">{fnb.category.name}</p>
+                          </div>
+                        </ListItemIcon>
+                        {fnb.discount_status ? (
+                          <Badge badgeContent={`-${fnb.discount_percent}%`} color="warning">
+                            <ListItemText primary={fnb.name} sx={{ mx: 2 }} />
+                          </Badge>
+                        ) : (
+                          <ListItemText primary={fnb.name} sx={{ mx: 2 }} />
+                        )}
+                      </ListItemButton>
+                    )}
+                  </ListItem>
+                ))}
+              </List>
+            </div>
+          </Box>
+          {/* {availableFnbsByCategory?.map((fnb: any) => (
             <div className="p-2 border border-black/40 rounded-lg grid grid-cols-1 content-between max-h-72">
               <div>
                 <div className="bg-slate-800 p-5 rounded-lg flex justify-center">
@@ -172,7 +207,7 @@ const Menu = (props: any): JSX.Element => {
                 )}
               </div>
             </div>
-          ))}
+          ))} */}
         </div>
       </div>
     </div>
