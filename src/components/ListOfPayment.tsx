@@ -1,10 +1,14 @@
 import { Box, Button, CircularProgress, Modal, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { CSVLink } from 'react-csv';
 import { MdDownload } from 'react-icons/md';
 import { RiArrowRightDoubleLine } from 'react-icons/ri';
+import { HiOutlineReceiptRefund, HiReceiptRefund } from 'react-icons/hi';
+import { ImCancelCircle } from 'react-icons/im';
+import { MdOutlineDelete } from 'react-icons/md';
+import { FaMinus, FaPlus } from 'react-icons/fa6';
 
 interface Column {
   id: 'type' | 'status' | 'customer_name' | 'served_by' | 'total_payment_after_tax_service' | 'payment_method' | 'orders' | 'dateCreatedAt' | 'timeCreatedAt';
@@ -58,11 +62,11 @@ const style = {
   pb: 3,
 };
 
-function ChildModal() {
+function FullRefundModal() {
   const [open, setOpen] = React.useState(false);
-  // const handleOpen = () => {
-  //   setOpen(true);
-  // };
+  const handleOpen = () => {
+    setOpen(true);
+  };
   const handleClose = () => {
     setOpen(false);
   };
@@ -70,13 +74,19 @@ function ChildModal() {
   return (
     <React.Fragment>
       {/* <Button sx={{ border: 1, borderColor: 'red', color: 'white', backgroundColor: 'red', ':hover': { backgroundColor: 'red', color: 'white', opacity: 0.5, transition: 'ease', transitionDuration: '0.8s' } }}>Delete</Button>
+                
+                      <Button
+                        sx={{ border: 1, borderColor: 'orange', color: 'white', backgroundColor: 'orange', ':hover': { backgroundColor: 'orange', color: 'white', opacity: 0.5, transition: 'ease', transitionDuration: '0.8s' }, ml: 1 }}
+                        onClick={handleOpen}
+                      >
+                        Refund
+                      </Button> */}
 
-      <Button
-        sx={{ border: 1, borderColor: 'orange', color: 'white', backgroundColor: 'orange', ':hover': { backgroundColor: 'orange', color: 'white', opacity: 0.5, transition: 'ease', transitionDuration: '0.8s' }, ml: 1 }}
-        onClick={handleOpen}
-      >
-        Refund
-      </Button> */}
+      <div className="mx-1 text-yellow-700">
+        <button className=" hover:opacity-30 duration-300 " title="Full Refund">
+          <HiReceiptRefund size={50} />
+        </button>
+      </div>
 
       <Modal open={open} onClose={handleClose} aria-labelledby="child-modal-title" aria-describedby="child-modal-description">
         <Box sx={{ ...style, width: 300 }}>
@@ -87,6 +97,102 @@ function ChildModal() {
             Are you sure to refund this payment?
           </p>
           <Button onClick={handleClose}>Confirm</Button>
+        </Box>
+      </Modal>
+    </React.Fragment>
+  );
+}
+
+function PartialRefundModal({ selectedPaymentData }: any) {
+  const [open, setOpen] = React.useState(false);
+  const [data, setData] = React.useState<any>(null);
+  const [orderIds, setOrderIds] = React.useState([]);
+  const [amountOfRefunds, setAmountOfRefunds] = React.useState<any>(null);
+
+  const handleOpen = () => {
+    setAmountOfRefunds(new Array(orderIds.length).fill(0));
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  useEffect(() => {
+    setOrderIds(selectedPaymentData?.order_id);
+    setData(selectedPaymentData);
+  });
+
+  // useEffect(() => {
+  //   console.log(amountOfRefunds);
+  // }, [amountOfRefunds]);
+
+  const increaseAmountOfRefund = (index: number) => {
+    setAmountOfRefunds((prevAmounts: any) => {
+      const newAmounts = [...prevAmounts];
+      if (amountOfRefunds[index] < data?.order_amount[index]) {
+        newAmounts[index] += 1;
+      }
+
+      return newAmounts;
+    });
+  };
+
+  const decreaseAmountOfRefund = (index: number) => {
+    setAmountOfRefunds((prevAmounts: any) => {
+      const newAmounts = [...prevAmounts];
+      if (amountOfRefunds[index] > 0) {
+        newAmounts[index] -= 1;
+      }
+
+      return newAmounts;
+    });
+  };
+
+  const refundPartially = () => {};
+
+  return (
+    <React.Fragment>
+      <div className="mr-1 text-yellow-700">
+        <button className=" hover:opacity-30 duration-300" title="Partial Refund">
+          <HiOutlineReceiptRefund size={50} onClick={handleOpen} />
+        </button>
+      </div>
+
+      <Modal open={open} onClose={handleClose} aria-labelledby="child-modal-title" aria-describedby="child-modal-description">
+        <Box sx={{ ...style, width: 380 }}>
+          <h4 id="child-modal-title" className="font-semibold">
+            Partial Refund
+          </h4>
+          <div className="flex flex-col overflow-y-auto mt-2 h-60 2xl:h-96">
+            {amountOfRefunds?.map((amount: number, index: number) => (
+              <div className="flex items-center mt-5">
+                <div className="mx-3">
+                  <div className="flex justify-between">
+                    <div className="mr-2">
+                      <p className="text-sm">{data?.order_name[index]}</p>
+                    </div>
+
+                    <div className="">
+                      <p className="text-sm">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(data?.order_price[index])}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center mt-2">
+                    <button className=" bg-green-500 hover:opacity-70 duration-500 p-2 rounded-md" onClick={() => decreaseAmountOfRefund(index)}>
+                      <FaMinus size={10} color="#000000" />
+                    </button>
+                    <div className="mx-1">
+                      <input type="text" className="text-xs text-center text-black/60 py-1 px-2 rounded-md border border-black/25" value={amountOfRefunds[index]} />
+                    </div>
+                    <button className=" bg-green-500 hover:opacity-70 duration-500 p-2 rounded-md" onClick={() => increaseAmountOfRefund(index)}>
+                      <FaPlus size={10} color="#000000" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <Button onClick={handleClose}>Cancel</Button>
+          <Button onClick={refundPartially}>Confirm</Button>
         </Box>
       </Modal>
     </React.Fragment>
@@ -106,6 +212,9 @@ const ListOfPayment = () => {
   const [totalPaymentAfterTaxServiceSelectedData, setTotalPaymentAfterTaxServiceSelectedData] = React.useState(0);
   const [statusSelectedPaymentData, setStatusSelectedPaymentData] = React.useState('');
   const [reportDataCSV, setReportDataCSV] = React.useState<any>([]);
+
+  // Refund Data
+  const [refundData, setRefundData] = React.useState<any>([]);
 
   // Modal Interaction
   const [open, setOpen] = React.useState(false);
@@ -408,14 +517,27 @@ const ListOfPayment = () => {
               </div>
             </div>
 
-            <div className="font-serif pt-2 mb-6 text-xs">
+            <div className="font-serif pt-2 text-xs">
               <div>Note:</div>
               <div>{selectedPaymentData ? selectedPaymentData.note : null}</div>
             </div>
+            <div className="font-serif pt-6 flex justify-center">
+              {selectedPaymentData?.type === 'pay' && selectedPaymentData?.status === 'paid' ? (
+                <div className="flex">
+                  <FullRefundModal />
+                  <PartialRefundModal selectedPaymentData={selectedPaymentData} />
+                </div>
+              ) : null}
 
-            <div className="flex justify-end">
-              <div>
-                <ChildModal />
+              <div className="mx-1 text-red-800">
+                <button className=" hover:opacity-30 duration-300" title="Cancel">
+                  <ImCancelCircle size={50} />
+                </button>
+              </div>
+              <div className="text-red-600">
+                <button className=" hover:opacity-30 duration-300" title="Delete">
+                  <MdOutlineDelete size={50} />
+                </button>
               </div>
             </div>
           </Box>

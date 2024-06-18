@@ -307,14 +307,9 @@ const Cart = (props: any) => {
           <div className="flex flex-col overflow-y-auto mt-2 h-60 2xl:h-96">
             {orders?.map((order: any) => (
               <div className="flex items-center mt-5">
-                <div>
-                  <div className="bg-slate-800 p-2 rounded-lg">
-                    <IoFastFoodOutline size={40} color="#ffffff" />
-                  </div>
-                </div>
                 <div className="mx-3">
                   <div className="flex justify-between">
-                    <div>
+                    <div className="mr-2">
                       <p className="text-sm">{order.name}</p>
                     </div>
 
