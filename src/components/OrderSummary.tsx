@@ -117,10 +117,10 @@ const OrderSummary = (props: any) => {
           setCrewCredential('');
           setErrorCrewCredential(false);
           setErrorUnauthorizedCrew(false);
-          setOpenCrewAuthAlertDialog(false);
 
           reportsRefetch();
 
+          setOpenCrewAuthAlertDialog(false);
           setOpenConfirmProgressSpinner(false);
           setOpenBackdrop(true);
 
@@ -163,6 +163,7 @@ const OrderSummary = (props: any) => {
 
           reportsRefetch();
 
+          setOpenCrewAuthAlertDialog(false);
           setOpenConfirmProgressSpinner(false);
           setOpenBackdrop(true);
 

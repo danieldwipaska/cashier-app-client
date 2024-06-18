@@ -59,7 +59,7 @@ const Home = () => {
   }, [orders]);
 
   const { data: reports, refetch: reportsRefetch } = useQuery({
-    queryKey: ['reports'],
+    queryKey: ['unpaidReports'],
     queryFn: () =>
       axios
         .get(`http://localhost:3001/reports?status=unpaid`)

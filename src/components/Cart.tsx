@@ -414,7 +414,7 @@ const Cart = (props: any) => {
             </div>
           </div>
           <div className="flex">
-            {paymentMethod === 'Gift Card' || !paymentMethod ? (
+            {paymentMethod === 'Gift Card' || !paymentMethod || openBill ? (
               <button className="text-center my-6 mr-2 py-1 px-3 border border-black/60 duration-500 rounded-lg opacity-30" onClick={handleClickOpenCrewAuthAlertDialog} disabled>
                 {openSaveProgressSpinner ? <CircularProgress color="secondary" size={15} /> : <FiSave size={25} color="#3F3E3E" />}
               </button>

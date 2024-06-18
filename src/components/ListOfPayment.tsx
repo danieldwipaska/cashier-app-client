@@ -7,7 +7,7 @@ import { MdDownload } from 'react-icons/md';
 import { RiArrowRightDoubleLine } from 'react-icons/ri';
 
 interface Column {
-  id: 'type' | 'customer_name' | 'collected_by' | 'total_payment' | 'payment_method' | 'orders' | 'dateCreatedAt' | 'timeCreatedAt';
+  id: 'type' | 'status' | 'customer_name' | 'served_by' | 'total_payment_after_tax_service' | 'payment_method' | 'orders' | 'dateCreatedAt' | 'timeCreatedAt';
   label: string;
   minWidth?: number;
   align?: 'right';
@@ -15,10 +15,11 @@ interface Column {
 }
 
 const columns: readonly Column[] = [
-  { id: 'type', label: 'Type', minWidth: 150 },
+  { id: 'type', label: 'Type', minWidth: 100 },
+  { id: 'status', label: 'Status', minWidth: 100 },
   { id: 'customer_name', label: 'Customer', minWidth: 100 },
-  { id: 'collected_by', label: 'Collected By', minWidth: 50 },
-  { id: 'total_payment', label: 'Total Payment', minWidth: 100 },
+  { id: 'served_by', label: 'Served By', minWidth: 50 },
+  { id: 'total_payment_after_tax_service', label: 'Total Payment', minWidth: 100, format: (value: number) => Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(value) },
   { id: 'payment_method', label: 'Method', minWidth: 50 },
   { id: 'orders', label: 'Orders', minWidth: 180 },
   { id: 'dateCreatedAt', label: 'Date', minWidth: 100 },
@@ -28,17 +29,18 @@ const columns: readonly Column[] = [
 interface Data {
   id: string;
   type: string;
+  status: string;
   customer_name: string;
-  collected_by: string;
-  total_payment: number;
+  served_by: string;
+  total_payment_after_tax_service: number;
   payment_method: string;
   orders: string;
   dateCreatedAt: string;
   timeCreatedAt: string;
 }
 
-function createData(id: string, type: string, customer_name: string, collected_by: string, total_payment: number, payment_method: string, orders: string, dateCreatedAt: string, timeCreatedAt: string): Data {
-  return { id, type, customer_name, collected_by, total_payment, payment_method, orders, dateCreatedAt, timeCreatedAt };
+function createData(id: string, type: string, status: string, customer_name: string, served_by: string, total_payment_after_tax_service: number, payment_method: string, orders: string, dateCreatedAt: string, timeCreatedAt: string): Data {
+  return { id, type, status, customer_name, served_by, total_payment_after_tax_service, payment_method, orders, dateCreatedAt, timeCreatedAt };
 }
 
 // Modal Style
@@ -99,6 +101,10 @@ const ListOfPayment = () => {
   const [loading, setLoading] = React.useState(false);
   const [selectedPaymentData, setSelectedPaymentData] = React.useState<any>(null);
   const [totalPaymentSelectedData, setTotalPaymentSelectedData] = React.useState(0);
+  const [totalTaxSelectedData, setTotalTaxSelectedData] = React.useState(0);
+  const [totalServiceSelectedData, setTotalServiceSelectedData] = React.useState(0);
+  const [totalPaymentAfterTaxServiceSelectedData, setTotalPaymentAfterTaxServiceSelectedData] = React.useState(0);
+  const [statusSelectedPaymentData, setStatusSelectedPaymentData] = React.useState('');
   const [reportDataCSV, setReportDataCSV] = React.useState<any>([]);
 
   // Modal Interaction
@@ -114,6 +120,10 @@ const ListOfPayment = () => {
       // });
 
       setTotalPaymentSelectedData(res.data.data.total_payment);
+      setTotalServiceSelectedData((res.data.data.service_percent / 100) * res.data.data.total_payment);
+      setTotalTaxSelectedData((res.data.data.total_payment + (res.data.data.service_percent / 100) * res.data.data.total_payment) * (res.data.data.tax_percent / 100));
+      setTotalPaymentAfterTaxServiceSelectedData(res.data.data.total_payment + (res.data.data.total_payment + (res.data.data.service_percent / 100) * res.data.data.total_payment) * (res.data.data.tax_percent / 100));
+      setStatusSelectedPaymentData(res.data.data.status);
       setSelectedPaymentData(res.data.data);
 
       setOpen(true);
@@ -143,9 +153,10 @@ const ListOfPayment = () => {
             createData(
               report.id,
               report.type,
+              report.status,
               report.customer_name,
-              report.collected_by,
-              report.total_payment,
+              report.served_by,
+              report.type === 'pay' ? report.total_payment_after_tax_service : report.total_payment,
               report.payment_method,
               ordersString,
               new Date(report.updated_at).toLocaleDateString(),
@@ -178,11 +189,15 @@ const ListOfPayment = () => {
   const headers = [
     { label: 'ID', key: 'id' },
     { label: 'Type', key: 'type' },
+    { label: 'Status', key: 'status' },
     { label: 'Customer Name', key: 'customer_name' },
     { label: 'Customer ID', key: 'customer_id' },
     { label: 'Served By', key: 'served_by' },
     { label: 'Collected By', key: 'collected_by' },
-    { label: 'Total Payment', key: 'total_payment_after_tax_service' },
+    { label: 'Total Payment After Tax and Service', key: 'total_payment_after_tax_service' },
+    { label: 'Tax Amount', key: 'tax_percent' },
+    { label: 'Service Amount', key: 'service_percent' },
+    { label: 'Total Tax and Service', key: 'total_tax_service' },
     { label: 'Initial Balance', key: 'initial_balance' },
     { label: 'Final Balance', key: 'final_balance' },
     { label: 'Payment Method', key: 'payment_method' },
@@ -283,7 +298,12 @@ const ListOfPayment = () => {
                                 <p className="px-3 py-1 bg-teal-300 text-black rounded-full">{value}</p>
                               </div>
                             ) : null}
-                            {column.id !== 'type' ? (
+                            {column.id === 'status' && value === 'unpaid' ? (
+                              <div className="flex">
+                                <p className="text-red-500 rounded-full">{value}</p>
+                              </div>
+                            ) : null}
+                            {column.id !== 'type' && value !== 'unpaid' ? (
                               <p className={'truncate max-w-32'}>
                                 {column.format && typeof value === 'number' ? column.format(value) : value}
                                 {value ? null : '-'}
@@ -302,9 +322,18 @@ const ListOfPayment = () => {
         </Paper>
         <Modal open={open} onClose={handleClose} aria-labelledby="parent-modal-title" aria-describedby="parent-modal-description">
           <Box sx={{ ...style, width: 400 }}>
-            <h1 id="parent-modal-title" className="text-center font-serif mb-10">
-              Bill Details
-            </h1>
+            {statusSelectedPaymentData === 'unpaid' ? (
+              <div>
+                <h1 id="parent-modal-title" className="text-center font-serif mb-1">
+                  Bill Details
+                </h1>
+                <p className="mb-10 font-serif text-center text-red-500">({statusSelectedPaymentData})</p>
+              </div>
+            ) : (
+              <h1 id="parent-modal-title" className="text-center font-serif mb-10">
+                Bill Details
+              </h1>
+            )}
             <div className="font-serif border-t mb-4">
               <div className="flex justify-between">
                 <div>Date, Time</div>
@@ -312,10 +341,10 @@ const ListOfPayment = () => {
                   {selectedPaymentData ? new Date(selectedPaymentData.created_at).toLocaleDateString() : null}, {selectedPaymentData ? new Date(selectedPaymentData.created_at).toLocaleTimeString() : null}
                 </div>
               </div>
-              <div className="flex justify-between items-center">
+              {/* <div className="flex justify-between items-center">
                 <div>Receipt Number</div>
                 <div className="text-xs">{selectedPaymentData ? selectedPaymentData.id : null}</div>
-              </div>
+              </div> */}
               <div className="flex justify-between">
                 <div>Collected By</div>
                 <div>{selectedPaymentData ? selectedPaymentData.collected_by : null}</div>
@@ -348,15 +377,15 @@ const ListOfPayment = () => {
               <div className="font-serif border-t mb-6 text-sm">
                 <div className="flex justify-between">
                   <div>Subtotal</div>
-                  <div>IDR {Intl.NumberFormat('en-us').format(totalPaymentSelectedData ? totalPaymentSelectedData : 0)}</div>
+                  <div>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalPaymentSelectedData)}</div>
                 </div>
                 <div className="flex justify-between">
-                  <div>Service - included</div>
-                  <div></div>
+                  <div>Service</div>
+                  <div>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalServiceSelectedData)}</div>
                 </div>
                 <div className="flex justify-between">
-                  <div>Tax (PB1) - included</div>
-                  <div></div>
+                  <div>PB1</div>
+                  <div>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalTaxSelectedData)}</div>
                 </div>
               </div>
             )}
@@ -367,7 +396,7 @@ const ListOfPayment = () => {
                   <h4>Total</h4>
                 </div>
                 <div>
-                  <h4>IDR {Intl.NumberFormat('en-us').format(totalPaymentSelectedData ? totalPaymentSelectedData : 0)}</h4>
+                  <h4>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalPaymentAfterTaxServiceSelectedData)}</h4>
                 </div>
               </div>
             </div>
@@ -375,7 +404,7 @@ const ListOfPayment = () => {
             <div className="font-serif border-t pt-2 mb-2">
               <div className="flex justify-between">
                 <div>{selectedPaymentData?.payment_method}</div>
-                <div>IDR {Intl.NumberFormat('en-us').format(totalPaymentSelectedData ? totalPaymentSelectedData : 0)}</div>
+                <div>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalPaymentAfterTaxServiceSelectedData)}</div>
               </div>
             </div>
 
