@@ -24,6 +24,7 @@ const Home = () => {
   const [taxPercent, setTaxPercent] = useState(0);
   const [servicePercent, setServicePercent] = useState(0);
   const [totalTaxService, setTotalTaxService] = useState(0);
+  const [taxServiceIncluded, setTaxServiceIncluded] = useState(false);
 
   const [openSummary, setOpenSummary] = useState(false);
   const [openBackdrop, setOpenBackdrop] = useState(false);
@@ -49,9 +50,12 @@ const Home = () => {
       })
       .then((res) => {
         setTotalOrder(sumOrders(orders));
-        setTaxPercent(res.data.data.shop.tax);
-        setServicePercent(res.data.data.shop.service);
-        setTotalTaxService(((res.data.data.shop.service / 100) * sumOrders(orders) + sumOrders(orders)) * (res.data.data.shop.tax / 100));
+        setTaxPercent(res.data.data.shop.included_tax_service ? 0 : res.data.data.shop.tax);
+        setServicePercent(res.data.data.shop.included_tax_service ? 0 : res.data.data.shop.service);
+        setTaxServiceIncluded(res.data.data.shop.included_tax_service);
+        setTotalTaxService(
+          res.data.data.shop.included_tax_service ? 0 : (res.data.data.shop.service / 100) * sumOrders(orders) + ((res.data.data.shop.service / 100) * sumOrders(orders) + sumOrders(orders)) * (res.data.data.shop.tax / 100)
+        );
       })
       .catch((err) => {
         console.log(err);
@@ -112,14 +116,16 @@ const Home = () => {
             setErrorUnauthorizedCrew={setErrorUnauthorizedCrew}
             openBill={openBill}
             setOpenBill={setOpenBill}
-            reports={reports?.length ? reports : []}
-            reportsRefetch={reports?.length ? reportsRefetch : null}
+            reports={reports}
+            reportsRefetch={reportsRefetch}
             taxPercent={taxPercent}
             setTaxPercent={setTaxPercent}
             servicePercent={servicePercent}
             setServicePercent={setServicePercent}
             totalTaxService={totalTaxService}
             setTotalTaxService={setTotalTaxService}
+            taxServiceIncluded={taxServiceIncluded}
+            setTaxServiceIncluded={setTaxServiceIncluded}
           />
         ) : (
           <Cart
@@ -151,7 +157,7 @@ const Home = () => {
             setErrorUnauthorizedCrew={setErrorUnauthorizedCrew}
             openBill={openBill}
             setOpenBill={setOpenBill}
-            reports={reports ? reports : []}
+            reports={reports}
             reportsRefetch={reportsRefetch}
             taxPercent={taxPercent}
             setTaxPercent={setTaxPercent}
@@ -159,6 +165,8 @@ const Home = () => {
             setServicePercent={setServicePercent}
             totalTaxService={totalTaxService}
             setTotalTaxService={setTotalTaxService}
+            taxServiceIncluded={taxServiceIncluded}
+            setTaxServiceIncluded={setTaxServiceIncluded}
           />
         )}
       </div>

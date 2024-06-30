@@ -82,6 +82,8 @@ const CardManagement = () => {
   const [cardNumberInput, setCardNumberInput] = React.useState('');
   const [isMemberInput, setIsMemberInput] = React.useState('');
 
+  const [searchedCard, setSearchedCard] = React.useState('');
+
   // Modal Configurations
   const [open, setOpen] = React.useState(false);
   const handleSubmit = async () => {
@@ -137,6 +139,12 @@ const CardManagement = () => {
         let res = await axios.get(`http://localhost:3001/cards`);
         if (!res.data) return rows;
 
+        if (searchedCard) {
+          res.data.data = res.data.data.filter((card: any) => {
+            return card.customer_id.toLowerCase().indexOf(searchedCard.toLowerCase()) !== -1 || card.customer_name.toLowerCase().indexOf(searchedCard.toLowerCase()) !== -1;
+          });
+        }
+
         res.data.data.forEach((card: any) => {
           rows.push(
             createData(
@@ -186,9 +194,19 @@ const CardManagement = () => {
     }
   };
 
+  const handleSearchCardChange = (event: any) => {
+    setSearchedCard(event.target.value);
+    setTimeout(() => {
+      cardsRefetch();
+    }, 500);
+  };
+
   return (
     <div className="bg-gray-200 max-h-screen pt-20 px-8 w-11/12">
-      <div className="flex justify-end mb-2">
+      <div className="flex justify-between mb-2">
+        <div>
+          <input type="text" className="px-3 py-1 border border-black/40 rounded-md" placeholder="Search..." onChange={handleSearchCardChange} />
+        </div>
         <div>
           <Button onClick={handleOpen} color="success" variant="contained">
             Register a Card

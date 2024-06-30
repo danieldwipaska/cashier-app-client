@@ -44,6 +44,8 @@ const OrderSummary = (props: any) => {
     setServicePercent,
     totalTaxService,
     setTotalTaxService,
+    taxServiceIncluded,
+    setTaxServiceIncluded,
   } = props;
 
   // console.log(customerName);
@@ -95,6 +97,7 @@ const OrderSummary = (props: any) => {
             service_percent: servicePercent,
             total_tax_service: totalTaxService,
             total_payment_after_tax_service: totalOrder + totalTaxService,
+            tax_service_included: taxServiceIncluded,
             payment_method: paymentMethod,
             order_id,
             order_name,
@@ -107,7 +110,6 @@ const OrderSummary = (props: any) => {
             note,
           });
 
-          setOpenSummary(false);
           setCardId('');
           setCardNumber('');
           setOrders([]);
@@ -119,7 +121,7 @@ const OrderSummary = (props: any) => {
           setErrorCrewCredential(false);
           setErrorUnauthorizedCrew(false);
 
-          reportsRefetch();
+          setOpenSummary(false);
 
           setOpenCrewAuthAlertDialog(false);
           setOpenConfirmProgressSpinner(false);
@@ -144,6 +146,7 @@ const OrderSummary = (props: any) => {
             service_percent: servicePercent,
             total_tax_service: totalTaxService,
             total_payment_after_tax_service: totalOrder + totalTaxService,
+            tax_service_included: taxServiceIncluded,
             payment_method: paymentMethod,
             order_id,
             order_name,
@@ -156,14 +159,16 @@ const OrderSummary = (props: any) => {
             note,
           });
 
-          setOpenSummary(false);
           setOrders([]);
           setCustomerName('');
           setCustomerId('');
           setPaymentMethod('');
           setNote('');
+          setCrewCredential('');
+          setErrorCrewCredential(false);
+          setErrorUnauthorizedCrew(false);
 
-          reportsRefetch();
+          setOpenSummary(false);
 
           setOpenCrewAuthAlertDialog(false);
           setOpenConfirmProgressSpinner(false);
@@ -224,6 +229,7 @@ const OrderSummary = (props: any) => {
             service_percent: servicePercent,
             total_tax_service: totalTaxService,
             total_payment_after_tax_service: totalOrder + totalTaxService,
+            tax_service_included: taxServiceIncluded,
             payment_method: paymentMethod,
             order_id,
             order_name,
@@ -235,8 +241,6 @@ const OrderSummary = (props: any) => {
             order_discount_percent,
             note,
           });
-
-          reportsRefetch();
 
           setCardId('');
           setCardNumber('');
@@ -260,6 +264,7 @@ const OrderSummary = (props: any) => {
 
           setTimeout(() => {
             setOpenBackdrop(false);
+            reportsRefetch();
           }, 3000);
         } catch (error) {
           console.log(error);

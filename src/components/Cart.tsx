@@ -45,6 +45,8 @@ const Cart = (props: any) => {
     setServicePercent,
     totalTaxService,
     setTotalTaxService,
+    taxServiceIncluded,
+    setTaxServiceIncluded,
   } = props;
 
   const { user } = useAuth();
@@ -202,6 +204,7 @@ const Cart = (props: any) => {
           service_percent: servicePercent,
           total_tax_service: totalTaxService,
           total_payment_after_tax_service: totalOrder + totalTaxService,
+          tax_service_included: taxServiceIncluded,
           payment_method: paymentMethod,
           order_id,
           order_name,
@@ -214,18 +217,19 @@ const Cart = (props: any) => {
           note,
         });
 
-        reportsRefetch();
-        setOpenCrewAuthAlertDialog(false);
         setOrders([]);
         setCustomerName('');
         setCustomerId('');
         setPaymentMethod('');
         setNote('');
         setOpenBill('');
-
+        setErrorCrewCredential(false);
+        setErrorUnauthorizedCrew(false);
         setCrewCredential('');
 
+        setOpenCrewAuthAlertDialog(false);
         setOpenSaveProgressSpinner(false);
+        reportsRefetch();
       } catch (error) {
         console.log(error);
       }
