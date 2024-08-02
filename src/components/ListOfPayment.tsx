@@ -9,8 +9,7 @@ import { HiOutlineReceiptRefund, HiReceiptRefund } from 'react-icons/hi';
 import { ImCancelCircle } from 'react-icons/im';
 import { MdOutlineDelete } from 'react-icons/md';
 import { FaMinus, FaPlus } from 'react-icons/fa6';
-import { AnotherExample } from './Example';
-import { useReactToPrint } from 'react-to-print';
+import Invoices from './Invoices';
 
 interface Column {
   id: 'type' | 'status' | 'customer_name' | 'customer_id' | 'served_by' | 'total_payment_after_tax_service' | 'payment_method' | 'orders' | 'dateCreatedAt' | 'timeCreatedAt';
@@ -281,12 +280,6 @@ const ListOfPayment = () => {
   const [searchedReport, setSearchedReport] = React.useState('');
 
   const contentToPrint = useRef(null);
-  const handlePrint = useReactToPrint({
-    documentTitle: 'Print This Document',
-    onBeforePrint: () => console.log('before printing...'),
-    onAfterPrint: () => console.log('after printing...'),
-    removeAfterPrint: true,
-  });
 
   const handleSearchReportChange = (event: any) => {
     setSearchedReport(event.target.value);
@@ -522,144 +515,7 @@ const ListOfPayment = () => {
         </Paper>
         <Modal open={open} onClose={handleClose} aria-labelledby="parent-modal-title" aria-describedby="parent-modal-description">
           <Box sx={{ ...style, width: 400 }}>
-            <div ref={contentToPrint} className="p-5" style={{ fontSize: 10 }}>
-              {statusSelectedPaymentData === 'unpaid' ? (
-                <div>
-                  <h1 id="parent-modal-title" className="text-center font-serif mb-1">
-                    Bill Details
-                  </h1>
-                  <p className="mb-10 font-serif text-center text-red-500">({statusSelectedPaymentData})</p>
-                </div>
-              ) : (
-                <h1 id="parent-modal-title" className="text-center font-serif mb-10">
-                  Bill Details
-                </h1>
-              )}
-              <div className="font-serif border-t mb-4">
-                <div className="flex justify-between">
-                  <div>Date, Time</div>
-                  <div>
-                    {selectedPaymentData ? new Date(selectedPaymentData.created_at).toLocaleDateString() : null}, {selectedPaymentData ? new Date(selectedPaymentData.created_at).toLocaleTimeString() : null}
-                  </div>
-                </div>
-                {/* <div className="flex justify-between items-center">
-                <div>Receipt Number</div>
-                <div className="text-xs">{selectedPaymentData ? selectedPaymentData.id : null}</div>
-              </div> */}
-                <div className="flex justify-between">
-                  <div>Receipt Number</div>
-                  <div>{selectedPaymentData ? selectedPaymentData.report_id : null}</div>
-                </div>
-                <div className="flex justify-between">
-                  <div>Collected By</div>
-                  <div>{selectedPaymentData ? selectedPaymentData.collected_by : null}</div>
-                </div>
-                <div className="flex justify-between">
-                  <div>Customer</div>
-                  <div>{selectedPaymentData ? selectedPaymentData.customer_name : null}</div>
-                </div>
-              </div>
-
-              <div className="font-serif border-t mb-4">
-                {selectedPaymentData?.type === 'refund'
-                  ? selectedPaymentData?.refunded_order_amount.map((amount: number, i: number) => {
-                      if (amount > 0) {
-                        return (
-                          <div className="flex justify-between items-center my-2">
-                            <div className="flex">
-                              <div>
-                                {selectedPaymentData?.order_name[i]} x {amount}
-                              </div>
-                            </div>
-                            <div>- {Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(selectedPaymentData.order_price[i] * selectedPaymentData.order_amount[i])}</div>
-                          </div>
-                        );
-                      }
-                    })
-                  : selectedPaymentData?.order_name.map((order: any, i: number) => (
-                      <div className="flex justify-between items-center my-2">
-                        <div className="flex">
-                          <div>
-                            {order} x {selectedPaymentData.order_amount[i]}
-                          </div>
-                        </div>
-                        <div>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(selectedPaymentData.order_price[i] * selectedPaymentData.order_amount[i])}</div>
-                      </div>
-                    ))}
-                {selectedPaymentData?.type !== 'pay' && selectedPaymentData?.type !== 'refund' ? (
-                  <div className="flex justify-between">
-                    <div>{selectedPaymentData?.type}</div>
-                    <div>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(selectedPaymentData?.total_payment)}</div>
-                  </div>
-                ) : null}
-              </div>
-
-              {selectedPaymentData?.type !== 'pay' && selectedPaymentData?.type !== 'refund' ? null : (
-                <div className="font-serif border-t mb-6">
-                  <div className="flex justify-between">
-                    <div>Subtotal</div>
-                    <div>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalPaymentSelectedData)}</div>
-                  </div>
-                  <div className="flex justify-between">
-                    <div>Service</div>
-                    <div>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalServiceSelectedData)}</div>
-                  </div>
-                  <div className="flex justify-between">
-                    <div>PB1</div>
-                    <div>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalTaxSelectedData)}</div>
-                  </div>
-                </div>
-              )}
-
-              <div className="font-serif font-bold border-t py-4">
-                <div className="flex justify-between">
-                  <div>
-                    <p className="font-bold">Total</p>
-                  </div>
-                  <div>
-                    <p className="font-bold">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalPaymentAfterTaxServiceSelectedData)}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="font-serif border-t pt-2 mb-2">
-                <div className="flex justify-between">
-                  <div>{selectedPaymentData?.payment_method}</div>
-                  <div>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalPaymentAfterTaxServiceSelectedData)}</div>
-                </div>
-              </div>
-
-              <div className="font-serif pt-2">
-                <div>Note:</div>
-                <div>{selectedPaymentData ? selectedPaymentData.note : null}</div>
-              </div>
-              <button
-                onClick={() => {
-                  handlePrint(null, () => contentToPrint.current);
-                }}
-              >
-                PRINT
-              </button>
-              <div className="font-serif pt-6 flex justify-center">
-                {selectedPaymentData?.type === 'pay' && selectedPaymentData?.status === 'paid' ? (
-                  <div className="flex">
-                    <FullRefundModal />
-                    <PartialRefundModal selectedPaymentData={selectedPaymentData} reportsRefetch={reportsRefetch} />
-                  </div>
-                ) : null}
-
-                <div className="mx-1 text-red-800">
-                  <button className=" hover:opacity-30 duration-300" title="Cancel">
-                    <ImCancelCircle size={50} />
-                  </button>
-                </div>
-                <div className="text-red-600">
-                  <button className=" hover:opacity-30 duration-300" title="Delete">
-                    <MdOutlineDelete size={50} />
-                  </button>
-                </div>
-              </div>
-            </div>
+            <Invoices selectedPaymentData={selectedPaymentData} totalPaymentSelectedData={totalPaymentSelectedData} />
           </Box>
         </Modal>
       </div>
