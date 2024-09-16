@@ -1,0 +1,23 @@
+@font-face {
+    font-family: 'LatoLight';
+    src: url('/static/fonts/lato-light.ttf');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'LatoRegular';
+    src: url('/static/fonts/lato-regular.ttf');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'NunitoSemibold';
+    src: url('/static/fonts/nunito-semibold.ttf');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}

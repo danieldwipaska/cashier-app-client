@@ -11,6 +11,8 @@ import Register from './routes/Register/Register';
 import GiftCard from './routes/GiftCard/GiftCard';
 import Collections from './routes/Collections/Collections';
 import Settings from './routes/Settings/Settings';
+import Backoffices from './routes/Backoffices/Backoffices';
+import Products from './routes/Backoffices/Products/Products';
 
 function App() {
   const client = new QueryClient({
@@ -33,6 +35,8 @@ function App() {
               <Route path="/gift-card" element={<GiftCard />} />
               <Route path="/collections" element={<Collections />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/backoffices" element={<Backoffices />} />
+              <Route path="/backoffices/products" element={<Products />} />
             </Routes>
           </Router>
         </QueryClientProvider>

@@ -1,0 +1,46 @@
+.sidebar {
+    width: 200px;
+    height: 100%;
+    flex: 1;
+    background-color: #1eb254;
+    position: fixed;
+    padding: 0 10px 0 30px;
+}
+
+.sidebarHeader {
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+.sidebarLinks {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
+
+.sidebarLinks.active {
+    background-color: white;
+}
+
+.sidebarLinks.link {
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.sidebarLinks.link:hover {
+    background-color: white;
+}
+
+.main {
+    margin-left: 215px;
+    margin-right: 15px;
+}
+
+.header {
+    text-align: center;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    color: #157e3b;
+    border-bottom: 2px solid rgb(214, 214, 214);
+}
+
