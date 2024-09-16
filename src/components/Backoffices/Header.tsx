@@ -1,8 +1,11 @@
 import React from 'react';
 import style from '../../assets/css/style.module.css';
+import cx from 'classnames';
 
 const Header = ({ title }: { title: string }) => {
-  return <header className={style.header}>{title}</header>;
+  const headerClass = cx(style.header, style.mb50);
+
+  return <header className={headerClass}>{title}</header>;
 };
 
 export default Header;
