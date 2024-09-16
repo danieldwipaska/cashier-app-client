@@ -13,6 +13,8 @@ import Collections from './routes/Collections/Collections';
 import Settings from './routes/Settings/Settings';
 import Backoffices from './routes/Backoffices/Backoffices';
 import Products from './routes/Backoffices/Products/Products';
+import Categories from 'routes/Backoffices/Categories/Categories';
+import ProductDetails from 'routes/Backoffices/Products/ProductDetails';
 
 function App() {
   const client = new QueryClient({
@@ -37,6 +39,8 @@ function App() {
               <Route path="/settings" element={<Settings />} />
               <Route path="/backoffices" element={<Backoffices />} />
               <Route path="/backoffices/products" element={<Products />} />
+              <Route path="/backoffices/products/:productId" element={<ProductDetails />} />
+              <Route path="/backoffices/categories" element={<Categories />} />
             </Routes>
           </Router>
         </QueryClientProvider>
