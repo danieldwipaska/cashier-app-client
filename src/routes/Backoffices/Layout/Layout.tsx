@@ -1,7 +1,7 @@
 import style from '../../../assets/css/style.module.css';
 import Nav from '../../../components/Backoffices/Nav';
 
-const Layout = ({ children }: any) => {
+const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div>
       <Nav />
