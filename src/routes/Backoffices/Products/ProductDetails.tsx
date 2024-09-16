@@ -7,6 +7,7 @@ import cx from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
+import { API_BASE_URL } from 'configs/utils';
 
 const ProductDetails = () => {
   // START HOOKS
@@ -20,11 +21,11 @@ const ProductDetails = () => {
   // END CSS
 
   // START QUERIES
-  const { data: product, refetch: productRefetch } = useQuery({
-    queryKey: ['product'],
+  const { data: product } = useQuery({
+    queryKey: ['product', productId],
     queryFn: () =>
       axios
-        .get(`http://localhost:3001/fnbs/${[productId]}`)
+        .get(`${API_BASE_URL}/fnbs/${productId}`)
         .then((res) => {
           console.log(res.data.data);
           return res.data.data;

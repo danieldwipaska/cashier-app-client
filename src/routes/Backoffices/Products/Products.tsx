@@ -3,15 +3,15 @@ import Header from '../../../components/Backoffices/Header';
 import style from '../../../assets/css/style.module.css';
 import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
-import cx from 'classnames';
+import { API_BASE_URL, PRODUCTS_QUERY_KEY } from 'configs/utils';
 
 const Products = () => {
   // START QUERIES
-  const { data: products, refetch: productsRefetch } = useQuery({
-    queryKey: ['products'],
+  const { data: products } = useQuery({
+    queryKey: PRODUCTS_QUERY_KEY,
     queryFn: () =>
       axios
-        .get('http://localhost:3001/fnbs')
+        .get(`${API_BASE_URL}/fnbs`)
         .then((res) => {
           console.log(res.data.data);
           return res.data.data;
@@ -37,7 +37,7 @@ const Products = () => {
           </tr>
           {products?.map((product: any) => {
             return (
-              <tr className={style.tableRow}>
+              <tr key={product.id} className={style.tableRow}>
                 <td className={style.tableCellLink}>
                   <a href={`/backoffices/products/${product.id}`}>{product.name}</a>
                 </td>

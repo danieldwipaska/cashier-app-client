@@ -3,14 +3,15 @@ import Header from 'components/Backoffices/Header';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import style from '../../../assets/css/style.module.css';
+import { API_BASE_URL, CATEGORIES_QUERY_KEY } from 'configs/utils';
 
 const Categories = () => {
   // START QUERIES
-  const { data: categories, refetch: categoriesRefetch } = useQuery({
-    queryKey: ['categories'],
+  const { data: categories } = useQuery({
+    queryKey: CATEGORIES_QUERY_KEY,
     queryFn: () =>
       axios
-        .get('http://localhost:3001/categories')
+        .get(`${API_BASE_URL}/categories`)
         .then((res) => {
           return res.data.data;
         })
@@ -33,7 +34,7 @@ const Categories = () => {
           </tr>
           {categories?.map((category: any) => {
             return (
-              <tr className={style.tableRow}>
+              <tr key={category.id} className={style.tableRow}>
                 <td className={style.tableCell}>{category.name}</td>
                 <td className={style.tableCell}>{category.Fnbs.length}</td>
                 <td className={style.tableCell}></td>
