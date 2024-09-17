@@ -13,7 +13,6 @@ const Products = () => {
       axios
         .get(`${API_BASE_URL}/fnbs`)
         .then((res) => {
-          console.log(res.data.data);
           return res.data.data;
         })
         .catch((err) => {
