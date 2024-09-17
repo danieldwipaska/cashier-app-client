@@ -15,6 +15,7 @@ import Backoffices from './routes/Backoffices/Backoffices';
 import Products from './routes/Backoffices/Products/Products';
 import Categories from 'routes/Backoffices/Categories/Categories';
 import ProductDetails from 'routes/Backoffices/Products/ProductDetails';
+import ProductAdd from 'routes/Backoffices/Products/ProductAdd';
 
 function App() {
   const client = new QueryClient({
@@ -40,6 +41,7 @@ function App() {
               <Route path="/backoffices" element={<Backoffices />} />
               <Route path="/backoffices/products" element={<Products />} />
               <Route path="/backoffices/products/:productId" element={<ProductDetails />} />
+              <Route path="/backoffices/products/add" element={<ProductAdd />} />
               <Route path="/backoffices/categories" element={<Categories />} />
             </Routes>
           </Router>
