@@ -16,6 +16,9 @@ import Products from './routes/Backoffices/Products/Products';
 import Categories from 'routes/Backoffices/Categories/Categories';
 import ProductDetails from 'routes/Backoffices/Products/ProductDetails';
 import ProductAdd from 'routes/Backoffices/Products/ProductAdd';
+import ProductEdit from 'routes/Backoffices/Products/ProductEdit';
+import CategoryAdd from 'routes/Backoffices/Categories/CategoryAdd';
+import CategoryEdit from 'routes/Backoffices/Categories/CategoryEdit';
 
 function App() {
   const client = new QueryClient({
@@ -41,8 +44,11 @@ function App() {
               <Route path="/backoffices" element={<Backoffices />} />
               <Route path="/backoffices/products" element={<Products />} />
               <Route path="/backoffices/products/:productId" element={<ProductDetails />} />
+              <Route path="/backoffices/products/:productId/edit" element={<ProductEdit />} />
               <Route path="/backoffices/products/add" element={<ProductAdd />} />
               <Route path="/backoffices/categories" element={<Categories />} />
+              <Route path="/backoffices/categories/add" element={<CategoryAdd />} />
+              <Route path="/backoffices/categories/:categoryId/edit" element={<CategoryEdit />} />
             </Routes>
           </Router>
         </QueryClientProvider>

@@ -51,13 +51,13 @@ const ProductAdd = () => {
               <label className={style.inputLabel} htmlFor="name">
                 Name
               </label>
-              <input type="text" className={style.input} id="name" {...register('name')} required />
+              <input type="text" className={style.input} id="name" {...register('name')} placeholder='ex. Nasi Goreng' required />
             </div>
             <div className={style.formInput}>
               <label className={style.inputLabel} htmlFor="price">
                 Price
               </label>
-              <input type="number" className={style.input} id="price" {...register('price')} required />
+              <input type="number" className={style.input} id="price" {...register('price')} placeholder='ex. 25000' required />
             </div>
             <div className={style.formInput}>
               <label className={style.inputLabel} htmlFor="categoryId">
