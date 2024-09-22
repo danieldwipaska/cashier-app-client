@@ -7,13 +7,8 @@ import { useQuery } from '@tanstack/react-query';
 import { API_BASE_URL, PRODUCTS_QUERY_KEY } from 'configs/utils';
 import deleteIcon from '../../../assets/img/icons/icon-delete.svg';
 import editIcon from '../../../assets/img/icons/icon-edit.svg';
-import { useForm } from 'react-hook-form';
 
 const Products = () => {
-  // START HOOKS
-  const { register, handleSubmit } = useForm();
-  // END HOOKS
-
   // START QUERIES
   const { data: products, refetch: productsRefetch } = useQuery({
     queryKey: PRODUCTS_QUERY_KEY,
@@ -35,7 +30,7 @@ const Products = () => {
   // END CSS
 
   // START FUNC
-  const handleAvaibilityClick = async (id: string, availability: boolean) => {
+  const handleAvailabilityClick = async (id: string, availability: boolean) => {
     try {
       await axios.patch(`${API_BASE_URL}/fnbs/${id}`, { availability });
 
@@ -78,7 +73,7 @@ const Products = () => {
                       <button
                         className={style.emptyButton}
                         onClick={() => {
-                          handleAvaibilityClick(product.id, !product.availability);
+                          handleAvailabilityClick(product.id, !product.availability);
                         }}
                       >
                         set as empty
@@ -87,7 +82,7 @@ const Products = () => {
                       <button
                         className={style.availableButton}
                         onClick={() => {
-                          handleAvaibilityClick(product.id, !product.availability);
+                          handleAvailabilityClick(product.id, !product.availability);
                         }}
                       >
                         set as available
@@ -104,18 +99,18 @@ const Products = () => {
                     <img src={editIcon} alt="editIcon" width={20} />
                   </a>
                   <form
-                    onSubmit={handleSubmit(() => {
+                    onSubmit={(e) => {
+                      e.preventDefault();
                       axios
                         .delete(`${API_BASE_URL}/fnbs/${product.id}`)
                         .then((res) => {
-                          return window.location.reload();
+                          productsRefetch();
                         })
                         .catch((err) => {
                           return console.log(err);
                         });
-                    })}
+                    }}
                   >
-                    <input type="hidden" {...register('id')} value={`${product.id}`} readOnly />
                     <button type="submit">
                       <img src={deleteIcon} alt="deleteIcon" width={20} />
                     </button>
