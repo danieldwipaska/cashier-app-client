@@ -37,7 +37,7 @@ const Products = () => {
   // START FUNC
   const handleAvaibilityClick = async (id: string, availability: boolean) => {
     try {
-      await axios.patch(`http://localhost:3001/fnbs/${id}`, { availability });
+      await axios.patch(`${API_BASE_URL}/fnbs/${id}`, { availability });
 
       productsRefetch();
     } catch (error) {
