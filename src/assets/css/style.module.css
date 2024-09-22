@@ -14,6 +14,7 @@
 
 .table {
   width: 100%;
+
 }
 
 .tableRowHead {
@@ -28,9 +29,30 @@
   padding: 15px 0;
 }
 
+.tableCellAvailability {
+  display: flex;
+  gap: 5px;
+  padding: 15px 0;
+  align-items: center;
+}
+
+.tableCellAvailable {
+  color: green;
+}
+
+.tableCellEmpty {
+  color: red;
+}
+
 .tableCellLink {
   color: gray;
   font-weight: 600;
+}
+
+.tableCellAction {
+  display: flex;
+  gap: 10px;
+  padding: 15px 0;
 }
 
 .detailTableRowHead {
@@ -43,6 +65,17 @@
   margin-bottom: 20px;
 }
 
+.buttonGreen {
+  padding: 10px 15px;
+  border-radius: 5px;
+  background-color: #1eb254;
+  color: white;
+}
+
+.buttonGreen:hover {
+  background-color: #157e3b;
+}
+
 /* END BASIC */
 
 /* START UTILS */
@@ -50,8 +83,16 @@
   text-align: left;
 }
 
+.mt20 {
+  margin-top: 20px;
+}
+
 .mb50 {
   margin-bottom: 50px;
+}
+
+.mb20 {
+  margin-bottom: 20px;
 }
 
 /* END UTILS */
@@ -99,6 +140,7 @@
 .formInput {
   display: grid;
   grid-template-columns: 1fr 2fr;
+  justify-items: left;
 }
 
 .input {
@@ -127,4 +169,16 @@
 
 .submitButton:active {
   scale: 0.9;
+}
+
+.availableButton, .emptyButton {
+  padding: 1px 4px;
+  opacity: 0.8;
+  border-radius: 2px;
+  font-size: 10px;
+}
+
+.availabilityAction {
+  display: flex;
+
 }
