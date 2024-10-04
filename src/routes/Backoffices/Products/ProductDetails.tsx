@@ -7,7 +7,7 @@ import cx from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
-import { API_BASE_URL } from 'configs/utils';
+import { API_BASE_URL } from 'lib/utils';
 
 const ProductDetails = () => {
   // START HOOKS

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { API_BASE_URL } from 'configs/utils';
+import { API_BASE_URL } from 'lib/utils';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';

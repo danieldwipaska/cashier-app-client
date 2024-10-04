@@ -4,7 +4,7 @@ import style from '../../../assets/css/style.module.css';
 import cx from 'classnames';
 import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
-import { API_BASE_URL, PRODUCTS_QUERY_KEY } from 'configs/utils';
+import { API_BASE_URL, PRODUCTS_QUERY_KEY } from 'lib/utils';
 import deleteIcon from '../../../assets/img/icons/icon-delete.svg';
 import editIcon from '../../../assets/img/icons/icon-edit.svg';
 

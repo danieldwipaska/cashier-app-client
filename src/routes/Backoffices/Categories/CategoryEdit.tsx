@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { API_BASE_URL, CATEGORY_QUERY_KEY } from 'configs/utils';
+import { API_BASE_URL, CATEGORY_QUERY_KEY } from 'lib/utils';
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Layout from '../Layout/Layout';
