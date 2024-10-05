@@ -9,10 +9,11 @@ const Nav = () => {
   const productsClass = cx(style.sidebarLinks, style.link, path.includes('/backoffices/products') ? style.active : null);
   const categoriesClass = cx(style.sidebarLinks, style.link, path.includes('/backoffices/categories') ? style.active : null);
   const crewsClass = cx(style.sidebarLinks, style.link, path.includes('/backoffices/crews') ? style.active : null);
+  const paymentMethodsClass = cx(style.sidebarLinks, style.link, path.includes('/backoffices/methods') ? style.active : null);
 
   return (
     <nav className={style.sidebar}>
-      <header className={style.sidebarHeader}>&gt; Backoffices</header>
+      <header className={style.sidebarHeader}>-- Backoffices --</header>
       <div className={style.sidebarLinks}>
         <a href="/backoffices/products" className={productsClass} aria-label="Navigate to Products">
           Products
@@ -23,7 +24,7 @@ const Nav = () => {
         <a href="/backoffices/crews" className={crewsClass} aria-label="Navigate to Crews">
           Crews
         </a>
-        <a href="#" className={linkClass} aria-label="Navigate to Payment Method">
+        <a href="/backoffices/methods" className={paymentMethodsClass} aria-label="Navigate to Payment Method">
           Payment Method
         </a>
       </div>
