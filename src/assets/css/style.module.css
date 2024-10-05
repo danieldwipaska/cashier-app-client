@@ -130,10 +130,6 @@
   border-radius: 5px;
 }
 
-.sidebarLinks.link:hover {
-  background-color: white;
-}
-
 .productCreation {
   display: flex;
   flex-direction: column;
