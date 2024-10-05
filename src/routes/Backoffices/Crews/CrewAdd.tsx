@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Layout from '../Layout/Layout';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +10,10 @@ import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 const CrewAdd = () => {
+  // START STATE
+  const [isLoading, setIsLoading] = useState(false);
+  // END STATE
+
   const navigate = useNavigate();
 
   const validationSchema = Yup.object().shape({
@@ -27,20 +31,27 @@ const CrewAdd = () => {
     resolver: yupResolver(validationSchema),
   });
 
-  const onSubmit = (data: any) => {
-    axios
-      .post(`${API_BASE_URL}/crews`, data, {
+  const onSubmit = async (data: any) => {
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem('access-token');
+      if (!token) {
+        throw new Error('No access token found');
+      }
+      await axios.post(`${API_BASE_URL}/crews`, data, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          Authorization: `Bearer ${token}`,
         },
-      })
-      .then((res) => {
-        reset();
-        return navigate('/backoffices/crews', { replace: true });
-      })
-      .catch((err) => {
-        return console.log(err);
       });
+
+      navigate('/backoffices/crews', { replace: true });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 5000);
+    }
   };
 
   return (
@@ -83,7 +94,7 @@ const CrewAdd = () => {
             <br />
             <br />
             <button type="submit" className={style.submitButton}>
-              Submit
+              Submit {isLoading ? <span className={style.spinner}></span> : null}
             </button>
           </div>
         </form>

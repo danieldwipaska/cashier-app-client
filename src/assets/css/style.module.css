@@ -14,7 +14,6 @@
 
 .table {
   width: 100%;
-
 }
 
 .tableRowHead {
@@ -158,7 +157,7 @@
 }
 
 .submitButton {
-  width: 80px;
+  max-width: 100px;
   padding: 10px 5px;
   background-color: #1eb254;
   color: white;
@@ -175,7 +174,8 @@
   scale: 0.9;
 }
 
-.availableButton, .emptyButton {
+.availableButton,
+.emptyButton {
   padding: 1px 4px;
   opacity: 0.8;
   border-radius: 2px;
@@ -184,5 +184,27 @@
 
 .availabilityAction {
   display: flex;
-
 }
+
+/* START SPINNER */
+.spinner {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  border-top: 3px solid #f1f1f1;
+  border-right: 3px solid transparent;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* END SPINNER */
