@@ -8,7 +8,7 @@ const Nav = () => {
   const linkClass = cx(style.sidebarLinks, style.link);
   const productsClass = cx(style.sidebarLinks, style.link, path.includes('/backoffices/products') ? style.active : null);
   const categoriesClass = cx(style.sidebarLinks, style.link, path.includes('/backoffices/categories') ? style.active : null);
-  const crewsClass = cx(style.sidebarLinks, style.link, path.includes('backoffices/crews') ? style.active : null);
+  const crewsClass = cx(style.sidebarLinks, style.link, path.includes('/backoffices/crews') ? style.active : null);
 
   return (
     <nav className={style.sidebar}>

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { API_BASE_URL, CATEGORY_QUERY_KEY, CREW_QUERY_KEY, Role } from 'lib/utils';
+import { API_BASE_URL, SINGLE_CREW_QUERY_KEY, Role } from 'lib/utils';
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Layout from '../Layout/Layout';
@@ -33,7 +33,7 @@ const CrewEdit = () => {
 
   // START QUERIES
   const { data: crew } = useQuery({
-    queryKey: CREW_QUERY_KEY,
+    queryKey: SINGLE_CREW_QUERY_KEY,
     queryFn: () =>
       axios
         .get(`${API_BASE_URL}/crews/${crewId}`)
@@ -91,7 +91,7 @@ const CrewEdit = () => {
             <label className={style.inputLabel} htmlFor="code">
               Code
             </label>
-            <input type="password" className={style.input} id="code" placeholder="number only" value={code} onChange={handleCodeChange} required />
+            <input type="text" className={style.input} id="code" placeholder="number only" value={code} onChange={handleCodeChange} required />
           </div>
           <br />
           <br />

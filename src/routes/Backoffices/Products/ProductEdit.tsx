@@ -3,7 +3,7 @@ import Layout from '../Layout/Layout';
 import Header from 'components/Backoffices/Header';
 import style from '../../../assets/css/style.module.css';
 import axios from 'axios';
-import { API_BASE_URL, CATEGORIES_QUERY_KEY, PRODUCT_QUERY_KEY } from 'lib/utils';
+import { API_BASE_URL, CATEGORIES_QUERY_KEY, SINGLE_PRODUCT_QUERY_KEY } from 'lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -22,7 +22,7 @@ const ProductEdit = () => {
   // END HOOKS
 
   // START CHANGE
-  const handleNameChange = (event: any) => {
+  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value);
   };
 
@@ -58,7 +58,7 @@ const ProductEdit = () => {
   });
 
   const { data: product } = useQuery({
-    queryKey: PRODUCT_QUERY_KEY,
+    queryKey: SINGLE_PRODUCT_QUERY_KEY,
     queryFn: () =>
       axios
         .get(`${API_BASE_URL}/fnbs/${productId}`)

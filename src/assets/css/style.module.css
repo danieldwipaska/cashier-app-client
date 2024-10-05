@@ -95,6 +95,10 @@
   margin-bottom: 20px;
 }
 
+.error {
+  color: red;
+}
+
 /* END UTILS */
 .sidebar {
   width: 200px;

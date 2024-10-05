@@ -31,7 +31,7 @@ const Crews = () => {
   // END QUERY
 
   // START CSS
-  const tableClass = cx(style.table, style.mt20);
+  const tableClass = `${style.table} ${style.mt20}`;
   // END CSS
 
   return (
@@ -55,7 +55,7 @@ const Crews = () => {
                 <td className={style.tableCell}>{crew.name}</td>
                 <td className={style.tableCell}>{crew.position}</td>
                 <td className={style.tableCellAction}>
-                  <a href={`/backoffices/crews/${crew.id}`}>
+                  <a href={`/backoffices/crews/${crew.id}/edit`}>
                     <img src={editIcon} alt="editIcon" width={20} />
                   </a>
                   <form

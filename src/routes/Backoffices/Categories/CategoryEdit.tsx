@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { API_BASE_URL, CATEGORY_QUERY_KEY } from 'lib/utils';
+import { API_BASE_URL, SINGLE_CATEGORY_QUERY_KEY } from 'lib/utils';
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Layout from '../Layout/Layout';
@@ -18,14 +18,14 @@ const CategoryEdit = () => {
   // END HOOKS
 
   // START CHANGE
-  const handleNameChange = (event: any) => {
+  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value);
   };
   // END CHANGE
 
   // START QUERIES
   const { data: category } = useQuery({
-    queryKey: CATEGORY_QUERY_KEY,
+    queryKey: SINGLE_CATEGORY_QUERY_KEY,
     queryFn: () =>
       axios
         .get(`${API_BASE_URL}/categories/${categoryId}`)

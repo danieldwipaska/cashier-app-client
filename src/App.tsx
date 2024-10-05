@@ -54,7 +54,7 @@ function App() {
               <Route path="/backoffices/categories/:categoryId/edit" element={<CategoryEdit />} />
               <Route path="/backoffices/crews" element={<Crews />} />
               <Route path="/backoffices/crews/add" element={<CrewAdd />} />
-              <Route path="/backoffices/crews/:crewId" element={<CrewEdit />} />
+              <Route path="/backoffices/crews/:crewId/edit" element={<CrewEdit />} />
             </Routes>
           </Router>
         </QueryClientProvider>
