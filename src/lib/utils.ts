@@ -23,6 +23,10 @@ export const SINGLE_CREW_QUERY_KEY = ['crewId'];
 export const PAYMENT_METHODS_QUERY_KEY = ['paymentMethods'];
 export const SINGLE_PAYMENT_METHOD_QUERY_KEY = ['paymentMethodId'];
 
+// Reports
+export const REPORTS_QUERY_KEY = ['reports'];
+export const SINGLE_REPORT_QUERY_KEY = ['reportId'];
+
 export enum Role {
   USER = 'user',
   ADMIN = 'admin',
