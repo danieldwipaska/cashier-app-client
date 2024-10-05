@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import style from '../../../assets/css/style.module.css';
 import cx from 'classnames';
-import { API_BASE_URL, CATEGORIES_QUERY_KEY } from 'configs/utils';
+import { API_BASE_URL, CATEGORIES_QUERY_KEY } from 'lib/utils';
 import deleteIcon from '../../../assets/img/icons/icon-delete.svg';
 import editIcon from '../../../assets/img/icons/icon-edit.svg';
 import { useForm } from 'react-hook-form';
@@ -15,7 +15,7 @@ const Categories = () => {
   // END HOOKS
 
   // START QUERIES
-  const { data: categories } = useQuery({
+  const { data: categories, refetch: categoriesRefetch } = useQuery({
     queryKey: CATEGORIES_QUERY_KEY,
     queryFn: () =>
       axios
@@ -64,7 +64,7 @@ const Categories = () => {
                         axios
                           .delete(`${API_BASE_URL}/categories/${category.id}`)
                           .then((res) => {
-                            return window.location.reload();
+                            return categoriesRefetch();
                           })
                           .catch((err) => {
                             return console.log(err);

@@ -2,7 +2,7 @@ import Layout from '../Layout/Layout';
 import Header from 'components/Backoffices/Header';
 import style from '../../../assets/css/style.module.css';
 import { useForm } from 'react-hook-form';
-import { API_BASE_URL, CATEGORIES_QUERY_KEY } from 'configs/utils';
+import { API_BASE_URL, CATEGORIES_QUERY_KEY } from 'lib/utils';
 import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
