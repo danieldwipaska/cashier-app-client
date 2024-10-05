@@ -22,6 +22,8 @@ import CategoryEdit from 'routes/Backoffices/Categories/CategoryEdit';
 import Crews from 'routes/Backoffices/Crews/Crews';
 import CrewEdit from 'routes/Backoffices/Crews/CrewEdit';
 import CrewAdd from 'routes/Backoffices/Crews/CrewAdd';
+import PaymentMethods from 'routes/Backoffices/PaymentMethods/PaymentMethods';
+import PaymentMethodAdd from 'routes/Backoffices/PaymentMethods/PaymentMethodAdd';
 
 function App() {
   const client = new QueryClient({
@@ -55,6 +57,8 @@ function App() {
               <Route path="/backoffices/crews" element={<Crews />} />
               <Route path="/backoffices/crews/add" element={<CrewAdd />} />
               <Route path="/backoffices/crews/:crewId/edit" element={<CrewEdit />} />
+              <Route path="/backoffices/methods/" element={<PaymentMethods />} />
+              <Route path="/backoffices/methods/add" element={<PaymentMethodAdd />} />
             </Routes>
           </Router>
         </QueryClientProvider>
