@@ -236,7 +236,7 @@ const CardAction = () => {
             {openCardDetails ? (
               <div>
                 <div className="flex justify-center mt-7">
-                  <div className="bg-black/80 shadow-2xl h-48 w-80 text-white p-6 rounded-xl">
+                  <div className="bg-black/80 shadow-2xl h-[25vh] w-[50vh] text-white p-6 rounded-xl">
                     <div>
                       <h4>Basic Card</h4>
                     </div>

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <!-- Main Circle -->
+  <circle cx="200" cy="200" r="160" fill="#2e7d32"/>
+  
+  <!-- Simple Card Shape -->
+  <rect x="140" y="160" width="120" height="80" rx="8" 
+        fill="#ffffff"/>
+  
+  <!-- Minimal Chip -->
+  <rect x="160" y="180" width="20" height="20" rx="2" 
+        fill="#81c784"/>
+  
+  <!-- Elegant BCM Text -->
+  <text x="200" y="290" 
+        text-anchor="middle" 
+        font-family="Didot, 'Bodoni MT', 'Book Antiqua', serif" 
+        font-weight="500" 
+        font-size="58" 
+        fill="#ffffff"
+        letter-spacing="4">BCM</text>
+  
+  <!-- Optional: Very subtle text shadow for depth -->
+  <text x="200" y="290" 
+        text-anchor="middle" 
+        font-family="Didot, 'Bodoni MT', 'Book Antiqua', serif" 
+        font-weight="500" 
+        font-size="58" 
+        fill="rgba(0,0,0,0.1)"
+        letter-spacing="4"
+        transform="translate(1,1)">BCM</text>
+</svg>

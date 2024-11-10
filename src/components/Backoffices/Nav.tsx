@@ -15,7 +15,7 @@ const Nav = () => {
 
   return (
     <nav className={style.sidebar}>
-      <header className={style.sidebarHeader}>&gt; Backoffices</header>
+      <header className={style.sidebarHeader}>Backoffices</header>
       <div className={style.sidebarLinks}>
         <a href="/backoffices/products" className={productsClass} aria-label="Navigate to Products">
           Products

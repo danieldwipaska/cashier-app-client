@@ -26,7 +26,6 @@ const Cart = (props: any) => {
     setNote,
     setOpenSummary,
     totalOrder,
-    setTotalOrder,
     crewCredential,
     setCrewCredential,
     openCrewAuthAlertDialog,
@@ -40,13 +39,9 @@ const Cart = (props: any) => {
     reports,
     reportsRefetch,
     taxPercent,
-    setTaxPercent,
     servicePercent,
-    setServicePercent,
     totalTaxService,
-    setTotalTaxService,
     taxServiceIncluded,
-    setTaxServiceIncluded,
   } = props;
 
   const { user } = useAuth();
@@ -309,27 +304,14 @@ const Cart = (props: any) => {
             </div>
           ) : null}
 
-          <div className="flex flex-col overflow-y-auto mt-2 h-60 2xl:h-96">
+          <div className="flex flex-col overflow-y-auto thin-scrollbar mt-2 pr-2 h-60 2xl:h-96">
             {orders?.map((order: any) => (
-              <div className="flex items-center mt-5">
-                <div className="mx-3">
-                  <div className="flex justify-between">
-                    <div className="mr-2">
-                      <p className="text-sm">{order.name}</p>
-                    </div>
-
-                    {order.discount_status ? (
-                      <div className="flex items-center">
-                        <p className="text-sm text-orange-500 mr-1">(-{order.discount_percent}%)</p>
-                        <p className="text-sm">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(order.price * order.amount - (order.price * order.amount * order.discount_percent) / 100)}</p>
-                      </div>
-                    ) : (
-                      <div className="">
-                        <p className="text-sm">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(order.price * order.amount)}</p>
-                      </div>
-                    )}
+              <div className="mt-5 border-b-2 pb-2">
+                <div className="flex justify-between items-center">
+                  <div className="mr-2">
+                    <p className="text-sm">{order.name}</p>
                   </div>
-                  <div className="flex items-center mt-2">
+                  <div className="flex items-center">
                     <button
                       className=" bg-green-500 hover:opacity-70 duration-500 p-2 rounded-md"
                       onClick={() => {
@@ -339,7 +321,7 @@ const Cart = (props: any) => {
                       <FaMinus size={10} color="#000000" />
                     </button>
                     <div className="mx-1">
-                      <input type="text" className="text-xs text-center text-black/60 py-1 px-2 rounded-md border border-black/25" readOnly value={order.amount} />
+                      <input type="text" className="text-xs text-center text-black/60 py-1 px-2 rounded-md border border-black/25 max-w-8" readOnly value={order.amount} />
                     </div>
                     <button
                       className=" bg-green-500 hover:opacity-70 duration-500 p-2 rounded-md"
@@ -350,6 +332,19 @@ const Cart = (props: any) => {
                       <FaPlus size={10} color="#000000" />
                     </button>
                   </div>
+                </div>
+                <div className="flex justify-between mt-2">
+                  <div></div>
+                  {order.discount_status ? (
+                    <div className="flex items-center">
+                      <p className="text-sm text-orange-500 mr-1">(-{order.discount_percent}%)</p>
+                      <p className="text-sm">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(order.price * order.amount - (order.price * order.amount * order.discount_percent) / 100)}</p>
+                    </div>
+                  ) : (
+                    <div className="">
+                      <p className="text-sm">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(order.price * order.amount)}</p>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
