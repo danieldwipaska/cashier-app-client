@@ -1,19 +1,18 @@
-import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
-import { API_BASE_URL, PAYMENT_METHODS_QUERY_KEY } from 'lib/utils';
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import style from '../../../assets/css/style.module.css';
 import Layout from '../Layout/Layout';
 import Header from 'components/Backoffices/Header';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import { API_BASE_URL, PAYMENT_METHODS_QUERY_KEY } from 'configs/utils';
 import deleteIcon from '../../../assets/img/icons/icon-delete.svg';
+import editIcon from '../../../assets/img/icons/icon-edit.svg';
+import { useForm } from 'react-hook-form';
 
 const PaymentMethods = () => {
   // START HOOKS
   const { register, handleSubmit } = useForm();
   // END HOOKS
 
-  // START QUERY
+  // START QUERIES
   const { data: paymentMethods, refetch: paymentMethodsRefetch } = useQuery({
     queryKey: PAYMENT_METHODS_QUERY_KEY,
     queryFn: () =>
@@ -22,52 +21,56 @@ const PaymentMethods = () => {
         .then((res) => {
           return res.data.data;
         })
-        .catch((err) => {
+        .catch((err): any => {
+          if (err.status === 404) return [];
           return console.log(err);
         }),
   });
-  // END QUERY
 
-  // START CSS
-  const tableClass = `${style.table} ${style.mt20}`;
-  // END CSS
+  // END QUERIES
 
   return (
     <Layout>
       <Header title="PAYMENT METHODS" />
       <section>
-        <div className={style.buttonWrapperLeft}>
-          <a href={'/backoffices/methods/add'} className={style.buttonGreen}>
+        <div className="mb-5">
+          <a href={'/backoffices/payment-methods/add'} className="bg-green-400 py-3 px-5 rounded-lg">
             Add Payment Method
           </a>
         </div>
-        <table className={tableClass}>
-          <tr className={style.tableRowHead}>
-            <th className={style.alignLeft}>Method Name</th>
-            <th className={style.alignLeft}>Action</th>
+        <table className="w-2/4">
+          <tr className="">
+            <th className="border-b-4 py-3 text-left">Method Name</th>
+            <th className="border-b-4 py-3 text-left">Action</th>
           </tr>
-          {paymentMethods?.map((paymentMethod: any) => {
+          {paymentMethods?.map((method: any) => {
             return (
-              <tr key={paymentMethod.id} className={style.tableRow}>
-                <td className={style.tableCell}>{paymentMethod.name}</td>
-                <td className={style.tableCellAction}>
-                  <form
-                    onSubmit={handleSubmit(() => {
-                      axios
-                        .delete(`${API_BASE_URL}/methods/${paymentMethod.id}`)
-                        .then((res) => {
-                          return paymentMethodsRefetch();
-                        })
-                        .catch((err) => {
-                          return console.log(err);
-                        });
-                    })}
-                  >
-                    <input type="hidden" {...register('id')} value={paymentMethod.id} readOnly />
-                    <button type="submit">
-                      <img src={deleteIcon} alt="deleteIcon" width={20} />
-                    </button>
-                  </form>
+              <tr key={method.id} className="border-b-2">
+                <td className="py-3">{method.name}</td>
+                <td className="py-3">
+                  <div className="flex items-center gap-2">
+                    <a href={`/backoffices/payment-methods/${method.id}/edit`}>
+                      <img src={editIcon} alt="editIcon" width={20} />
+                    </a>
+                    <form
+                      onSubmit={handleSubmit(() => {
+                        axios
+                          .delete(`${API_BASE_URL}/methods/${method.id}`)
+                          .then((res) => {
+                            return paymentMethodsRefetch();
+                          })
+                          .catch((err) => {
+                            return console.log(err);
+                          });
+                      })}
+                      className="flex items-center"
+                    >
+                      <input type="hidden" {...register('id')} value={method.id} readOnly />
+                      <button type="submit">
+                        <img src={deleteIcon} alt="deleteIcon" width={20} />
+                      </button>
+                    </form>
+                  </div>
                 </td>
               </tr>
             );

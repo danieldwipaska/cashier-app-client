@@ -1,11 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { API_BASE_URL, SINGLE_CATEGORY_QUERY_KEY } from 'lib/utils';
+import { API_BASE_URL, CATEGORY_QUERY_KEY } from 'configs/utils';
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Layout from '../Layout/Layout';
 import Header from 'components/Backoffices/Header';
-import style from '../../../assets/css/style.module.css';
 
 const CategoryEdit = () => {
   // START HOOKS
@@ -18,14 +17,14 @@ const CategoryEdit = () => {
   // END HOOKS
 
   // START CHANGE
-  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleNameChange = (event: any) => {
     setName(event.target.value);
   };
   // END CHANGE
 
   // START QUERIES
   const { data: category } = useQuery({
-    queryKey: SINGLE_CATEGORY_QUERY_KEY,
+    queryKey: CATEGORY_QUERY_KEY,
     queryFn: () =>
       axios
         .get(`${API_BASE_URL}/categories/${categoryId}`)
@@ -58,16 +57,16 @@ const CategoryEdit = () => {
     <Layout>
       <Header title="EDIT CATEGORY" />
       <section>
-        <div className={style.productCreation}>
-          <div className={style.formInput}>
-            <label className={style.inputLabel} htmlFor="name">
+        <div className="">
+          <div className="grid grid-cols-2 max-w-[200px] py-3 items-center">
+            <label className="" htmlFor="name">
               Name
             </label>
-            <input type="text" className={style.input} id="name" placeholder="ex. Appetizer" value={name} onChange={handleNameChange} required />
+            <input type="text" className="border px-3 py-2 rounded-lg" id="name" placeholder="ex. Appetizer" value={name} onChange={handleNameChange} required />
           </div>
           <br />
           <br />
-          <button className={style.submitButton} onClick={onSubmit}>
+          <button className="bg-green-500 py-2 px-3 rounded-lg" onClick={onSubmit}>
             Submit
           </button>
         </div>

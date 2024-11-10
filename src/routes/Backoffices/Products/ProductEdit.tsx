@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import Layout from '../Layout/Layout';
 import Header from 'components/Backoffices/Header';
-import style from '../../../assets/css/style.module.css';
 import axios from 'axios';
-import { API_BASE_URL, CATEGORIES_QUERY_KEY, SINGLE_PRODUCT_QUERY_KEY } from 'lib/utils';
+import { API_BASE_URL, CATEGORIES_QUERY_KEY, PRODUCT_QUERY_KEY } from 'configs/utils';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -22,7 +21,7 @@ const ProductEdit = () => {
   // END HOOKS
 
   // START CHANGE
-  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleNameChange = (event: any) => {
     setName(event.target.value);
   };
 
@@ -58,7 +57,7 @@ const ProductEdit = () => {
   });
 
   const { data: product } = useQuery({
-    queryKey: SINGLE_PRODUCT_QUERY_KEY,
+    queryKey: PRODUCT_QUERY_KEY,
     queryFn: () =>
       axios
         .get(`${API_BASE_URL}/fnbs/${productId}`)
@@ -99,24 +98,24 @@ const ProductEdit = () => {
     <Layout>
       <Header title="EDIT PRODUCT" />
       <section>
-        <div className={style.productCreation}>
-          <div className={style.formInput}>
-            <label className={style.inputLabel} htmlFor="name">
+        <div className="">
+          <div className="grid grid-cols-2 max-w-[380px] py-3 items-center">
+            <label className="" htmlFor="name">
               Name
             </label>
-            <input type="text" className={style.input} id="name" placeholder="ex. Nasi Goreng" value={name} onChange={handleNameChange} required />
+            <input type="text" className="border px-3 py-2 rounded-lg" id="name" placeholder="ex. Nasi Goreng" value={name} onChange={handleNameChange} required />
           </div>
-          <div className={style.formInput}>
-            <label className={style.inputLabel} htmlFor="price">
+          <div className="grid grid-cols-2 max-w-[380px] py-3 items-center">
+            <label className="" htmlFor="price">
               Price
             </label>
-            <input type="number" className={style.input} id="price" placeholder="ex. 25000" value={price} onChange={handlePriceChange} required />
+            <input type="number" className="border px-3 py-2 rounded-lg" id="price" placeholder="ex. 25000" value={price} onChange={handlePriceChange} required />
           </div>
-          <div className={style.formInput}>
-            <label className={style.inputLabel} htmlFor="categoryId">
+          <div className="grid grid-cols-2 max-w-[380px] py-3 items-center">
+            <label className="" htmlFor="categoryId">
               Category
             </label>
-            <select id="categoryId" className={style.input} value={category} onChange={handleCategoryChange} required>
+            <select id="categoryId" className="border px-3 py-2 rounded-lg" value={category} onChange={handleCategoryChange} required>
               {categories?.map((category: any) => {
                 return (
                   <option key={category.id} value={category.id}>
@@ -126,21 +125,21 @@ const ProductEdit = () => {
               })}
             </select>
           </div>
-          <div className={style.formInput}>
-            <label className={style.inputLabel} htmlFor="discountStatus">
+          <div className="grid grid-cols-2 max-w-[380px] py-3 items-center justify-items-start">
+            <label className="" htmlFor="discountStatus">
               Discount Status
             </label>
-            <input type="checkbox" className={style.input} id="discountStatus" checked={discountStatus} onChange={handleDiscountStatusChange} required />
+            <input type="checkbox" className=" w-6 h-6" id="discountStatus" checked={discountStatus} onChange={handleDiscountStatusChange} required />
           </div>
-          <div className={style.formInput}>
-            <label className={style.inputLabel} htmlFor="discountPercent">
+          <div className="grid grid-cols-2 max-w-[380px] py-3 items-center">
+            <label className="" htmlFor="discountPercent">
               Discount Percent
             </label>
-            <input type="number" className={style.input} id="discountPercent" placeholder="ex. 20" value={discountPercent} onChange={handleDiscountPercentChange} required />
+            <input type="number" className="border px-3 py-2 rounded-lg" id="discountPercent" placeholder="ex. 20" value={discountPercent} onChange={handleDiscountPercentChange} required />
           </div>
           <br />
           <br />
-          <button className={style.submitButton} onClick={onSubmit}>
+          <button className="bg-green-500 py-2 px-3 rounded-lg" onClick={onSubmit}>
             Submit
           </button>
         </div>

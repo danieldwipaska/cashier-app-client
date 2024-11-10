@@ -75,7 +75,6 @@ const AccountSettings = () => {
           setService(res.data.data.shop.service);
           setServiceStatus(res.data.data.shop.service_status);
           setIncludedTaxService(res.data.data.shop.included_tax_service);
-          // console.log(res.data.data.shop);
           return res.data.data;
         })
         .catch((err) => {

@@ -1,8 +1,7 @@
 import Layout from '../Layout/Layout';
 import Header from 'components/Backoffices/Header';
-import style from '../../../assets/css/style.module.css';
 import { useForm } from 'react-hook-form';
-import { API_BASE_URL, CATEGORIES_QUERY_KEY } from 'lib/utils';
+import { API_BASE_URL, CATEGORIES_QUERY_KEY } from 'configs/utils';
 import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -46,24 +45,24 @@ const ProductAdd = () => {
       <Header title="ADD PRODUCT" />
       <section>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className={style.productCreation}>
-            <div className={style.formInput}>
-              <label className={style.inputLabel} htmlFor="name">
+          <div className="flex flex-col gap-3">
+            <div className="grid grid-cols-2 max-w-[300px] items-center">
+              <label className="" htmlFor="name">
                 Name
               </label>
-              <input type="text" className={style.input} id="name" {...register('name')} placeholder='ex. Nasi Goreng' required />
+              <input type="text" className="border px-3 py-2 rounded-lg" id="name" {...register('name')} placeholder='ex. Nasi Goreng' required />
             </div>
-            <div className={style.formInput}>
-              <label className={style.inputLabel} htmlFor="price">
+            <div className="grid grid-cols-2 max-w-[300px] items-center">
+              <label className="" htmlFor="price">
                 Price
               </label>
-              <input type="number" className={style.input} id="price" {...register('price')} placeholder='ex. 25000' required />
+              <input type="number" className="border px-3 py-2 rounded-lg" id="price" {...register('price')} placeholder='ex. 25000' required />
             </div>
-            <div className={style.formInput}>
-              <label className={style.inputLabel} htmlFor="categoryId">
+            <div className="grid grid-cols-2 max-w-[300px] items-center">
+              <label className="" htmlFor="categoryId">
                 Category
               </label>
-              <select {...register('categoryId')} id="categoryId" className={style.input} required>
+              <select {...register('categoryId')} id="categoryId" className="border px-3 py-2 rounded-lg" required>
                 <option value="">----</option>
                 {categories?.map((category: any) => {
                   return <option key={category.id} value={category.id}>{category.name}</option>;
@@ -72,9 +71,11 @@ const ProductAdd = () => {
             </div>
             <br />
             <br />
-            <button type="submit" className={style.submitButton}>
-              Submit
-            </button>
+            <div>
+              <button type="submit" className="bg-green-500 py-2 px-3 rounded-lg">
+                Submit
+              </button>
+            </div>
           </div>
         </form>
       </section>

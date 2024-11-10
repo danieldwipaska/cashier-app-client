@@ -1,11 +1,10 @@
 import axios from 'axios';
-import { API_BASE_URL } from 'lib/utils';
+import { API_BASE_URL } from 'configs/utils';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../Layout/Layout';
 import Header from 'components/Backoffices/Header';
-import style from '../../../assets/css/style.module.css'
 
 const CategoryAdd = () => {
   const { register, handleSubmit } = useForm();
@@ -27,16 +26,16 @@ const CategoryAdd = () => {
       <Header title="ADD CATEGORIES" />
       <section>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className={style.productCreation}>
-            <div className={style.formInput}>
-              <label className={style.inputLabel} htmlFor="name">
+          <div className="">
+            <div className="grid grid-cols-2 max-w-[300px] items-center">
+              <label className="" htmlFor="name">
                 Name
               </label>
-              <input type="text" className={style.input} id="name" {...register('name')} placeholder="ex. Appetizer" required />
+              <input type="text" className="border px-3 py-2 rounded-lg" id="name" {...register('name')} placeholder="ex. Appetizer" required />
             </div>
             <br />
             <br />
-            <button type="submit" className={style.submitButton}>
+            <button type="submit" className="bg-green-500 py-2 px-3 rounded-lg">
               Submit
             </button>
           </div>
