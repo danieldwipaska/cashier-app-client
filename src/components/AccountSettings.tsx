@@ -4,8 +4,6 @@ import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import General from './settings/General';
-import MultiUserAndCrew from './settings/MultiUserAndCrew';
-import PaymentMethod from './settings/PaymentMethod';
 import Account from './settings/Account';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
@@ -57,7 +55,7 @@ const AccountSettings = () => {
   const [serviceStatus, setServiceStatus] = React.useState(false);
   const [includedTaxService, setIncludedTaxService] = React.useState(false);
 
-  const { data: userData, refetch: userDataRefetch } = useQuery({
+  const { refetch: userDataRefetch } = useQuery({
     queryKey: ['userData'],
     queryFn: () =>
       axios
@@ -88,14 +86,12 @@ const AccountSettings = () => {
 
   return (
     <div className="bg-gray-200 max-h-screen pt-20 px-8 w-11/12">
-      <div className="bg-white h-4/5">
+      <div className="bg-white">
         <Box>
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
             <Tabs textColor="inherit" TabIndicatorProps={{ sx: { backgroundColor: 'green' } }} value={value} onChange={handleChange} aria-label="basic tabs example">
               <Tab label="General" {...a11yProps(0)} />
-              <Tab label="Multi-User and Crew" {...a11yProps(1)} />
-              <Tab label="Payment Method" {...a11yProps(2)} />
-              <Tab label="Account" {...a11yProps(3)} />
+              <Tab label="Account" {...a11yProps(1)} />
             </Tabs>
           </Box>
 
@@ -121,12 +117,6 @@ const AccountSettings = () => {
             />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={1}>
-            <MultiUserAndCrew shopId={shopId} />
-          </CustomTabPanel>
-          <CustomTabPanel value={value} index={2}>
-            <PaymentMethod />
-          </CustomTabPanel>
-          <CustomTabPanel value={value} index={3}>
             <Account />
           </CustomTabPanel>
         </Box>
