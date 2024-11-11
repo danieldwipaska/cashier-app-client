@@ -17,7 +17,6 @@ const Settings = () => {
       <div className="flex">
         <SideNav />
         <AccountSettings />
-        <div className="h-screen pt-24 mx-8"></div>
       </div>
     </div>
   );

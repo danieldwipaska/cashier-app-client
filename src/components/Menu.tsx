@@ -106,7 +106,7 @@ const Menu = (props: any): JSX.Element => {
   };
 
   return (
-    <div className="bg-gray-200 max-h-screen pt-20 px-8 w-8/12">
+    <div className="bg-gray-200 max-h-screen pt-20 px-8 w-7/12">
       <div className="flex flex-row mt-3 justify-between">
         <Box sx={{ minWidth: 200, backgroundColor: 'whitesmoke' }}>
           <FormControl fullWidth size="small">

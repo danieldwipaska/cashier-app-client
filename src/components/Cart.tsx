@@ -269,7 +269,7 @@ const Cart = (props: any) => {
   };
 
   return (
-    <div className="h-screen w-3/12 pt-20 mx-8">
+    <div className="h-screen w-4/12 pt-20 mx-8">
       <div className="grid grid-cols-1 content-between h-full">
         <div className="h-full">
           <div className="flex justify-between items-center">
@@ -408,18 +408,18 @@ const Cart = (props: any) => {
               </div>
             </div>
           </div>
-          <div className="flex">
+          <div className="flex py-2">
             {paymentMethod === 'Gift Card' || !paymentMethod || openBill ? (
-              <button className="text-center my-6 mr-2 py-1 px-3 border border-black/60 duration-500 rounded-lg opacity-30" onClick={handleClickOpenCrewAuthAlertDialog} disabled>
+              <button className="text-center my-2 mr-2 py-1 px-3 border border-black/60 duration-500 rounded-lg opacity-30" onClick={handleClickOpenCrewAuthAlertDialog} disabled>
                 {openSaveProgressSpinner ? <CircularProgress color="secondary" size={15} /> : <FiSave size={25} color="#3F3E3E" />}
               </button>
             ) : (
-              <button className="text-center my-6 mr-2 py-1 px-3 border border-black/60 hover:border-green-500 hover:bg-green-500 duration-500 rounded-lg" onClick={handleClickOpenCrewAuthAlertDialog}>
+              <button className="text-center my-2 mr-2 py-1 px-3 border border-black/60 hover:border-green-500 hover:bg-green-500 duration-500 rounded-lg" onClick={handleClickOpenCrewAuthAlertDialog}>
                 {openSaveProgressSpinner ? <CircularProgress color="secondary" size={15} /> : <FiSave size={25} color="#3F3E3E" />}
               </button>
             )}
 
-            <button className="text-center w-full my-6 py-2 bg-green-500 hover:opacity-70 duration-500 rounded-lg" onClick={handleConfirm}>
+            <button className="text-center w-full my-2 py-2 bg-green-500 hover:opacity-70 duration-500 rounded-lg" onClick={handleConfirm}>
               {openConfirmProgressSpinner ? <CircularProgress color="secondary" size={15} /> : 'Confirm'}
             </button>
           </div>

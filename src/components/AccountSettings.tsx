@@ -85,7 +85,7 @@ const AccountSettings = () => {
   };
 
   return (
-    <div className="bg-gray-200 max-h-screen pt-20 px-8 w-11/12">
+    <div className="bg-gray-200 max-h-screen pt-20 px-8 w-full">
       <div className="bg-white">
         <Box>
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>

@@ -1,4 +1,4 @@
-import { Box, Button, CircularProgress, Modal, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow } from '@mui/material';
+import { Box, Button, CircularProgress, Modal, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, useMediaQuery } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import React, { useEffect, useRef } from 'react';
@@ -6,8 +6,6 @@ import { CSVLink } from 'react-csv';
 import { MdDownload } from 'react-icons/md';
 import { RiArrowRightDoubleLine } from 'react-icons/ri';
 import { HiOutlineReceiptRefund, HiReceiptRefund } from 'react-icons/hi';
-import { ImCancelCircle } from 'react-icons/im';
-import { MdOutlineDelete } from 'react-icons/md';
 import { FaMinus, FaPlus } from 'react-icons/fa6';
 import Invoices from './Invoices';
 
@@ -88,15 +86,6 @@ function FullRefundModal() {
 
   return (
     <React.Fragment>
-      {/* <Button sx={{ border: 1, borderColor: 'red', color: 'white', backgroundColor: 'red', ':hover': { backgroundColor: 'red', color: 'white', opacity: 0.5, transition: 'ease', transitionDuration: '0.8s' } }}>Delete</Button>
-                
-                      <Button
-                        sx={{ border: 1, borderColor: 'orange', color: 'white', backgroundColor: 'orange', ':hover': { backgroundColor: 'orange', color: 'white', opacity: 0.5, transition: 'ease', transitionDuration: '0.8s' }, ml: 1 }}
-                        onClick={handleOpen}
-                      >
-                        Refund
-                      </Button> */}
-
       <div className="mx-1 text-yellow-700">
         <button className=" hover:opacity-30 duration-300 " title="Full Refund">
           <HiReceiptRefund size={50} />
@@ -112,151 +101,6 @@ function FullRefundModal() {
             Are you sure to refund this payment?
           </p>
           <Button onClick={handleClose}>Confirm</Button>
-        </Box>
-      </Modal>
-    </React.Fragment>
-  );
-}
-
-function PartialRefundModal({ selectedPaymentData, reportsRefetch }: any) {
-  const [open, setOpen] = React.useState(false);
-  const [data, setData] = React.useState<any>(null);
-  const [orderIds, setOrderIds] = React.useState([]);
-  const [amountOfRefunds, setAmountOfRefunds] = React.useState<any>(null);
-  const [orderPrice, setOrderPrice] = React.useState([]);
-  const [orderDiscountStatus, setOrderDiscountStatus] = React.useState([]);
-  const [orderDiscountPercent, setOrderDiscountPercent] = React.useState([]);
-  const [refundedOrderAmount, setRefundedOrderAmount] = React.useState([]);
-  const [totalPayment, setTotalPayment] = React.useState(0);
-  const [totalPaymentAfterTaxService, setTotalPaymentAfterTaxService] = React.useState(0);
-  const [taxPercent, setTaxPercent] = React.useState(0);
-  const [servicePercent, setServicePercent] = React.useState(0);
-
-  const handleOpen = () => {
-    setAmountOfRefunds(new Array(orderIds.length).fill(0));
-    setOpen(true);
-  };
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  useEffect(() => {
-    setOrderIds(selectedPaymentData?.order_id);
-    setOrderPrice(selectedPaymentData?.order_price);
-    setOrderDiscountStatus(selectedPaymentData?.order_discount_status);
-    setOrderDiscountPercent(selectedPaymentData?.order_discount_percent);
-    setRefundedOrderAmount(selectedPaymentData?.refunded_order_amount);
-    setTaxPercent(selectedPaymentData?.tax_percent);
-    setServicePercent(selectedPaymentData?.service_percent);
-    setData(selectedPaymentData);
-  });
-
-  useEffect(() => {
-    let total = 0;
-
-    amountOfRefunds?.forEach((amount: number, index: number) => {
-      if (orderDiscountStatus[index]) {
-        total += amount * orderPrice[index] * ((100 - orderDiscountPercent[index]) / 100);
-      } else {
-        total += amount * orderPrice[index];
-      }
-    });
-
-    const totalAfterTaxService = total + total * (servicePercent / 100) + (total + total * (servicePercent / 100)) * (taxPercent / 100);
-
-    setTotalPayment(total);
-    setTotalPaymentAfterTaxService(totalAfterTaxService);
-  }, [amountOfRefunds]);
-
-  // useEffect(() => {
-  //   console.log(amountOfRefunds);
-  // }, [amountOfRefunds]);
-
-  const increaseAmountOfRefund = (index: number) => {
-    setAmountOfRefunds((prevAmounts: any) => {
-      const newAmounts = [...prevAmounts];
-      if (amountOfRefunds[index] < data?.order_amount[index] - data?.refunded_order_amount[index]) {
-        newAmounts[index] += 1;
-      }
-
-      return newAmounts;
-    });
-  };
-
-  const decreaseAmountOfRefund = (index: number) => {
-    setAmountOfRefunds((prevAmounts: any) => {
-      const newAmounts = [...prevAmounts];
-      if (amountOfRefunds[index] > 0) {
-        newAmounts[index] -= 1;
-      }
-
-      return newAmounts;
-    });
-  };
-
-  const refundPartially = async () => {
-    try {
-      await axios.patch(`http://localhost:3001/reports/${data?.id}/refund`, { refunded_order_amount: amountOfRefunds });
-
-      reportsRefetch();
-      handleClose();
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  return (
-    <React.Fragment>
-      <div className="mr-1 text-yellow-700">
-        <button className=" hover:opacity-30 duration-300" title="Partial Refund">
-          <HiOutlineReceiptRefund size={50} onClick={handleOpen} />
-        </button>
-      </div>
-
-      <Modal open={open} onClose={handleClose} aria-labelledby="child-modal-title" aria-describedby="child-modal-description">
-        <Box sx={{ ...style, width: 380 }}>
-          <h4 id="child-modal-title" className="font-semibold">
-            Partial Refund
-          </h4>
-          <div className="flex flex-col overflow-y-auto mt-2 h-60 2xl:h-96">
-            {amountOfRefunds?.map((amount: number, index: number) => (
-              <div className="flex items-center mt-5">
-                <div>
-                  <div className="flex justify-between">
-                    <div className="mr-2">
-                      <p className="text-sm">{data?.order_name[index]}</p>
-                    </div>
-
-                    <div className="">
-                      <p className="text-sm">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(data?.order_price[index])}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center mt-2">
-                    <button className=" bg-green-500 hover:opacity-70 duration-500 p-2 rounded-md" onClick={() => decreaseAmountOfRefund(index)}>
-                      <FaMinus size={10} color="#000000" />
-                    </button>
-                    <div className="mx-1">
-                      <input type="text" className="text-xs text-center text-black/60 py-1 px-2 rounded-md border border-black/25" value={amountOfRefunds[index]} />
-                    </div>
-                    <button className=" bg-green-500 hover:opacity-70 duration-500 p-2 rounded-md" onClick={() => increaseAmountOfRefund(index)}>
-                      <FaPlus size={10} color="#000000" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="">
-            <p className="text-sm">Total: - {Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalPaymentAfterTaxService)}</p>
-          </div>
-          <div className="flex justify-end mt-3">
-            <Button onClick={handleClose} color="error">
-              Cancel
-            </Button>
-            <Button onClick={refundPartially} color="success">
-              Confirm
-            </Button>
-          </div>
         </Box>
       </Modal>
     </React.Fragment>
@@ -279,7 +123,7 @@ const ListOfPayment = () => {
 
   const [searchedReport, setSearchedReport] = React.useState('');
 
-  const contentToPrint = useRef(null);
+  const fullHD = useMediaQuery('(min-width:1400px)');
 
   const handleSearchReportChange = (event: any) => {
     setSearchedReport(event.target.value);
@@ -293,12 +137,6 @@ const ListOfPayment = () => {
   const handleOpen = async (id: string) => {
     try {
       const res = await axios.get(`http://localhost:3001/reports/${id}`);
-
-      // let result: number = 0;
-
-      // res.data.data.order_price.forEach((price: number, i: number) => {
-      //   result += price * res.data.data.order_amount[i];
-      // });
 
       setTotalPaymentSelectedData(res.data.data.total_payment);
       setTotalServiceSelectedData((res.data.data.service_percent / 100) * res.data.data.total_payment);
@@ -399,7 +237,7 @@ const ListOfPayment = () => {
   ];
 
   return (
-    <div className="bg-gray-200 max-h-screen pt-20 px-8 w-11/12">
+    <div className="bg-gray-200 max-h-screen pt-20 px-8 max-w-[1100px]">
       <div className="mb-5 flex justify-between">
         <div className="flex items-center">
           <input type="text" className="px-3 py-1 border border-black/40 rounded-md" placeholder="Search..." onChange={handleSearchReportChange} />
@@ -441,13 +279,13 @@ const ListOfPayment = () => {
         </div>
       </div>
       <div className="bg-white">
-        <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-          <TableContainer sx={{ maxHeight: 460 }}>
+        <Paper sx={{overflow: 'hidden' }}>
+          <TableContainer sx={{ maxHeight: fullHD ? 480 : 400 }}>
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
                   {columns.map((column) => (
-                    <TableCell key={column.id} align={column.align} style={{ minWidth: column.minWidth }}>
+                    <TableCell key={column.id} align={column.align} style={{ minWidth: column.minWidth, fontSize: 12 }}>
                       {column.label}
                     </TableCell>
                   ))}
@@ -460,10 +298,10 @@ const ListOfPayment = () => {
                       {columns.map((column) => {
                         const value = row[column.id];
                         return (
-                          <TableCell key={column.id} align={column.align}>
+                          <TableCell key={column.id} align={column.align} sx={{ fontSize: 12 }}>
                             {column.id === 'type' && value === 'topup and activate' ? (
                               <div className="flex">
-                                <p className="px-3 py-1 bg-green-400 rounded-full">{value}</p>
+                                <p className="px-3 py-1 bg-green-400 rounded-full text-xs">{value}</p>
                               </div>
                             ) : null}
                             {column.id === 'type' && value === 'topup' ? (

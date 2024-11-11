@@ -282,7 +282,7 @@ const OrderSummary = (props: any) => {
   };
 
   return (
-    <div className="h-screen w-3/12 pt-20 mx-8">
+    <div className="h-screen w-4/12 pt-20 mx-8">
       <div className="grid grid-cols-1 content-between h-full">
         <div>
           <div>

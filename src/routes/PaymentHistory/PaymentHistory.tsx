@@ -18,7 +18,6 @@ const PaymentHistory = () => {
       <div className="flex">
         <SideNav />
         <ListOfPayment />
-        <div className="h-screen pt-24 mx-8"></div>
       </div>
     </div>
   );

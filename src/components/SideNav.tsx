@@ -7,7 +7,7 @@ const SideNav = () => {
   const location = useLocation();
 
   return (
-    <div className="h-screen w-1/12 pt-24">
+    <div className="h-screen min-w-24 pt-24">
       <div className="grid grid-cols-1 justify-items-center">
         {location?.pathname === '/' ? (
           <Link to={'/'} className="flex flex-col items-center mb-3 duration-500" onClick={() => {}}>

@@ -18,7 +18,6 @@ const GiftCard = () => {
       <div className="flex">
         <SideNav />
         <CardAction />
-        <div className="h-screen pt-24 mx-8"></div>
       </div>
     </div>
   );
