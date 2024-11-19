@@ -13,6 +13,8 @@ const CardAdd = () => {
     if (data.type === 'Member') data.is_member = true;
     if (data.type === 'Basic') data.is_member = false;
 
+    delete data.type;
+
     axios
       .post(`${API_BASE_URL}/cards`, data)
       .then((res) => {
