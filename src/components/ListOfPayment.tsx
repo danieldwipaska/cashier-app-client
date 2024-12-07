@@ -10,7 +10,7 @@ import { FaMinus, FaPlus } from 'react-icons/fa6';
 import Invoices from './Invoices';
 
 interface Column {
-  id: 'type' | 'status' | 'customer_name' | 'customer_id' | 'served_by' | 'total_payment_after_tax_service' | 'payment_method' | 'orders' | 'dateCreatedAt' | 'timeCreatedAt';
+  id: 'type' | 'report_id' | 'status' | 'customer_name' | 'customer_id' | 'served_by' | 'total_payment_after_tax_service' | 'dateCreatedAt' | 'timeCreatedAt';
   label: string;
   minWidth?: number;
   align?: 'right';
@@ -19,13 +19,12 @@ interface Column {
 
 const columns: readonly Column[] = [
   { id: 'type', label: 'Type', minWidth: 100 },
+  { id: 'report_id', label: 'ID', minWidth: 100 },
   { id: 'status', label: 'Status', minWidth: 100 },
   { id: 'customer_name', label: 'Customer', minWidth: 100 },
   { id: 'customer_id', label: 'Customer ID (Phone)', minWidth: 100 },
   { id: 'served_by', label: 'Served By', minWidth: 50 },
   { id: 'total_payment_after_tax_service', label: 'Total Payment', minWidth: 100, format: (value: number) => Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(value) },
-  { id: 'payment_method', label: 'Method', minWidth: 50 },
-  { id: 'orders', label: 'Orders', minWidth: 180 },
   { id: 'dateCreatedAt', label: 'Date', minWidth: 100 },
   { id: 'timeCreatedAt', label: 'Time', minWidth: 100 },
 ];
@@ -33,12 +32,12 @@ const columns: readonly Column[] = [
 interface Data {
   id: string;
   type: string;
+  report_id: string;
   status: string;
   customer_name: string;
   customer_id: string;
   served_by: string;
   total_payment_after_tax_service: number;
-  payment_method: string;
   orders: string;
   dateCreatedAt: string;
   timeCreatedAt: string;
@@ -47,17 +46,17 @@ interface Data {
 function createData(
   id: string,
   type: string,
+  report_id: string,
   status: string,
   customer_name: string,
   customer_id: string,
   served_by: string,
   total_payment_after_tax_service: number,
-  payment_method: string,
   orders: string,
   dateCreatedAt: string,
   timeCreatedAt: string
 ): Data {
-  return { id, type, status, customer_name, customer_id, served_by, total_payment_after_tax_service, payment_method, orders, dateCreatedAt, timeCreatedAt };
+  return { id, type, report_id, status, customer_name, customer_id, served_by, total_payment_after_tax_service, orders, dateCreatedAt, timeCreatedAt };
 }
 
 // Modal Style
@@ -178,12 +177,12 @@ const ListOfPayment = () => {
             createData(
               report.id,
               report.type,
+              report.report_id,
               report.status,
               report.customer_name,
               report.customer_id,
               report.served_by,
               report.type === 'pay' || report.type === 'refund' ? report.total_payment_after_tax_service : report.total_payment,
-              report.payment_method,
               ordersString,
               new Date(report.updated_at).toLocaleDateString(),
               new Date(report.updated_at).toLocaleTimeString()
@@ -335,7 +334,7 @@ const ListOfPayment = () => {
                               </div>
                             ) : null}
                             {column.id !== 'type' && value !== 'unpaid' ? (
-                              <p className={'truncate max-w-32'}>
+                              <p className={'truncate max-w-40'}>
                                 {column.format && typeof value === 'number' ? column.format(value) : value}
                                 {value ? null : '-'}
                               </p>
