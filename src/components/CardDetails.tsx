@@ -134,7 +134,7 @@ const CardDetails = ({ cardData, setCardData, refetchCardData, customerReports }
                       <p className="text-gray-500 text-sm">
                         {new Date(report.created_at).toLocaleDateString()} - {new Date(report.created_at).toLocaleTimeString()}
                       </p>
-                      <p className="text-gray-500 text-sm">Rp. 550.000,-</p>
+                      <p className="text-gray-500 text-sm">Rp. {Intl.NumberFormat('id-ID').format(Math.abs(report.final_balance))},-</p>
                     </div>
                   </div>
                 </div>
