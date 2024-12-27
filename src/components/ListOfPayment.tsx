@@ -49,6 +49,9 @@ interface Data {
   refunded_order_amount: number[];
   order_discount_status: boolean[];
   order_discount_percent: number[];
+  tax_service_included: boolean;
+  tax_percent: number;
+  service_percent: number;
 }
 
 function createData(
@@ -71,7 +74,10 @@ function createData(
   order_price: number[],
   refunded_order_amount: number[],
   order_discount_status: boolean[],
-  order_discount_percent: number[]
+  order_discount_percent: number[],
+  tax_service_included: boolean,
+  tax_percent: number,
+  service_percent: number
 ): Data {
   return {
     id,
@@ -94,6 +100,9 @@ function createData(
     refunded_order_amount,
     order_discount_status,
     order_discount_percent,
+    tax_service_included,
+    tax_percent,
+    service_percent,
   };
 }
 
@@ -136,8 +145,8 @@ function PartiallyRefundModal({ row }: { row: Data }) {
       return item;
     });
 
-    setRefundedItems(newRefundedItems)
-  }
+    setRefundedItems(newRefundedItems);
+  };
 
   const TotalRefund = () => {
     let totalRefund = 0;
@@ -149,7 +158,24 @@ function PartiallyRefundModal({ row }: { row: Data }) {
       }
     });
 
+    totalRefund += refundTaxAndService();
+
     return <span>{Intl.NumberFormat('id-ID').format(totalRefund)}</span>;
+  };
+
+  const refundTaxAndService = () => {
+    let totalTaxAndService = 0;
+    row.order_price.forEach((price: number, i: number) => {
+      if (row.order_discount_status[i]) {
+        totalTaxAndService +=
+          (((price * refundedItems[i] - (price * refundedItems[i] * row.order_discount_percent[i]) / 100) * row.service_percent) / 100 + (price * refundedItems[i] - (price * refundedItems[i] * row.order_discount_percent[i]) / 100)) *
+          (row.tax_percent / 100);
+      } else {
+        totalTaxAndService += ((price * refundedItems[i] * row.service_percent) / 100 + price * refundedItems[i]) * (row.tax_percent / 100);
+      }
+    });
+
+    return totalTaxAndService;
   };
 
   return (
@@ -210,12 +236,17 @@ function PartiallyRefundModal({ row }: { row: Data }) {
               </div>
             ))}
           </div>
-          <div className='flex flex-col gap-2'>
-            <p className='font-medium text-sm'>Total Refund : - Rp. <TotalRefund /></p>{/* TODO: Include tax and service into total refund */}
+          <div className="flex flex-col gap-2">
+            <p className="font-medium text-sm">
+              Total Refund : - Rp. <TotalRefund />
+            </p>
+            {/* TODO: Include tax and service into total refund */}
+            <p className="text-sm text-gray-500">Tax and Service : Rp. <span>{row.tax_service_included ? 0 : Intl.NumberFormat('id-ID').format(refundTaxAndService())}</span></p>
           </div>
           <Button onClick={handleClose} sx={{ display: 'block' }}>
             OK
-          </Button> {/* TODO: handle refund */}
+          </Button>{' '}
+          {/* TODO: handle refund */}
         </Box>
       </Modal>
     </React.Fragment>
@@ -282,7 +313,10 @@ const ListOfPayment = () => {
               report.order_price,
               report.refunded_order_amount,
               report.order_discount_status,
-              report.order_discount_percent
+              report.order_discount_percent,
+              report.tax_service_included,
+              report.tax_percent,
+              report.service_percent
             )
           );
         });
