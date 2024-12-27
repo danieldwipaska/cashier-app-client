@@ -165,7 +165,7 @@ function PartiallyRefundModal({ row }: { row: Data }) {
           </h4>
           <div className="flex flex-col overflow-y-auto thin-scrollbar mt-2 pr-2 h-60 2xl:h-96">
             {row?.order_name.map((name: any, i: number) => (
-              <div className="mt-5 border-b-2 pb-2">
+              <div className="mt-5 border-b-2 pb-2" key={i}>
                 <div className="flex justify-between items-center">
                   <div className="mr-2">
                     <p className="text-sm">{name}</p>
