@@ -158,7 +158,9 @@ function PartiallyRefundModal({ row }: { row: Data }) {
       }
     });
 
-    totalRefund += refundTaxAndService();
+    if (!row.tax_service_included) {
+      totalRefund += refundTaxAndService();
+    }
 
     return <span>{Intl.NumberFormat('id-ID').format(totalRefund)}</span>;
   };
@@ -240,12 +242,11 @@ function PartiallyRefundModal({ row }: { row: Data }) {
             <p className="font-medium text-sm">
               Total Refund : - Rp. <TotalRefund />
             </p>
-            {/* TODO: Include tax and service into total refund */}
             <p className="text-sm text-gray-500">Tax and Service : Rp. <span>{row.tax_service_included ? 0 : Intl.NumberFormat('id-ID').format(refundTaxAndService())}</span></p>
           </div>
           <Button onClick={handleClose} sx={{ display: 'block' }}>
             OK
-          </Button>{' '}
+          </Button>
           {/* TODO: handle refund */}
         </Box>
       </Modal>
