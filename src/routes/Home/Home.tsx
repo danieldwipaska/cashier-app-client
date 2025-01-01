@@ -54,7 +54,7 @@ const Home = () => {
         setServicePercent(res.data.data.shop.included_tax_service ? 0 : res.data.data.shop.service);
         setTaxServiceIncluded(res.data.data.shop.included_tax_service);
         setTotalTaxService(
-          res.data.data.shop.included_tax_service ? 0 : (res.data.data.shop.service / 100) * sumOrders(orders) + ((res.data.data.shop.service / 100) * sumOrders(orders) + sumOrders(orders)) * (res.data.data.shop.tax / 100)
+          res.data.data.shop.included_tax_service ? 0 : (sumOrders(orders) + (sumOrders(orders) * res.data.data.shop.service / 100)) * res.data.data.shop.tax / 100
         );
       })
       .catch((err) => {

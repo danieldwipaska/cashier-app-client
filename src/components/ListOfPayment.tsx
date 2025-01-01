@@ -139,6 +139,18 @@ function PartiallyRefundModal({ row }: { row: Data }) {
     setRefundedItems(newRefundedItems);
   };
 
+  const handleRefund = async () => {
+    try {
+      await axios.patch(`http://localhost:3001/reports/${row.id}/refund`, {
+        refunded_order_amount: refundedItems,
+      });
+
+      window.location.reload();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const increaseRefundedItems = (i: number) => {
     const newRefundedItems = refundedItems.map((item, j) => {
       if (j === i && item < row.order_amount[j] - row.refunded_order_amount[j]) return item + 1;
@@ -242,9 +254,11 @@ function PartiallyRefundModal({ row }: { row: Data }) {
             <p className="font-medium text-sm">
               Total Refund : - Rp. <TotalRefund />
             </p>
-            <p className="text-sm text-gray-500">Tax and Service : Rp. <span>{row.tax_service_included ? 0 : Intl.NumberFormat('id-ID').format(refundTaxAndService())}</span></p>
+            <p className="text-sm text-gray-500">
+              Tax and Service : Rp. <span>{row.tax_service_included ? 0 : Intl.NumberFormat('id-ID').format(refundTaxAndService())}</span>
+            </p>
           </div>
-          <Button onClick={handleClose} sx={{ display: 'block' }}>
+          <Button onClick={handleRefund} sx={{ display: 'block' }}>
             OK
           </Button>
           {/* TODO: handle refund */}
@@ -450,7 +464,7 @@ const ListOfPayment = () => {
                                 <p className="px-3 py-1 bg-yellow-200 text-black rounded-full">{value}</p>
                               </div>
                             ) : null}
-                            {column.id === 'type' && value === 'pay' && !row['refund_status'] ? (
+                            {column.id === 'type' && value === 'pay' ? (
                               <div className="flex gap-2">
                                 <p className="px-3 py-1 bg-teal-300 text-black rounded-full">{value}</p>
                                 <PartiallyRefundModal row={row} />
