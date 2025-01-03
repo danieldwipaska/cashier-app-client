@@ -9,6 +9,7 @@ import CrewAuthAlertDialogSlide from './CrewAuthAlertDialogSlide';
 import { useAuth } from '../context/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import SimpleSnackbar from './SimpleSnackbar';
+import { ReportType } from 'configs/utils';
 
 const Cart = (props: any) => {
   const {
@@ -187,8 +188,8 @@ const Cart = (props: any) => {
 
       try {
         await axios.post('http://localhost:3001/reports', {
-          type: 'pay',
-          status: 'unpaid',
+          type: ReportType.PAY,
+          status: 'UNPAID',
           card_number: cardNumber,
           customer_name: customerName,
           served_by: user.username,

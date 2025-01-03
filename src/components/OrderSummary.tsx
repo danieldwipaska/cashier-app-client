@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useEffect, useState } from 'react';
 import { CircularProgress } from '@mui/material';
 import CrewAuthAlertDialogSlide from './CrewAuthAlertDialogSlide';
+import { ReportType } from 'configs/utils';
 
 const OrderSummary = (props: any) => {
   const {
@@ -136,7 +137,7 @@ const OrderSummary = (props: any) => {
       } else {
         try {
           await axios.post('http://localhost:3001/reports', {
-            type: 'pay',
+            type: ReportType.PAY,
             customer_name: customerName,
             served_by: 'Greeter',
             crew_id: crew.data.data.id,
@@ -219,7 +220,7 @@ const OrderSummary = (props: any) => {
 
         try {
           await axios.patch(`http://localhost:3001/reports/${openBill}`, {
-            status: 'paid',
+            status: 'PAID',
             customer_name: customerName,
             served_by: crew.data.data.name,
             crew_id: crew.data.data.id,

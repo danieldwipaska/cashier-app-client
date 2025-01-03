@@ -10,6 +10,7 @@ import Adjust from 'routes/GiftCard/Adjust';
 import Checkout from 'routes/GiftCard/Checkout';
 import { ReportType } from 'configs/utils';
 import { IoCartOutline } from 'react-icons/io5';
+import { TbCreditCardRefund } from "react-icons/tb";
 
 const CardDetails = ({ cardData, setCardData, refetchCardData, customerReports }: { cardData: Card; setCardData: any; refetchCardData: any; customerReports: any }) => {
   const [openTopupModal, setOpenTopupModal] = useState(false);
@@ -122,6 +123,7 @@ const CardDetails = ({ cardData, setCardData, refetchCardData, customerReports }
                     {report.type === ReportType.CHECKOUT && <RiProhibited2Line size={40} color="#ff6363" />}
                     {report.type === ReportType.PAY && <IoCartOutline size={40} color="#fced77" />}
                     {report.type === ReportType.TOPUP_AND_ACTIVATE && <HiOutlineUserAdd size={40} color="#a9ffa3" />}
+                    {report.type === ReportType.REFUND && <TbCreditCardRefund size={40} color='#bfbfbf' />}
                   </div>
                   <div className="transaction-content w-full">
                     <div className="flex justify-between">
