@@ -7,6 +7,7 @@ import { MdDownload } from 'react-icons/md';
 import { RiArrowRightDoubleLine } from 'react-icons/ri';
 import { FaMinus, FaPlus } from 'react-icons/fa6';
 import { GrPowerCycle } from 'react-icons/gr';
+import { ReportStatus, ReportType } from 'configs/utils';
 
 interface Column {
   id: 'type' | 'report_id' | 'status' | 'customer_name' | 'customer_id' | 'served_by' | 'total_payment_after_tax_service' | 'dateCreatedAt' | 'timeCreatedAt';
@@ -140,6 +141,9 @@ function PartiallyRefundModal({ row }: { row: Data }) {
   };
 
   const handleRefund = async () => {
+    const emptyRefundedItems = refundedItems.every((amount) => amount === 0);
+    if (emptyRefundedItems) return handleClose();
+
     try {
       await axios.patch(`http://localhost:3001/reports/${row.id}/refund`, {
         refunded_order_amount: refundedItems,
@@ -194,7 +198,7 @@ function PartiallyRefundModal({ row }: { row: Data }) {
 
   return (
     <React.Fragment>
-      <button className="px-2 py-1 bg-red-300 rounded-full shadow-lg" onClick={handleOpen}>
+      <button className={`px-2 py-1 bg-red-300 rounded-full shadow-lg ${row.order_amount.toString() === row.refunded_order_amount.toString() ? 'hidden' : null}`} onClick={handleOpen}>
         <GrPowerCycle />
       </button>
 
@@ -338,8 +342,6 @@ const ListOfPayment = () => {
         setReportDataCSV(res.data.data);
 
         setLoading(false);
-        // console.log(reportDataCSV);
-
         return rows;
       } catch (error) {
         console.log(error);
@@ -444,43 +446,43 @@ const ListOfPayment = () => {
                         const value = row[column.id];
                         return (
                           <TableCell key={column.id} align={column.align} sx={{ fontSize: 12 }}>
-                            {column.id === 'type' && value === 'topup and activate' ? (
+                            {column.id === 'type' && value === ReportType.TOPUP_AND_ACTIVATE ? (
                               <div className="flex">
                                 <p className="px-3 py-1 bg-green-400 rounded-full text-xs">{value}</p>
                               </div>
                             ) : null}
-                            {column.id === 'type' && value === 'topup' ? (
+                            {column.id === 'type' && value === ReportType.TOPUP ? (
                               <div className="flex">
                                 <p className="px-3 py-1 bg-green-300 text-gray-800 rounded-full">{value}</p>
                               </div>
                             ) : null}
-                            {column.id === 'type' && value === 'checkout' ? (
+                            {column.id === 'type' && value === ReportType.CHECKOUT ? (
                               <div className="flex">
                                 <p className="px-3 py-1 bg-gray-300 text-black rounded-full">{value}</p>
                               </div>
                             ) : null}
-                            {column.id === 'type' && value === 'adjustment' ? (
+                            {column.id === 'type' && value === ReportType.ADJUSTMENT ? (
                               <div className="flex">
                                 <p className="px-3 py-1 bg-yellow-200 text-black rounded-full">{value}</p>
                               </div>
                             ) : null}
-                            {column.id === 'type' && value === 'pay' ? (
+                            {column.id === 'type' && value === ReportType.PAY ? (
                               <div className="flex gap-2">
                                 <p className="px-3 py-1 bg-teal-300 text-black rounded-full">{value}</p>
                                 <PartiallyRefundModal row={row} />
                               </div>
                             ) : null}
-                            {column.id === 'type' && value === 'refund' ? (
+                            {column.id === 'type' && value === ReportType.REFUND ? (
                               <div className="flex">
                                 <p className="px-3 py-1 bg-orange-300 text-black rounded-full">{value}</p>
                               </div>
                             ) : null}
-                            {column.id === 'status' && value === 'unpaid' ? (
+                            {column.id === 'status' && value === ReportStatus.UNPAID ? (
                               <div className="flex">
                                 <p className="text-red-500 rounded-full">{value}</p>
                               </div>
                             ) : null}
-                            {column.id !== 'type' && value !== 'unpaid' ? (
+                            {column.id !== 'type' && value !== ReportStatus.UNPAID ? (
                               <p className={'truncate max-w-40'}>
                                 {column.format && typeof value === 'number' ? column.format(value) : value}
                                 {value ? null : '-'}
