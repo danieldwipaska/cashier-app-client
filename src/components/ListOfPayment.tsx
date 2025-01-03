@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import React, { useState } from 'react';
 import { CSVLink } from 'react-csv';
-import { MdDownload } from 'react-icons/md';
+import { MdCancel, MdDownload } from 'react-icons/md';
 import { RiArrowRightDoubleLine } from 'react-icons/ri';
 import { FaMinus, FaPlus } from 'react-icons/fa6';
 import { GrPowerCycle } from 'react-icons/gr';
@@ -198,7 +198,7 @@ function PartiallyRefundModal({ row }: { row: Data }) {
 
   return (
     <React.Fragment>
-      <button className={`px-2 py-1 bg-red-300 rounded-full shadow-lg ${row.order_amount.toString() === row.refunded_order_amount.toString() ? 'hidden' : null}`} onClick={handleOpen}>
+      <button className={`px-2 py-1 bg-gray-300 rounded-full shadow-lg ${row.order_amount.toString() === row.refunded_order_amount.toString() ? 'hidden' : null}`} onClick={handleOpen}>
         <GrPowerCycle />
       </button>
 
@@ -383,6 +383,16 @@ const ListOfPayment = () => {
     { label: 'Note', key: 'note' },
   ];
 
+  const CancelOpenBill = async (id: string) => {
+    try {
+      await axios.patch(`http://localhost:3001/reports/${id}/cancel`);
+
+      reportsRefetch();
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   return (
     <div className="bg-gray-200 max-h-screen pt-20 px-8 w-full">
       <div className="mb-5 flex justify-between">
@@ -469,7 +479,9 @@ const ListOfPayment = () => {
                             {column.id === 'type' && value === ReportType.PAY ? (
                               <div className="flex gap-2">
                                 <p className="px-3 py-1 bg-teal-300 text-black rounded-full">{value}</p>
-                                <PartiallyRefundModal row={row} />
+                                {row.status === ReportStatus.UNPAID ? <button onClick={() => {
+                                  CancelOpenBill(row.id);
+                                }}><MdCancel size={24} /></button> : row.status === ReportStatus.PAID && <PartiallyRefundModal row={row} />}
                               </div>
                             ) : null}
                             {column.id === 'type' && value === ReportType.REFUND ? (
@@ -478,11 +490,16 @@ const ListOfPayment = () => {
                               </div>
                             ) : null}
                             {column.id === 'status' && value === ReportStatus.UNPAID ? (
-                              <div className="flex">
+                              <div className="flex gap-2">
+                                <p className="text-yellow-600 rounded-full">{value}</p>
+                              </div>
+                            ) : null}
+                            {column.id === 'status' && value === ReportStatus.CANCELLED ? (
+                              <div className="flex gap-2">
                                 <p className="text-red-500 rounded-full">{value}</p>
                               </div>
                             ) : null}
-                            {column.id !== 'type' && value !== ReportStatus.UNPAID ? (
+                            {column.id !== 'type' && value !== ReportStatus.UNPAID && value !== ReportStatus.CANCELLED ? (
                               <p className={'truncate max-w-40'}>
                                 {column.format && typeof value === 'number' ? column.format(value) : value}
                                 {value ? null : '-'}
