@@ -1,4 +1,4 @@
-import { Box, Button, CircularProgress, Modal, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, useMediaQuery } from '@mui/material';
+import { Alert, Box, Button, CircularProgress, Modal, Paper, Snackbar, SnackbarCloseReason, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, useMediaQuery } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import React, { useState } from 'react';
@@ -8,6 +8,7 @@ import { RiArrowRightDoubleLine } from 'react-icons/ri';
 import { FaMinus, FaPlus } from 'react-icons/fa6';
 import { GrPowerCycle } from 'react-icons/gr';
 import { ReportStatus, ReportType } from 'configs/utils';
+import ModalConfirmation from './modals/ModalConfirmation';
 
 interface Column {
   id: 'type' | 'report_id' | 'status' | 'customer_name' | 'customer_id' | 'served_by' | 'total_payment_after_tax_service' | 'dateCreatedAt' | 'timeCreatedAt';
@@ -262,10 +263,15 @@ function PartiallyRefundModal({ row }: { row: Data }) {
               Tax and Service : Rp. <span>{row.tax_service_included ? 0 : Intl.NumberFormat('id-ID').format(refundTaxAndService())}</span>
             </p>
           </div>
-          <Button onClick={handleRefund} sx={{ display: 'block' }}>
-            OK
-          </Button>
-          {/* TODO: handle refund */}
+          <div className="mt-5 flex gap-2">
+            <ModalConfirmation buttonContent="Refund" confirm={handleRefund}>
+              <p className="text-xl font-semibold">Warning</p>
+              <p className="mt-2">Refund this payment?</p>
+            </ModalConfirmation>
+            <Button variant="contained" color="error" onClick={handleClose}>
+              Cancel
+            </Button>
+          </div>
         </Box>
       </Modal>
     </React.Fragment>
@@ -281,6 +287,9 @@ const ListOfPayment = () => {
   const [reportDataCSV, setReportDataCSV] = React.useState<any>([]);
 
   const [searchedReport, setSearchedReport] = React.useState('');
+
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   const fullHD = useMediaQuery('(min-width:1400px)');
 
@@ -359,6 +368,12 @@ const ListOfPayment = () => {
     setPage(0);
   };
 
+  const handleCloseSnackbar = (event?: React.SyntheticEvent | Event, reason?: SnackbarCloseReason) => {
+      if (reason === 'clickaway') return;
+  
+      setOpenSnackbar(false);
+    };
+
   const headers = [
     { label: 'ID', key: 'id' },
     { label: 'Type', key: 'type' },
@@ -383,15 +398,25 @@ const ListOfPayment = () => {
     { label: 'Note', key: 'note' },
   ];
 
-  const CancelOpenBill = async (id: string) => {
+  const cancelOpenBill = async (id: string) => {
     try {
       await axios.patch(`http://localhost:3001/reports/${id}/cancel`);
 
       reportsRefetch();
+      setSuccessMessage('Payment has been cancelled');
+      setOpenSnackbar(true);
     } catch (error) {
       console.log(error);
     }
-  }
+  };
+
+  const ButtonCancelOpenBill = () => {
+    return (
+      <>
+        <MdCancel size={24} />
+      </>
+    );
+  };
 
   return (
     <div className="bg-gray-200 max-h-screen pt-20 px-8 w-full">
@@ -479,9 +504,19 @@ const ListOfPayment = () => {
                             {column.id === 'type' && value === ReportType.PAY ? (
                               <div className="flex gap-2">
                                 <p className="px-3 py-1 bg-teal-300 text-black rounded-full">{value}</p>
-                                {row.status === ReportStatus.UNPAID ? <button onClick={() => {
-                                  CancelOpenBill(row.id);
-                                }}><MdCancel size={24} /></button> : row.status === ReportStatus.PAID && <PartiallyRefundModal row={row} />}
+                                {row.status === ReportStatus.UNPAID ? (
+                                  <ModalConfirmation
+                                    buttonContent={<ButtonCancelOpenBill />}
+                                    confirm={() => {
+                                      cancelOpenBill(row.id);
+                                    }}
+                                  >
+                                    <p className="text-xl font-semibold">Warning</p>
+                                    <p className="mt-2">Cancel this payment?</p>
+                                  </ModalConfirmation>
+                                ) : (
+                                  row.status === ReportStatus.PAID && <PartiallyRefundModal row={row} />
+                                )}
                               </div>
                             ) : null}
                             {column.id === 'type' && value === ReportType.REFUND ? (
@@ -516,13 +551,12 @@ const ListOfPayment = () => {
           </TableContainer>
           {reports ? <TablePagination rowsPerPageOptions={[25, 50, 100]} component="div" count={reports.length} rowsPerPage={rowsPerPage} page={page} onPageChange={handleChangePage} onRowsPerPageChange={handleChangeRowsPerPage} /> : null}
         </Paper>
-        {/* <Modal open={open} onClose={handleClose} aria-labelledby="parent-modal-title" aria-describedby="parent-modal-description">
-          <Box sx={{ ...style, width: 400 }}>
-            <Invoices selectedPaymentData={selectedPaymentData} totalPaymentSelectedData={totalPaymentSelectedData} />
-          </Box>
-        </Modal> */}
       </div>
-      {/* <AnotherExample /> */}
+      <Snackbar open={openSnackbar} autoHideDuration={3000} onClose={handleCloseSnackbar}>
+        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+          {successMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
