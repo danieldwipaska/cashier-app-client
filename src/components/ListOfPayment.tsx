@@ -9,6 +9,8 @@ import { FaMinus, FaPlus } from 'react-icons/fa6';
 import { GrPowerCycle } from 'react-icons/gr';
 import { ReportStatus, ReportType } from 'configs/utils';
 import ModalConfirmation from './modals/ModalConfirmation';
+import orderDiscountedPrice from 'functions/discount.report';
+import { calculateTaxService, calculateTaxServiceWithDiscount } from 'functions/refund.report';
 
 interface Column {
   id: 'type' | 'report_id' | 'status' | 'customer_name' | 'customer_id' | 'served_by' | 'total_payment_after_tax_service' | 'dateCreatedAt' | 'timeCreatedAt';
@@ -183,18 +185,17 @@ function PartiallyRefundModal({ row }: { row: Data }) {
   };
 
   const refundTaxAndService = () => {
-    let totalTaxAndService = 0;
+    let sumTotalTaxAndService = 0;
+    
     row.order_price.forEach((price: number, i: number) => {
       if (row.order_discount_status[i]) {
-        totalTaxAndService +=
-          (((price * refundedItems[i] - (price * refundedItems[i] * row.order_discount_percent[i]) / 100) * row.service_percent) / 100 + (price * refundedItems[i] - (price * refundedItems[i] * row.order_discount_percent[i]) / 100)) *
-          (row.tax_percent / 100);
-      } else {
-        totalTaxAndService += ((price * refundedItems[i] * row.service_percent) / 100 + price * refundedItems[i]) * (row.tax_percent / 100);
+        sumTotalTaxAndService += calculateTaxServiceWithDiscount({ price, amount: refundedItems[i], discountPercent: row.order_discount_percent[i], servicePercent: row.service_percent, taxPercent: row.tax_percent });
+      } else { 
+        sumTotalTaxAndService += calculateTaxService({ price, amount: refundedItems[i], servicePercent: row.service_percent, taxPercent: row.tax_percent });
       }
     });
 
-    return totalTaxAndService;
+    return sumTotalTaxAndService;
   };
 
   return (
@@ -243,7 +244,7 @@ function PartiallyRefundModal({ row }: { row: Data }) {
                     <div className="flex items-center">
                       <p className="text-sm text-orange-500 mr-1">({row.order_discount_percent[i]}%)</p>
                       <p className="text-sm">
-                        - {Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(row.order_price[i] * refundedItems[i] - (row.order_price[i] * refundedItems[i] * row.order_discount_percent[i]) / 100)}
+                        - {Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(orderDiscountedPrice({ price: row.order_price[i], amount: refundedItems[i], discountPercent: row.order_discount_percent[i] }))}
                       </p>
                     </div>
                   ) : (
