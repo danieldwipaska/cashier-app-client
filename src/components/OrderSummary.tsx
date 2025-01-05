@@ -3,7 +3,7 @@ import axios from 'axios';
 
 import { IoFastFoodOutline } from 'react-icons/io5';
 import { useAuth } from '../context/AuthContext';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { CircularProgress } from '@mui/material';
 import CrewAuthAlertDialogSlide from './CrewAuthAlertDialogSlide';
 import { ReportType } from 'configs/utils';
@@ -37,16 +37,11 @@ const OrderSummary = (props: any) => {
     setErrorUnauthorizedCrew,
     openBill,
     setOpenBill,
-    reports,
     reportsRefetch,
     taxPercent,
-    setTaxPercent,
     servicePercent,
-    setServicePercent,
     totalTaxService,
-    setTotalTaxService,
     taxServiceIncluded,
-    setTaxServiceIncluded,
   } = props;
 
   // console.log(customerName);

@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { IoFastFoodOutline } from 'react-icons/io5';
+import { useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa6';
 import { FiSave } from 'react-icons/fi';
 import { VscNewFile } from 'react-icons/vsc';
@@ -7,7 +6,6 @@ import { Alert, CircularProgress, FormControl, InputLabel, MenuItem, Select, Sel
 import axios from 'axios';
 import CrewAuthAlertDialogSlide from './CrewAuthAlertDialogSlide';
 import { useAuth } from '../context/AuthContext';
-import { useQuery } from '@tanstack/react-query';
 import SimpleSnackbar from './SimpleSnackbar';
 import { ReportStatus, ReportType } from 'configs/utils';
 
