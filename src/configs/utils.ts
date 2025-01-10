@@ -45,4 +45,4 @@ export enum ReportStatus {
 }
 
 // CONSTANTS
-export const MAX_ROW_PER_PAGE = 1;
+export const MAX_ROW_PER_PAGE = 15;

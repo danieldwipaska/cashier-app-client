@@ -2,9 +2,9 @@ import IPage from 'interfaces/Pagination';
 import { PiArrowFatLeftFill } from 'react-icons/pi';
 import { PiArrowFatRightFill } from 'react-icons/pi';
 
-const Pagination = ({ page, setPage, data }: IPage) => {
+const Pagination = ({ setPage, pageMetaData }: IPage) => {
   const increasePage = () => {
-    if (data?.length !== 0) return setPage((prev) => prev + 1);
+    if (pageMetaData?.hasNextPage) return setPage((prev) => prev + 1);
   };
 
   const decreasePage = () => {
@@ -12,17 +12,17 @@ const Pagination = ({ page, setPage, data }: IPage) => {
   };
 
   return (
-    <div className="flex justify-between items-center w-full my-5">
+    <div className={`flex justify-between items-center w-full my-5 ${(pageMetaData?.totalPages ?? 0) <= 1 ? 'hidden' : null}`}>
       <div className="flex items-center gap-2">
-        <button onClick={() => decreasePage()} className={`${page === 1 ? 'hidden' : null}`}>
+        <button onClick={() => decreasePage()} className={`${pageMetaData?.hasPrevPage ? null : 'hidden'}`}>
           <PiArrowFatLeftFill size={30} className="text-green-700" />
         </button>
-        <p className={`text-sm ${page === 1 ? 'hidden' : null}`}>Previous</p>
+        <p className={`text-sm ${pageMetaData?.hasPrevPage ? null : 'hidden'}`}>Previous</p>
       </div>
       <div className="flex items-center gap-2">
-        <p className={`text-sm ${!data?.length ? 'hidden' : null}`}>Next</p>
+        <p className={`text-sm ${pageMetaData?.hasNextPage ? null : 'hidden'}`}>Next</p>
         <button onClick={() => increasePage()}>
-          <PiArrowFatRightFill size={30} className={`text-green-700 ${!data?.length ? 'hidden' : null}`} />
+          <PiArrowFatRightFill size={30} className={`text-green-700 ${pageMetaData?.hasNextPage ? null : 'hidden'}`} />
         </button>
       </div>
     </div>
