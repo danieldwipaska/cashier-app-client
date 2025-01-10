@@ -43,3 +43,6 @@ export enum ReportStatus {
   UNPAID = 'unpaid',
   CANCELLED = 'cancelled',
 }
+
+// CONSTANTS
+export const MAX_ROW_PER_PAGE = 1;
