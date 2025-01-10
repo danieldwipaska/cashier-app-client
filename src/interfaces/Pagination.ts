@@ -1,4 +1,5 @@
 export default interface IPage {
-    increasePage: () => void;
-    decreasePage: () => void;
+    page: number;
+    setPage: React.Dispatch<React.SetStateAction<number>>;
+    data: any[];
 }

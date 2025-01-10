@@ -48,13 +48,6 @@ const Reports = () => {
     setServer(event.target.value);
   };
 
-  const increasePage = () => {
-    if (reports?.length !== 0) return setPage(page + 1);
-  };
-
-  const decreasePage = () => {
-    if (page > 1) return setPage(page - 1);
-  };
   // END FUNCTIONS
 
   return (
@@ -125,9 +118,8 @@ const Reports = () => {
             );
           })}
         </table>
-        <Pagination increasePage={increasePage} decreasePage={decreasePage} />
+        <Pagination page={page} setPage={setPage} data={reports} />
       </section>
-      
     </Layout>
   );
 };
