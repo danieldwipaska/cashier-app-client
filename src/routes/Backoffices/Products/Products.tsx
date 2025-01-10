@@ -5,16 +5,22 @@ import { useQuery } from '@tanstack/react-query';
 import { API_BASE_URL, PRODUCTS_QUERY_KEY } from 'configs/utils';
 import deleteIcon from '../../../assets/img/icons/icon-delete.svg';
 import editIcon from '../../../assets/img/icons/icon-edit.svg';
+import { useEffect, useState } from 'react';
+import Pagination from 'components/Pagination';
 
 const Products = () => {
+  // START STATES
+  const [page, setPage] = useState(1);
+  // END STATES
+
   // START QUERIES
   const { data: products, refetch: productsRefetch } = useQuery({
     queryKey: PRODUCTS_QUERY_KEY,
     queryFn: () =>
       axios
-        .get(`${API_BASE_URL}/fnbs`)
+        .get(`${API_BASE_URL}/fnbs?page=${page}`)
         .then((res) => {
-          return res.data.data;
+          return res.data;
         })
         .catch((err) => {
           if (err.status === 404) return [];
@@ -36,6 +42,13 @@ const Products = () => {
   };
   // END FUNC
 
+  // START HOOKS
+  useEffect(() => {
+      productsRefetch();
+      window.scrollTo(0, 0);
+    }, [page, productsRefetch]);
+  // END HOOKS
+
   return (
     <Layout>
       <Header title="PRODUCTS" />
@@ -55,7 +68,7 @@ const Products = () => {
             <th className="border-b-4 py-3 text-left">Discount Percent</th>
             <th className="border-b-4 py-3 text-left">Action</th>
           </tr>
-          {products?.map((product: any) => {
+          {products?.data?.map((product: any) => {
             return (
               <tr key={product.id} className="border-b-2">
                 <td className="py-3">
@@ -106,6 +119,7 @@ const Products = () => {
             );
           })}
         </table>
+        <Pagination setPage={setPage} pageMetaData={products?.pageMetaData} />
       </section>
     </Layout>
   );

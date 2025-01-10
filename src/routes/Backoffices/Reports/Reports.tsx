@@ -21,7 +21,7 @@ const Reports = () => {
       axios
         .get(`${API_BASE_URL}/reports?${customerName ? 'customer_name=' + customerName : ''}&${server ? 'served_by=' + server : ''}&page=${page}`)
         .then((res) => {
-          return res.data.data;
+          return res.data;
         })
         .catch((err) => {
           if (err.status === 404) return [];
@@ -103,7 +103,7 @@ const Reports = () => {
             <th className="border-b-4 py-3 text-left">Date</th>
             <th className="border-b-4 py-3 text-left">Time</th>
           </tr>
-          {reports?.map((report: any) => {
+          {reports?.data?.map((report: any) => {
             return (
               <tr key={report.id} className="border-b-2">
                 <td className="py-3 text-sm">{report.report_id}</td>
@@ -118,7 +118,7 @@ const Reports = () => {
             );
           })}
         </table>
-        <Pagination page={page} setPage={setPage} data={reports} />
+        <Pagination setPage={setPage} pageMetaData={reports?.pageMetaData} />
       </section>
     </Layout>
   );
