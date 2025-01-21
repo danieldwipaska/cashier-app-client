@@ -3,16 +3,22 @@ import Header from 'components/Backoffices/Header';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { API_BASE_URL, CARDS_METHOD_QUERY_KEY } from 'configs/utils';
+import { useEffect, useState } from 'react';
+import Pagination from 'components/Pagination';
 
 const Cards = () => {
+  // START STATES
+  const [page, setPage] = useState(1);
+  // END STATES
+
   // START QUERIES
-  const { data: cards } = useQuery({
+  const { data: cards, refetch: cardsRefetch } = useQuery({
     queryKey: CARDS_METHOD_QUERY_KEY,
     queryFn: () =>
       axios
-        .get(`${API_BASE_URL}/cards`)
+        .get(`${API_BASE_URL}/cards?page=${page}`)
         .then((res) => {
-          return res.data.data;
+          return res.data;
         })
         .catch((err) => {
           if (err.status === 404) return [];
@@ -21,6 +27,11 @@ const Cards = () => {
   });
 
   // END QUERIES
+
+  useEffect(() => {
+    cardsRefetch();
+    window.scrollTo(0, 0);
+  }, [page, cardsRefetch]);
 
   return (
     <Layout>
@@ -41,7 +52,7 @@ const Cards = () => {
             <th className="border-b-4 py-3 text-left">Member</th>
             <th className="border-b-4 py-3 text-left">Updated At</th>
           </tr>
-          {cards?.map((card: any) => {
+          {cards?.data?.map((card: any) => {
             return (
               <tr key={card.id} className="border-b-2">
                 <td className="py-3">{card.card_number}</td>
@@ -55,6 +66,7 @@ const Cards = () => {
             );
           })}
         </table>
+        <Pagination setPage={setPage} pageMetaData={cards?.pageMetaData} />
       </section>
     </Layout>
   );
