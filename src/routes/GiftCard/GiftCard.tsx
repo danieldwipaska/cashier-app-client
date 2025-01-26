@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useCheckToken } from '../../hooks/useCheckToken';
 import SideNav from '../../components/SideNav';
@@ -48,14 +48,17 @@ const GiftCard = () => {
       };
 
       setCardData(cardData);
-      setTimeout(() => {
-        customerReportsRefetch();
-      }, 500)
       return;
     } catch (error: any) {
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    if (cardData) {
+      customerReportsRefetch();
+    }
+  }, [cardData, customerReportsRefetch]);
 
   return (
     <div>
