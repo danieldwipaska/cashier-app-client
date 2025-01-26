@@ -249,6 +249,7 @@ const Cart = (props: any) => {
         setOpenConfirmProgressSpinner(true);
         try {
           const response = await axios.get(`http://localhost:3001/cards/${cardNumber}`);
+          if (response.data.data.balance < totalOrder + totalTaxService) throw new Error('Balance Not Enough');
 
           // setCardNumber(response.data.data.card_number);
           setCustomerName(response.data.data.customer_name);
@@ -256,9 +257,19 @@ const Cart = (props: any) => {
           setCardId(response.data.data.id);
           setOpenSummary(true);
           setOpenConfirmProgressSpinner(false);
-        } catch (error) {
+        } catch (error: unknown) {
+          if (axios.isAxiosError(error)) {
+            if (error?.response?.data?.statusCode === 404) setSnackbarMessage('Invalid Card Number');
+            if (error?.response?.data?.statusCode === 500) setSnackbarMessage('Server Error');
+            if (error?.response?.data?.statusCode === 400) setSnackbarMessage(error.response.data.message);
+          } else if (error instanceof Error) {
+            setSnackbarMessage(error.message);
+          } else {
+            setSnackbarMessage('Unknown Error');
+            console.log(error);
+          }
+
           setOpenSnackbar(true);
-          setSnackbarMessage('Invalid Card');
           setOpenConfirmProgressSpinner(false);
         }
       } else {

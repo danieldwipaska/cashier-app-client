@@ -7,7 +7,8 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Slide from '@mui/material/Slide';
 import { TransitionProps } from '@mui/material/transitions';
-import { Alert, TextField } from '@mui/material';
+import { TextField } from '@mui/material';
+import SimpleSnackbar from './SimpleSnackbar';
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
@@ -39,10 +40,6 @@ export default function CrewAuthAlertDialogSlide({
     setOpenCrewAuthAlertDialog(false);
   };
 
-  const handleCloseErrorUnauthorizedCrew = () => {
-    setErrorUnauthorizedCrew(false);
-  };
-
   return (
     <React.Fragment>
       <Dialog open={openCrewAuthAlertDialog} TransitionComponent={Transition} keepMounted onClose={handleClose} aria-describedby="alert-dialog-slide-description">
@@ -50,11 +47,6 @@ export default function CrewAuthAlertDialogSlide({
         <DialogContent>
           <DialogContentText id="alert-dialog-slide-description">Enter your Crew Identity Code to continue!</DialogContentText>
           <TextField sx={{ mt: 1 }} type="password" id="standard" label="Password" variant="standard" fullWidth autoFocus color="success" value={crewCredential} onChange={handleChangeCrewCredential} error={errorCrewCredential} />
-          {errorUnauthorizedCrew ? (
-            <Alert severity="error" onClose={handleCloseErrorUnauthorizedCrew}>
-              Wrong Crew Identity Code
-            </Alert>
-          ) : null}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="inherit">
@@ -65,6 +57,7 @@ export default function CrewAuthAlertDialogSlide({
           </Button>
         </DialogActions>
       </Dialog>
+      <SimpleSnackbar open={errorUnauthorizedCrew} setOpen={setErrorUnauthorizedCrew} message="Wrong Crew Identity Code!" />
     </React.Fragment>
   );
 }
