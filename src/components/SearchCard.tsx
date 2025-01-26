@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import SimpleSnackbar from './SimpleSnackbar';
 
-const SearchCard = ({ setCardData }: { setCardData: any }) => {
+const SearchCard = ({ setCardData }: { setCardData: React.Dispatch<React.SetStateAction<Card | null>> }) => {
   const { handleSubmit, register } = useForm();
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
