@@ -1,5 +1,5 @@
 import { ArrowBackIosNew } from '@mui/icons-material';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 import { IoFastFoodOutline } from 'react-icons/io5';
 import { useAuth } from '../context/AuthContext';
@@ -58,7 +58,6 @@ const OrderSummary = (props: any) => {
 
     try {
       const crew = await axios.post(`http://localhost:3001/crews/code`, { code: crewCredential });
-      if (!crew.data.data) return setErrorUnauthorizedCrew(true);
 
       const order_id: string[] = [];
       const order_name: string[] = [];
@@ -177,7 +176,9 @@ const OrderSummary = (props: any) => {
           console.log(error);
         }
       }
-    } catch (error) {
+    } catch (error: unknown) {
+      if (error instanceof AxiosError && error?.response?.data?.statusCode === 404) return setErrorUnauthorizedCrew(true);
+
       console.log(error);
     }
   };
