@@ -1,4 +1,4 @@
-import AccountSettings from '../../components/AccountSettings';
+import AccountSettings from '../../components/settings/AccountSettings';
 import Nav from '../../components/Nav';
 import SideNav from '../../components/SideNav';
 import { useAuth } from '../../context/AuthContext';

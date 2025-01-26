@@ -2,7 +2,7 @@ import { ArrowBackIosNew } from '@mui/icons-material';
 import axios, { AxiosError } from 'axios';
 
 import { IoFastFoodOutline } from 'react-icons/io5';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { useState } from 'react';
 import { CircularProgress } from '@mui/material';
 import CrewAuthAlertDialogSlide from './CrewAuthAlertDialogSlide';

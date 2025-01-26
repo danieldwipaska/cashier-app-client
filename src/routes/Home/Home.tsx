@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import Nav from '../../components/Nav';
 import SideNav from '../../components/SideNav';
-import Menu from '../../components/Menu';
-import Cart from '../../components/Cart';
-import OrderSummary from '../../components/OrderSummary';
+import Menu from '../../components/Home/Menu';
+import Cart from '../../components/Home/Cart';
+import OrderSummary from '../../components/Home/OrderSummary';
 import { Backdrop } from '@mui/material';
 import { CheckCircle } from '@mui/icons-material';
 import sumOrders from '../../functions/sum';
@@ -60,7 +60,7 @@ const Home = () => {
       .catch((err) => {
         console.log(err);
       });
-  }, [orders]);
+  }, [orders, user?.username]);
 
   const { data: reports, refetch: reportsRefetch } = useQuery({
     queryKey: ['unpaidReports'],

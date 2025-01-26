@@ -8,7 +8,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Slide from '@mui/material/Slide';
 import { TransitionProps } from '@mui/material/transitions';
 import { TextField } from '@mui/material';
-import SimpleSnackbar from './SimpleSnackbar';
+import SimpleSnackbar from '../snackbars/SimpleSnackbar';
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
