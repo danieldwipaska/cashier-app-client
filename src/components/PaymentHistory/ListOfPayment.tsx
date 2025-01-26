@@ -8,7 +8,7 @@ import { RiArrowRightDoubleLine } from 'react-icons/ri';
 import { FaMinus, FaPlus } from 'react-icons/fa6';
 import { GrPowerCycle } from 'react-icons/gr';
 import { ReportStatus, ReportType } from 'configs/utils';
-import ModalConfirmation from './modals/ModalConfirmation';
+import ModalConfirmation from '../modals/ModalConfirmation';
 import orderDiscountedPrice from 'functions/discount.report';
 import { calculateTaxService, calculateTaxServiceWithDiscount } from 'functions/refund.report';
 

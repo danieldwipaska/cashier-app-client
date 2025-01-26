@@ -3,12 +3,12 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import General from './settings/General';
-import Account from './settings/Account';
+import General from './General';
+import Account from './Account';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { useAuth } from '../context/AuthContext';
-import { useCheckToken } from '../hooks/useCheckToken';
+import { useAuth } from '../../context/AuthContext';
+import { useCheckToken } from '../../hooks/useCheckToken';
 
 interface TabPanelProps {
   children?: React.ReactNode;

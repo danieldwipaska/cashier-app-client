@@ -3,7 +3,7 @@ import { API_BASE_URL, ErrorMessage } from 'configs/utils';
 import { Card } from 'lib/interfaces/cards';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import SimpleSnackbar from './SimpleSnackbar';
+import SimpleSnackbar from '../snackbars/SimpleSnackbar';
 
 const SearchCard = ({ setCardData }: { setCardData: React.Dispatch<React.SetStateAction<Card | null>> }) => {
   const { handleSubmit, register } = useForm();

@@ -1,7 +1,7 @@
 import React from 'react';
 import Nav from '../../components/Nav';
 import SideNav from '../../components/SideNav';
-import ListOfPayment from '../../components/ListOfPayment';
+import ListOfPayment from '../../components/PaymentHistory/ListOfPayment';
 import { useAuth } from '../../context/AuthContext';
 import { useCheckToken } from '../../hooks/useCheckToken';
 

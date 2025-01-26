@@ -5,8 +5,8 @@ import { VscNewFile } from 'react-icons/vsc';
 import { Alert, CircularProgress, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, TextField } from '@mui/material';
 import axios from 'axios';
 import CrewAuthAlertDialogSlide from './CrewAuthAlertDialogSlide';
-import { useAuth } from '../context/AuthContext';
-import SimpleSnackbar from './SimpleSnackbar';
+import { useAuth } from '../../context/AuthContext';
+import SimpleSnackbar from '../snackbars/SimpleSnackbar';
 import { ReportStatus, ReportType } from 'configs/utils';
 
 const Cart = (props: any) => {
