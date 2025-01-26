@@ -1,4 +1,5 @@
 import { Box, Button, Modal } from '@mui/material';
+import { ModalConfirmationProps } from 'lib/interfaces/modal';
 import React, { useState } from 'react';
 
 const style = {
@@ -14,7 +15,7 @@ const style = {
   pb: 3,
 };
 
-const ModalConfirmation = ({ children, buttonContent, confirm }: { children: any; buttonContent: any; confirm: any }) => {
+const ModalConfirmation = ({ children, buttonContent, confirm }: ModalConfirmationProps) => {
   const [open, setOpen] = useState(false);
   const handleOpen = () => {
     setOpen(true);
