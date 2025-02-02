@@ -8,42 +8,20 @@ import CrewAuthAlertDialogSlide from './CrewAuthAlertDialogSlide';
 import { useAuth } from '../../context/AuthContext';
 import SimpleSnackbar from '../snackbars/SimpleSnackbar';
 import { ReportStatus, ReportType } from 'configs/utils';
+import ICartProps from 'interfaces/CartProps';
 
-const Cart = (props: any) => {
-  const {
-    setCardId,
-    cardNumber,
-    setCardNumber,
-    orders,
-    setOrders,
-    customerName,
-    setCustomerId,
-    setCustomerName,
-    paymentMethod,
-    setPaymentMethod,
-    note,
-    setNote,
-    setOpenSummary,
-    totalOrder,
-    crewCredential,
-    setCrewCredential,
-    openCrewAuthAlertDialog,
-    setOpenCrewAuthAlertDialog,
-    errorCrewCredential,
-    setErrorCrewCredential,
-    errorUnauthorizedCrew,
-    setErrorUnauthorizedCrew,
-    openBill,
-    setOpenBill,
-    reports,
-    reportsRefetch,
-    taxPercent,
-    servicePercent,
-    totalTaxService,
-    taxServiceIncluded,
-  } = props;
-
+const Cart = ({ actionData, orderData, states, crewData, unpaidReports, shopData, calculationData }: ICartProps) => {
+  // Auth
   const { user } = useAuth();
+
+  // START STATES
+  const { setCardId, cardNumber, setCardNumber, customerName, setCustomerId, setCustomerName, paymentMethod, setPaymentMethod, note, setNote, openBill, setOpenBill } = actionData;
+  const { orders, setOrders } = orderData;
+  const { setOpenSummary } = states;
+  const { crewCredential, setCrewCredential, openCrewAuthAlertDialog, setOpenCrewAuthAlertDialog, errorCrewCredential, setErrorCrewCredential, errorUnauthorizedCrew, setErrorUnauthorizedCrew } = crewData;
+  const { reports, reportsRefetch } = unpaidReports;
+  const { taxPercent, servicePercent, taxServiceIncluded } = shopData;
+  const { totalOrder, totalTaxService } = calculationData;
 
   const [customerNameIsEmpty, setCustomerNameIsEmpty] = useState(false);
   const [paymentMethodIsEmpty, setPaymentMethodIsEmpty] = useState(false);
@@ -56,6 +34,9 @@ const Cart = (props: any) => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
 
+  // END STATES
+
+  // START FUNCTIONS
   const handleClickNewOrder = () => {
     setCardNumber('');
     setCustomerName('');
@@ -278,6 +259,8 @@ const Cart = (props: any) => {
     }
   };
 
+  // END FUNCTIONS
+
   return (
     <div className="h-screen w-4/12 pt-20 mx-8">
       <div className="grid grid-cols-1 content-between h-full">
@@ -419,15 +402,9 @@ const Cart = (props: any) => {
             </div>
           </div>
           <div className="flex py-2">
-            {paymentMethod === 'Gift Card' || !paymentMethod || openBill ? (
-              <button className="text-center my-2 mr-2 py-1 px-3 border border-black/60 duration-500 rounded-lg opacity-30" onClick={handleClickOpenCrewAuthAlertDialog} disabled>
-                {openSaveProgressSpinner ? <CircularProgress color="secondary" size={15} /> : <FiSave size={25} color="#3F3E3E" />}
-              </button>
-            ) : (
-              <button className="text-center my-2 mr-2 py-1 px-3 border border-black/60 hover:border-green-500 hover:bg-green-500 duration-500 rounded-lg" onClick={handleClickOpenCrewAuthAlertDialog}>
-                {openSaveProgressSpinner ? <CircularProgress color="secondary" size={15} /> : <FiSave size={25} color="#3F3E3E" />}
-              </button>
-            )}
+            <button className={`text-center my-2 mr-2 py-1 px-3 border border-black/60 duration-500 rounded-lg ${paymentMethod === 'Gift Card' || !paymentMethod || openBill ? 'opacity-30' : 'hover:border-green-500 hover:bg-green-500'}`} onClick={handleClickOpenCrewAuthAlertDialog} disabled={paymentMethod === 'Gift Card' || !paymentMethod || openBill ? true : false}>
+              {openSaveProgressSpinner ? <CircularProgress color="secondary" size={15} /> : <FiSave size={25} color="#3F3E3E" />}
+            </button>
 
             <button className="text-center w-full my-2 py-2 bg-green-500 hover:opacity-70 duration-500 rounded-lg" onClick={handleConfirm}>
               {openConfirmProgressSpinner ? <CircularProgress color="secondary" size={15} /> : 'Confirm'}

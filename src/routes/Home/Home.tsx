@@ -13,54 +13,67 @@ import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 
 const Home = () => {
+  // Auth
+  const { user } = useAuth();
+
+  // START STATES
+
+  // Action
   const [cardId, setCardId] = useState('');
   const [cardNumber, setCardNumber] = useState('');
-  const [orders, setOrders] = useState([]);
   const [customerName, setCustomerName] = useState('');
   const [customerId, setCustomerId] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
   const [note, setNote] = useState('');
-  const [totalOrder, setTotalOrder] = useState(0);
+  const [openBill, setOpenBill] = useState('');
+
+  // Orders
+  const [orders, setOrders] = useState<any[]>([]);
+
+  // Shop
   const [taxPercent, setTaxPercent] = useState(0);
   const [servicePercent, setServicePercent] = useState(0);
-  const [totalTaxService, setTotalTaxService] = useState(0);
   const [taxServiceIncluded, setTaxServiceIncluded] = useState(false);
 
+  // Calculation
+  const [totalOrder, setTotalOrder] = useState(0);
+  const [totalTaxService, setTotalTaxService] = useState(0);
+
+  // Cart & Summary
   const [openSummary, setOpenSummary] = useState(false);
   const [openBackdrop, setOpenBackdrop] = useState(false);
 
+  // Crew Auth
   const [crewCredential, setCrewCredential] = useState('');
   const [openCrewAuthAlertDialog, setOpenCrewAuthAlertDialog] = useState(false);
   const [errorCrewCredential, setErrorCrewCredential] = useState(false);
   const [errorUnauthorizedCrew, setErrorUnauthorizedCrew] = useState(false);
 
-  const [openBill, setOpenBill] = useState('');
+  // END STATES
 
-  const { user } = useAuth();
+  // START QUERIES
+  const { data: shopInfo, refetch: shopInfoRefetch } = useQuery({
+    queryKey: ['shopInfo'],
+    queryFn: () =>
+      axios
+        .get(`http://localhost:3001/multiusers/configuration/${user?.username}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        })
+        .then((res) => {
+          const shopInfo = res.data.data.shop;
 
-  // useEffect
-  useCheckToken(user);
+          setTaxPercent(shopInfo.included_tax_service ? 0 : shopInfo.tax);
+          setServicePercent(shopInfo.included_tax_service ? 0 : shopInfo.service);
+          setTaxServiceIncluded(shopInfo.included_tax_service);
 
-  useEffect(() => {
-    axios
-      .get(`http://localhost:3001/multiusers/configuration/${user?.username}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
-        },
-      })
-      .then((res) => {
-        setTotalOrder(sumOrders(orders));
-        setTaxPercent(res.data.data.shop.included_tax_service ? 0 : res.data.data.shop.tax);
-        setServicePercent(res.data.data.shop.included_tax_service ? 0 : res.data.data.shop.service);
-        setTaxServiceIncluded(res.data.data.shop.included_tax_service);
-        setTotalTaxService(
-          res.data.data.shop.included_tax_service ? 0 : (sumOrders(orders) + (sumOrders(orders) * res.data.data.shop.service / 100)) * res.data.data.shop.tax / 100
-        );
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, [orders, user?.username]);
+          return shopInfo;
+        })
+        .catch((err) => {
+          return console.log(err);
+        }),
+  });
 
   const { data: reports, refetch: reportsRefetch } = useQuery({
     queryKey: ['unpaidReports'],
@@ -74,6 +87,17 @@ const Home = () => {
           return console.log(err);
         }),
   });
+  // END QUERIES
+
+  // START HOOKS
+  useCheckToken(user);
+  useEffect(() => {
+    // Update orders whenever something changes
+    setTotalOrder(sumOrders(orders));
+
+    setTotalTaxService(shopInfo?.included_tax_service ? 0 : ((sumOrders(orders) + (sumOrders(orders) * shopInfo?.service) / 100) * shopInfo?.tax) / 100);
+  }, [orders, shopInfo?.included_tax_service, shopInfo?.service, shopInfo?.tax, shopInfoRefetch, user.username]);
+  // END HOOKS
 
   return (
     <div>
@@ -86,87 +110,117 @@ const Home = () => {
 
         {openSummary ? (
           <OrderSummary
-            cardId={cardId}
-            setCardId={setCardId}
-            cardNumber={cardNumber}
-            setCardNumber={setCardNumber}
-            orders={orders}
-            setOrders={setOrders}
-            customerName={customerName}
-            customerId={customerId}
-            setCustomerId={setCustomerId}
-            setCustomerName={setCustomerName}
-            paymentMethod={paymentMethod}
-            setPaymentMethod={setPaymentMethod}
-            note={note}
-            setNote={setNote}
-            openSummary={openSummary}
-            setOpenSummary={setOpenSummary}
-            openBackdrop={openBackdrop}
-            setOpenBackdrop={setOpenBackdrop}
-            totalOrder={totalOrder}
-            setTotalOrder={setTotalOrder}
-            crewCredential={crewCredential}
-            setCrewCredential={setCrewCredential}
-            openCrewAuthAlertDialog={openCrewAuthAlertDialog}
-            setOpenCrewAuthAlertDialog={setOpenCrewAuthAlertDialog}
-            errorCrewCredential={errorCrewCredential}
-            setErrorCrewCredential={setErrorCrewCredential}
-            errorUnauthorizedCrew={errorUnauthorizedCrew}
-            setErrorUnauthorizedCrew={setErrorUnauthorizedCrew}
-            openBill={openBill}
-            setOpenBill={setOpenBill}
-            reports={reports}
-            reportsRefetch={reportsRefetch}
-            taxPercent={taxPercent}
-            setTaxPercent={setTaxPercent}
-            servicePercent={servicePercent}
-            setServicePercent={setServicePercent}
-            totalTaxService={totalTaxService}
-            setTotalTaxService={setTotalTaxService}
-            taxServiceIncluded={taxServiceIncluded}
-            setTaxServiceIncluded={setTaxServiceIncluded}
+            actionData={{
+              cardId,
+              setCardId,
+              cardNumber,
+              setCardNumber,
+              customerName,
+              customerId,
+              setCustomerId,
+              setCustomerName,
+              paymentMethod,
+              setPaymentMethod,
+              note,
+              setNote,
+              openBill,
+              setOpenBill,
+            }}
+            orderData={{
+              orders,
+              setOrders,
+            }}
+            states={{
+              openSummary,
+              setOpenSummary,
+              openBackdrop,
+              setOpenBackdrop,
+            }}
+            crewData={{
+              crewCredential,
+              setCrewCredential,
+              openCrewAuthAlertDialog,
+              setOpenCrewAuthAlertDialog,
+              errorCrewCredential,
+              setErrorCrewCredential,
+              errorUnauthorizedCrew,
+              setErrorUnauthorizedCrew,
+            }}
+            unpaidReports={{
+              reports,
+              reportsRefetch,
+            }}
+            shopData={{
+              taxPercent,
+              setTaxPercent,
+              servicePercent,
+              setServicePercent,
+              taxServiceIncluded,
+              setTaxServiceIncluded,
+            }}
+            calculationData={{
+              totalOrder,
+              setTotalOrder,
+              totalTaxService,
+              setTotalTaxService,
+            }}
           />
         ) : (
           <Cart
-            cardId={cardId}
-            setCardId={setCardId}
-            cardNumber={cardNumber}
-            setCardNumber={setCardNumber}
-            orders={orders}
-            setOrders={setOrders}
-            customerName={customerName}
-            customerId={customerId}
-            setCustomerId={setCustomerId}
-            setCustomerName={setCustomerName}
-            paymentMethod={paymentMethod}
-            setPaymentMethod={setPaymentMethod}
-            note={note}
-            setNote={setNote}
-            openSummary={openSummary}
-            setOpenSummary={setOpenSummary}
-            totalOrder={totalOrder}
-            setTotalOrder={setTotalOrder}
-            crewCredential={crewCredential}
-            setCrewCredential={setCrewCredential}
-            openCrewAuthAlertDialog={openCrewAuthAlertDialog}
-            setOpenCrewAuthAlertDialog={setOpenCrewAuthAlertDialog}
-            errorCrewCredential={errorCrewCredential}
-            setErrorCrewCredential={setErrorCrewCredential}
-            errorUnauthorizedCrew={errorUnauthorizedCrew}
-            setErrorUnauthorizedCrew={setErrorUnauthorizedCrew}
-            openBill={openBill}
-            setOpenBill={setOpenBill}
-            reports={reports}
-            reportsRefetch={reportsRefetch}
-            taxPercent={taxPercent}
-            setTaxPercent={setTaxPercent}
-            servicePercent={servicePercent}
-            setServicePercent={setServicePercent}
-            totalTaxService={totalTaxService}
-            setTotalTaxService={setTotalTaxService}
-            taxServiceIncluded={taxServiceIncluded}
-            setTaxServiceIncluded={setTaxServiceIncluded}
+            actionData={{
+              cardId,
+              setCardId,
+              cardNumber,
+              setCardNumber,
+              customerName,
+              customerId,
+              setCustomerId,
+              setCustomerName,
+              paymentMethod,
+              setPaymentMethod,
+              note,
+              setNote,
+              openBill,
+              setOpenBill,
+            }}
+            orderData={{
+              orders,
+              setOrders,
+            }}
+            states={{
+              openSummary,
+              setOpenSummary,
+              openBackdrop,
+              setOpenBackdrop,
+            }}
+            crewData={{
+              crewCredential,
+              setCrewCredential,
+              openCrewAuthAlertDialog,
+              setOpenCrewAuthAlertDialog,
+              errorCrewCredential,
+              setErrorCrewCredential,
+              errorUnauthorizedCrew,
+              setErrorUnauthorizedCrew,
+            }}
+            unpaidReports={{
+              reports,
+              reportsRefetch,
+            }}
+            shopData={{
+              taxPercent,
+              setTaxPercent,
+              servicePercent,
+              setServicePercent,
+              taxServiceIncluded,
+              setTaxServiceIncluded,
+            }}
+            calculationData={{
+              totalOrder,
+              setTotalOrder,
+              totalTaxService,
+              setTotalTaxService,
+            }}
           />
         )}
       </div>
