@@ -1,3 +1,4 @@
+// Sum of discounted prices of orders
 export default function sum(orders: any): number {
   let result = 0;
   orders.forEach((order: any) => {

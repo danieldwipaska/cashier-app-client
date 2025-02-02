@@ -7,44 +7,17 @@ import { useState } from 'react';
 import { CircularProgress } from '@mui/material';
 import CrewAuthAlertDialogSlide from './CrewAuthAlertDialogSlide';
 import { ReportType } from 'configs/utils';
+import ICartProps from 'interfaces/CartProps';
 
-const OrderSummary = (props: any) => {
-  const {
-    cardId,
-    setCardId,
-    cardNumber,
-    setCardNumber,
-    orders,
-    setOrders,
-    customerName,
-    setCustomerName,
-    customerId,
-    setCustomerId,
-    paymentMethod,
-    setPaymentMethod,
-    note,
-    setNote,
-    setOpenSummary,
-    setOpenBackdrop,
-    totalOrder,
-    crewCredential,
-    setCrewCredential,
-    openCrewAuthAlertDialog,
-    setOpenCrewAuthAlertDialog,
-    errorCrewCredential,
-    setErrorCrewCredential,
-    errorUnauthorizedCrew,
-    setErrorUnauthorizedCrew,
-    openBill,
-    setOpenBill,
-    reportsRefetch,
-    taxPercent,
-    servicePercent,
-    totalTaxService,
-    taxServiceIncluded,
-  } = props;
+const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, shopData, calculationData }: ICartProps) => {
+  const { cardId, setCardId, cardNumber, setCardNumber, customerName, customerId, setCustomerId, setCustomerName, paymentMethod, setPaymentMethod, note, setNote, openBill, setOpenBill } = actionData;
+  const { orders, setOrders } = orderData;
+  const { setOpenSummary, setOpenBackdrop } = states;
+  const { crewCredential, setCrewCredential, openCrewAuthAlertDialog, setOpenCrewAuthAlertDialog, errorCrewCredential, setErrorCrewCredential, errorUnauthorizedCrew, setErrorUnauthorizedCrew } = crewData;
+  const { reportsRefetch } = unpaidReports;
+  const { taxPercent, servicePercent, taxServiceIncluded } = shopData;
+  const { totalOrder, totalTaxService } = calculationData;
 
-  // console.log(customerName);
   const { user } = useAuth();
 
   const [openConfirmProgressSpinner, setOpenConfirmProgressSpinner] = useState(false);
