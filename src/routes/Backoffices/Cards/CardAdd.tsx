@@ -4,16 +4,19 @@ import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../Layout/Layout';
 import Header from 'components/Backoffices/Header';
+import INewCardData from 'interfaces/CardData';
 
 const CardAdd = () => {
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit } = useForm<NewCardFormData>();
   const navigate = useNavigate();
 
-  const onSubmit = (data: any) => {
-    if (data.type === 'Member') data.is_member = true;
-    if (data.type === 'Basic') data.is_member = false;
+  const onSubmit = (data: NewCardFormData) => {
+    const payload: INewCardData = {
+      card_number: data.card_number,
+    }
 
-    delete data.type;
+    if (data.type === 'Member') payload.is_member = true;
+    if (data.type === 'Basic') payload.is_member = false;
 
     axios
       .post(`${API_BASE_URL}/cards`, data)
@@ -24,6 +27,11 @@ const CardAdd = () => {
         return console.log(err);
       });
   };
+
+  // Interfaces
+  interface NewCardFormData extends INewCardData {
+    type: string;
+  }
 
   return (
     <Layout>
@@ -41,7 +49,7 @@ const CardAdd = () => {
               <label className="" htmlFor="type">
                 Type
               </label>
-              <select {...register('type')} id="type" className="border px-3 py-2 rounded-lg" required>
+              <select {...register('is_member')} id="is_member" className="border px-3 py-2 rounded-lg" required>
                 <option value="">----</option>
                 {CARD_TYPES?.map((type: any) => {
                   return <option value={type}>{type}</option>;

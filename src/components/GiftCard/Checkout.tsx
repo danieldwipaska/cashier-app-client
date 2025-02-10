@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 
-const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCardData }: { data: Card; openCheckoutModal: any; handleCloseCheckoutModal: any; refetchCardData: any }) => {
+const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCardData, setOpenBackdrop }: { data: Card; openCheckoutModal: any; handleCloseCheckoutModal: any; refetchCardData: any; setOpenBackdrop: any }) => {
   const { handleSubmit } = useForm();
   const [paymentMethod, setPaymentMethod] = useState('');
   const [note, setNote] = useState('');
@@ -39,6 +39,11 @@ const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCa
       handleCloseCheckoutModal();
       refetchCardData(response.data.data.card_number);
       resetCheckoutData();
+
+      setOpenBackdrop(true);
+      setTimeout(() => {
+        setOpenBackdrop(false);
+      }, 3000);
     } catch (error) {
       handleClickSnackbar('Server Error');
     }

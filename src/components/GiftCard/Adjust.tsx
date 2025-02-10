@@ -8,10 +8,10 @@ import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import formatNumber from 'functions/format.number';
 
-const Adjust = ({ data, openAdjustModal, handleCloseAdjustModal, refetchCardData }: { data: Card; openAdjustModal: any; handleCloseAdjustModal: any; refetchCardData: any }) => {
+const Adjust = ({ data, openAdjustModal, handleCloseAdjustModal, refetchCardData, setOpenBackdrop }: { data: Card; openAdjustModal: any; handleCloseAdjustModal: any; refetchCardData: any; setOpenBackdrop: any }) => {
   const { handleSubmit } = useForm();
   const [adjustedBalance, setAdjustedBalance] = useState(0);
-  const [formattedAdjustedBalance, setFormattedAdjustedBalance] = useState<string>("");
+  const [formattedAdjustedBalance, setFormattedAdjustedBalance] = useState<string>('');
   const [note, setNote] = useState('');
   const [code, setCode] = useState('');
   const [error, setError] = useState<any>(null);
@@ -20,7 +20,7 @@ const Adjust = ({ data, openAdjustModal, handleCloseAdjustModal, refetchCardData
 
   const handleChangeAdjustedBalance = (event: any) => {
     const input = event.target.value;
-    const rawNumber = input.replace(/\./g, "");
+    const rawNumber = input.replace(/\./g, '');
 
     setFormattedAdjustedBalance(formatNumber(rawNumber));
     setAdjustedBalance(Number(rawNumber));
@@ -45,6 +45,11 @@ const Adjust = ({ data, openAdjustModal, handleCloseAdjustModal, refetchCardData
       handleCloseAdjustModal();
       refetchCardData(response.data.data.card_number);
       resetAdjustData();
+
+      setOpenBackdrop(true);
+      setTimeout(() => {
+        setOpenBackdrop(false);
+      }, 3000);
     } catch (error) {
       handleClickSnackbar('Server Error');
     }

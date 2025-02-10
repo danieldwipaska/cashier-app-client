@@ -165,31 +165,23 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, shopData
         order_discount_percent.push(order.discount_percent);
       });
 
+      const payload = {
+        type: ReportType.PAY,
+        status: ReportStatus.UNPAID,
+        customer_name: customerName,
+        crew_id: crew.data.data.id,
+        payment_method: paymentMethod,
+        order_id,
+        order_amount,
+        card_number: cardNumber || null,
+        note: note || null,
+      };
+
       try {
-        await axios.post('http://localhost:3001/reports', {
-          type: ReportType.PAY,
-          status: ReportStatus.UNPAID,
-          card_number: cardNumber,
-          customer_name: customerName,
-          served_by: user.username,
-          crew_id: crew.data.data.id,
-          collected_by: user.username,
-          total_payment: totalOrder,
-          tax_percent: taxPercent,
-          service_percent: servicePercent,
-          total_tax_service: totalTaxService,
-          total_payment_after_tax_service: totalOrder + totalTaxService,
-          tax_service_included: taxServiceIncluded,
-          payment_method: paymentMethod,
-          order_id,
-          order_name,
-          order_category,
-          order_amount,
-          refunded_order_amount: new Array(order_id.length).fill(0),
-          order_price,
-          order_discount_status,
-          order_discount_percent,
-          note,
+        await axios.post('http://localhost:3001/reports', payload, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
         });
 
         setOrders([]);
@@ -402,7 +394,11 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, shopData
             </div>
           </div>
           <div className="flex py-2">
-            <button className={`text-center my-2 mr-2 py-1 px-3 border border-black/60 duration-500 rounded-lg ${paymentMethod === 'Gift Card' || !paymentMethod || openBill ? 'opacity-30' : 'hover:border-green-500 hover:bg-green-500'}`} onClick={handleClickOpenCrewAuthAlertDialog} disabled={paymentMethod === 'Gift Card' || !paymentMethod || openBill ? true : false}>
+            <button
+              className={`text-center my-2 mr-2 py-1 px-3 border border-black/60 duration-500 rounded-lg ${paymentMethod === 'Gift Card' || !paymentMethod || openBill ? 'opacity-30' : 'hover:border-green-500 hover:bg-green-500'}`}
+              onClick={handleClickOpenCrewAuthAlertDialog}
+              disabled={paymentMethod === 'Gift Card' || !paymentMethod || openBill ? true : false}
+            >
               {openSaveProgressSpinner ? <CircularProgress color="secondary" size={15} /> : <FiSave size={25} color="#3F3E3E" />}
             </button>
 
