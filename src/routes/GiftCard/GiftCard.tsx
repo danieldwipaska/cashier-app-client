@@ -24,7 +24,6 @@ const GiftCard = () => {
       axios
         .get(`${API_BASE_URL}/reports/transactions/${cardData.cardNumber}?&customer_id=${cardData.customerId}`)
         .then((res) => {
-          console.log(res.data.data)
           return res.data.data;
         })
         .catch((err) => {
