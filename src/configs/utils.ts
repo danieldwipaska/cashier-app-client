@@ -44,5 +44,10 @@ export enum ReportStatus {
   CANCELLED = 'cancelled',
 }
 
+export enum PaymentMethod {
+  GIFT_CARD = 'Gift Card',
+  CASH = 'Cash',
+}
+
 // CONSTANTS
 export const MAX_ROW_PER_PAGE = 15;

@@ -8,7 +8,7 @@ import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import formatNumber from 'functions/format.number';
 
-const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData }: { data: Card; openTopupModal: any; handleCloseTopupModal: any; refetchCardData: any }) => {
+const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, setOpenBackdrop }: { data: Card; openTopupModal: any; handleCloseTopupModal: any; refetchCardData: any; setOpenBackdrop: any }) => {
   const { handleSubmit } = useForm();
   const [customerName, setCustomerName] = useState('');
   const [customerId, setCustomerId] = useState('');
@@ -59,6 +59,11 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData }:
         handleCloseTopupModal();
         refetchCardData(response.data.data.card_number);
         resetTopupData();
+
+        setOpenBackdrop(true);
+        setTimeout(() => {
+          setOpenBackdrop(false);
+        }, 3000);
       } catch (error: any) {
         if (error.response.data.statusCode === 401) return handleClickSnackbar('Wrong Crew Code');
         

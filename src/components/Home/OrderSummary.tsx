@@ -6,19 +6,16 @@ import { useAuth } from '../../context/AuthContext';
 import { useState } from 'react';
 import { CircularProgress } from '@mui/material';
 import CrewAuthAlertDialogSlide from './CrewAuthAlertDialogSlide';
-import { ReportType } from 'configs/utils';
+import { PaymentMethod, ReportStatus, ReportType } from 'configs/utils';
 import ICartProps from 'interfaces/CartProps';
 
-const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, shopData, calculationData }: ICartProps) => {
-  const { cardId, setCardId, cardNumber, setCardNumber, customerName, customerId, setCustomerId, setCustomerName, paymentMethod, setPaymentMethod, note, setNote, openBill, setOpenBill } = actionData;
+const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, calculationData }: ICartProps) => {
+  const { cardId, setCardId, setCardNumber, customerName, customerId, setCustomerId, setCustomerName, paymentMethod, setPaymentMethod, note, setNote, openBill, setOpenBill } = actionData;
   const { orders, setOrders } = orderData;
   const { setOpenSummary, setOpenBackdrop } = states;
   const { crewCredential, setCrewCredential, openCrewAuthAlertDialog, setOpenCrewAuthAlertDialog, errorCrewCredential, setErrorCrewCredential, errorUnauthorizedCrew, setErrorUnauthorizedCrew } = crewData;
   const { reportsRefetch } = unpaidReports;
-  const { taxPercent, servicePercent, taxServiceIncluded } = shopData;
   const { totalOrder, totalTaxService } = calculationData;
-
-  const { user } = useAuth();
 
   const [openConfirmProgressSpinner, setOpenConfirmProgressSpinner] = useState(false);
 
@@ -52,30 +49,23 @@ const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, 
         order_discount_percent.push(order.discount_percent);
       });
 
-      if (paymentMethod === 'Gift Card') {
+      if (paymentMethod === PaymentMethod.GIFT_CARD) {
+        const payload = {
+          type: ReportType.PAY,
+          customer_name: customerName,
+          customer_id: customerId,
+          payment_method: paymentMethod,
+          order_id,
+          order_amount,
+          note: note || null,
+          crew_id: crew.data.data.id,
+        };
+
         try {
-          await axios.patch(`http://localhost:3001/cards/${cardId}/pay`, {
-            customer_name: customerName,
-            customer_id: customerId,
-            card_number: cardNumber,
-            collected_by: user.username,
-            crew_id: crew.data.data.id,
-            total_payment: totalOrder,
-            tax_percent: taxPercent,
-            service_percent: servicePercent,
-            total_tax_service: totalTaxService,
-            total_payment_after_tax_service: totalOrder + totalTaxService,
-            tax_service_included: taxServiceIncluded,
-            payment_method: paymentMethod,
-            order_id,
-            order_name,
-            order_category,
-            order_amount,
-            refunded_order_amount: new Array(order_id.length).fill(0),
-            order_price,
-            order_discount_status,
-            order_discount_percent,
-            note,
+          await axios.patch(`http://localhost:3001/cards/${cardId}/pay`, payload, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+            },
           });
 
           setCardId('');
@@ -102,29 +92,21 @@ const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, 
           console.log(error);
         }
       } else {
+        const payload = {
+          type: ReportType.PAY,
+          customer_name: customerName,
+          payment_method: paymentMethod,
+          order_id,
+          order_amount,
+          note: note || null,
+          crew_id: crew.data.data.id,
+        };
+
         try {
-          await axios.post('http://localhost:3001/reports', {
-            type: ReportType.PAY,
-            customer_name: customerName,
-            served_by: 'Greeter',
-            crew_id: crew.data.data.id,
-            collected_by: user.username,
-            total_payment: totalOrder,
-            tax_percent: taxPercent,
-            service_percent: servicePercent,
-            total_tax_service: totalTaxService,
-            total_payment_after_tax_service: totalOrder + totalTaxService,
-            tax_service_included: taxServiceIncluded,
-            payment_method: paymentMethod,
-            order_id,
-            order_name,
-            order_category,
-            order_amount,
-            refunded_order_amount: new Array(order_id.length).fill(0),
-            order_price,
-            order_discount_status,
-            order_discount_percent,
-            note,
+          await axios.post('http://localhost:3001/reports', payload, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+            },
           });
 
           setOrders([]);
@@ -187,29 +169,21 @@ const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, 
           order_discount_percent.push(order.discount_percent);
         });
 
+        const payload = {
+          status: ReportStatus.PAID,
+          customer_name: customerName,
+          crew_id: crew.data.data.id,
+          payment_method: paymentMethod,
+          order_id,
+          order_amount,
+          note: note || null,
+        }
+
         try {
-          await axios.patch(`http://localhost:3001/reports/${openBill}`, {
-            status: 'PAID',
-            customer_name: customerName,
-            served_by: crew.data.data.name,
-            crew_id: crew.data.data.id,
-            collected_by: user.username,
-            total_payment: totalOrder,
-            tax_percent: taxPercent,
-            service_percent: servicePercent,
-            total_tax_service: totalTaxService,
-            total_payment_after_tax_service: totalOrder + totalTaxService,
-            tax_service_included: taxServiceIncluded,
-            payment_method: paymentMethod,
-            order_id,
-            order_name,
-            order_category,
-            order_amount,
-            refunded_order_amount: new Array(order_id.length).fill(0),
-            order_price,
-            order_discount_status,
-            order_discount_percent,
-            note,
+          await axios.patch(`http://localhost:3001/reports/${openBill}`, payload, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+            },
           });
 
           setCardId('');

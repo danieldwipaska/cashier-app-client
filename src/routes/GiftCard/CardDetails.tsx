@@ -11,11 +11,14 @@ import Checkout from 'components/GiftCard/Checkout';
 import { ReportType } from 'configs/utils';
 import { IoCartOutline } from 'react-icons/io5';
 import { TbCreditCardRefund } from "react-icons/tb";
+import { Backdrop } from '@mui/material';
+import { CheckCircle } from '@mui/icons-material';
 
 const CardDetails = ({ cardData, setCardData, refetchCardData, customerReports }: { cardData: Card; setCardData: any; refetchCardData: any; customerReports: any }) => {
   const [openTopupModal, setOpenTopupModal] = useState(false);
   const [openAdjustModal, setOpenAdjustModal] = useState(false);
   const [openCheckoutModal, setOpenCheckoutModal] = useState(false);
+  const [openBackdrop, setOpenBackdrop] = useState(false);
 
   const handleOpenTopupModal = () => {
     setOpenTopupModal(true);
@@ -74,9 +77,9 @@ const CardDetails = ({ cardData, setCardData, refetchCardData, customerReports }
               </button>
             )}
           </div>
-          <Topup data={cardData} openTopupModal={openTopupModal} handleCloseTopupModal={handleCloseTopupModal} refetchCardData={refetchCardData} />
-          <Adjust data={cardData} openAdjustModal={openAdjustModal} handleCloseAdjustModal={handleCloseAdjustModal} refetchCardData={refetchCardData} />
-          <Checkout data={cardData} openCheckoutModal={openCheckoutModal} handleCloseCheckoutModal={handleCloseCheckoutModal} refetchCardData={refetchCardData} />
+          <Topup data={cardData} openTopupModal={openTopupModal} handleCloseTopupModal={handleCloseTopupModal} refetchCardData={refetchCardData} setOpenBackdrop={setOpenBackdrop} />
+          <Adjust data={cardData} openAdjustModal={openAdjustModal} handleCloseAdjustModal={handleCloseAdjustModal} refetchCardData={refetchCardData} setOpenBackdrop={setOpenBackdrop} />
+          <Checkout data={cardData} openCheckoutModal={openCheckoutModal} handleCloseCheckoutModal={handleCloseCheckoutModal} refetchCardData={refetchCardData} setOpenBackdrop={setOpenBackdrop} />
           <table className="mb-10">
             <tr>
               <td className="min-w-32">Card Number</td>
@@ -144,6 +147,9 @@ const CardDetails = ({ cardData, setCardData, refetchCardData, customerReports }
             })}
         </div>
       </div>
+      <Backdrop sx={{ color: '#fff', bgcolor: 'rgb(59,164,112,0.7)', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={openBackdrop} transitionDuration={300}>
+        <CheckCircle color="inherit" fontSize="large" />
+      </Backdrop>
     </div>
   );
 };
