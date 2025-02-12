@@ -11,6 +11,10 @@ import { ReportStatus, ReportType } from 'configs/utils';
 import ModalConfirmation from '../modals/ModalConfirmation';
 import orderDiscountedPrice from 'functions/discount.report';
 import { calculateTaxService, calculateTaxServiceWithDiscount } from 'functions/refund.report';
+import { NestedModal } from 'components/modals/Modal';
+import Invoices from './Invoices';
+import bahariLogo from '../../assets/img/bahari-logo.webp';
+import { CheckCircle } from '@mui/icons-material';
 
 interface Column {
   id: 'type' | 'report_id' | 'status' | 'customer_name' | 'customer_id' | 'served_by' | 'total_payment_after_tax_service' | 'dateCreatedAt' | 'timeCreatedAt';
@@ -186,11 +190,11 @@ function PartiallyRefundModal({ row }: { row: Data }) {
 
   const refundTaxAndService = () => {
     let sumTotalTaxAndService = 0;
-    
+
     row.order_price.forEach((price: number, i: number) => {
       if (row.order_discount_status[i]) {
         sumTotalTaxAndService += calculateTaxServiceWithDiscount({ price, amount: refundedItems[i], discountPercent: row.order_discount_percent[i], servicePercent: row.service_percent, taxPercent: row.tax_percent });
-      } else { 
+      } else {
         sumTotalTaxAndService += calculateTaxService({ price, amount: refundedItems[i], servicePercent: row.service_percent, taxPercent: row.tax_percent });
       }
     });
@@ -292,6 +296,10 @@ const ListOfPayment = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
 
+  const [openDetailModal, setOpenDetailModal] = useState(false);
+  const [selectedPaymentData, setSelectedPaymentData] = useState<any>(null);
+  const [totalPaymentSelectedData, setTotalPaymentSelectedData] = useState(0);
+
   const fullHD = useMediaQuery('(min-width:1400px)');
 
   const handleSearchReportChange = (event: any) => {
@@ -299,6 +307,14 @@ const ListOfPayment = () => {
     setTimeout(() => {
       reportsRefetch();
     }, 500);
+  };
+
+  const handleCloseDetailModal = () => {
+    setOpenDetailModal(false);
+  };
+
+  const handleOpenDetailModal = () => {
+    setOpenDetailModal(true);
   };
 
   const { data: reports, refetch: reportsRefetch } = useQuery({
@@ -370,10 +386,10 @@ const ListOfPayment = () => {
   };
 
   const handleCloseSnackbar = (event?: React.SyntheticEvent | Event, reason?: SnackbarCloseReason) => {
-      if (reason === 'clickaway') return;
-  
-      setOpenSnackbar(false);
-    };
+    if (reason === 'clickaway') return;
+
+    setOpenSnackbar(false);
+  };
 
   const headers = [
     { label: 'ID', key: 'id' },
@@ -477,7 +493,18 @@ const ListOfPayment = () => {
               <TableBody>
                 {reports?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                   return (
-                    <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
+                    <TableRow
+                      hover
+                      role="checkbox"
+                      tabIndex={-1}
+                      key={row.id}
+                      sx={{ cursor: 'pointer' }}
+                      onClick={() => {
+                        setSelectedPaymentData(row);
+                        setTotalPaymentSelectedData(row.total_payment_after_tax_service);
+                        handleOpenDetailModal();
+                      }}
+                    >
                       {columns.map((column) => {
                         const value = row[column.id];
                         return (
@@ -553,6 +580,99 @@ const ListOfPayment = () => {
           {reports ? <TablePagination rowsPerPageOptions={[25, 50, 100]} component="div" count={reports.length} rowsPerPage={rowsPerPage} page={page} onPageChange={handleChangePage} onRowsPerPageChange={handleChangeRowsPerPage} /> : null}
         </Paper>
       </div>
+      <NestedModal open={openDetailModal} handleClose={handleCloseDetailModal} divClass={`overflow-y-auto max-h-screen`}>
+        <div className=" relative">
+          <div className="flex flex-col items-center">
+            <div>
+              <img src={bahariLogo} alt="bahari" className="rounded-full w-24" />
+            </div>
+            <h1 className="text-base font-bold">Bahari Irish Pub</h1>
+            <p>Jl. Kawi No.8A, Kota Malang</p>
+            <p>Indonesia, 65119</p>
+            <div className="my-3 w-full border border-b-black border-dashed"></div>
+            <p>{selectedPaymentData?.served_by}</p>
+            <div className="my-3 w-full border border-b-black border-dashed"></div>
+          </div>
+          <div className="flex justify-between">
+            <p>{selectedPaymentData?.dateCreatedAt}</p>
+            <p>{selectedPaymentData?.timeCreatedAt}</p>
+          </div>
+          <div className="flex justify-between">
+            <p>Receipt Number</p>
+            <p>{selectedPaymentData?.report_id}</p>
+          </div>
+          <div className="flex justify-between">
+            <p>Customer Name</p>
+            <p>{selectedPaymentData?.customer_name}</p>
+          </div>
+          <div className="my-3 w-full border border-b-black border-dashed"></div>
+          <div>
+            {selectedPaymentData?.order_name.map((order: any, i: number) => (
+              <div className="flex justify-between">
+                <div className="flex">
+                  <div>{order}</div>
+                  <div>...x {selectedPaymentData?.order_amount[i]}</div>
+                </div>
+                <div>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(selectedPaymentData?.order_price[i] * selectedPaymentData?.order_amount[i])}</div>
+              </div>
+            ))}
+            {selectedPaymentData?.type !== 'pay' ? (
+              <div className="flex justify-between">
+                <div>{selectedPaymentData?.type}</div>
+                <div>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(selectedPaymentData?.total_payment_after_tax_service)}</div>
+              </div>
+            ) : null}
+
+            <div className="my-3 w-full border border-b-black border-dashed"></div>
+
+            {selectedPaymentData?.type !== 'pay' ? null : (
+              <div className=" mb-1">
+                <div className="flex justify-between">
+                  <div>Subtotal</div>
+                  <div>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalPaymentSelectedData ? totalPaymentSelectedData : 0)}</div>
+                </div>
+                <div className="flex justify-between">
+                  <div>Service - included</div>
+                  <div></div>
+                </div>
+                <div className="flex justify-between">
+                  <div>Tax (PB1) - included</div>
+                  <div></div>
+                </div>
+              </div>
+            )}
+
+            <div className=" font-bold mt-3">
+              <div className="flex justify-between">
+                <div>
+                  <div>Total</div>
+                </div>
+                <div>
+                  <div>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalPaymentSelectedData ? totalPaymentSelectedData : 0)}</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="my-3 w-full border border-b-black border-dashed"></div>
+
+            <div>
+              <div>Note:</div>
+              <div>{selectedPaymentData ? selectedPaymentData.note : null}</div>
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <Invoices selectedPaymentData={selectedPaymentData} totalPaymentSelectedData={totalPaymentSelectedData} />
+          </div>
+
+          {selectedPaymentData?.status === ReportStatus.PAID ? (
+            <div className="absolute top-4 right-0">
+              <CheckCircle sx={{ fontSize: 40 }} color="success" />
+            </div>
+          ) : (
+            <div className="opacity-60 absolute top-2 right-0 p-2 border border-black font-semibold">{selectedPaymentData?.status}</div>
+          )}
+        </div>
+      </NestedModal>
       <Snackbar open={openSnackbar} autoHideDuration={3000} onClose={handleCloseSnackbar}>
         <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
           {successMessage}

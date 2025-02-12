@@ -43,9 +43,9 @@ export function ChildModal({ children, setError, data, action }: { children: any
   );
 }
 
-export function NestedModal({ children, open, handleClose }: { children: any; open: any; handleClose: any }) {
+export function NestedModal({ children, open, handleClose, divClass }: { children: any; open: any; handleClose: any; divClass?: any }) {
   return (
-    <div>
+    <div className={divClass}>
       <Modal open={open} onClose={handleClose} aria-labelledby="parent-modal-title" aria-describedby="parent-modal-description">
         <Box sx={{ ...style, width: 400 }}>{children}</Box>
       </Modal>
