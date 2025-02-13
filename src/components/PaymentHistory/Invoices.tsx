@@ -61,7 +61,7 @@ const Invoices = ({ selectedPaymentData, totalPaymentSelectedData }: any) => {
 
           <div className=" mb-1">
             {selectedPaymentData?.order_name.map((order: any, i: number) => (
-              <div className="flex justify-between">
+              <div key={i} className="flex justify-between">
                 <div className="flex">
                   <div>{order}</div>
                   <div>...x {selectedPaymentData.order_amount[i]}</div>
