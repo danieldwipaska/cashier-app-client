@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { API_BASE_URL, CREW_QUERY_KEY, PAYMENT_METHOD_QUERY_KEY, POSITIONS } from 'configs/utils';
-import React, { useState } from 'react';
+import { PAYMENT_METHOD_QUERY_KEY } from 'configs/utils';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Layout from '../Layout/Layout';
 import Header from 'components/Backoffices/Header';
@@ -29,7 +29,7 @@ const PaymentMethodEdit = () => {
     queryKey: PAYMENT_METHOD_QUERY_KEY,
     queryFn: () =>
       axios
-        .get(`${API_BASE_URL}/methods/${paymentMethodId}`)
+        .get(`${process.env.REACT_APP_API_BASE_URL}/methods/${paymentMethodId}`)
         .then((res) => {
           setName(res.data.data.name);
 
@@ -44,7 +44,7 @@ const PaymentMethodEdit = () => {
 
   const onSubmit = (data: any) => {
     axios
-      .patch(`${API_BASE_URL}/methods/${paymentMethodId}`, data)
+      .patch(`${process.env.REACT_APP_API_BASE_URL}/methods/${paymentMethodId}`, data)
       .then((res) => {
         return navigate('/backoffices/payment-methods', { replace: true });
       })

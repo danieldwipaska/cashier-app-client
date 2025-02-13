@@ -44,15 +44,6 @@ export default interface ICartProps {
         reportsRefetch: () => void;
     }
 
-    shopData: {
-        taxPercent: number;
-        setTaxPercent: React.Dispatch<React.SetStateAction<number>>;
-        servicePercent: number;
-        setServicePercent: React.Dispatch<React.SetStateAction<number>>;
-        taxServiceIncluded: boolean;
-        setTaxServiceIncluded: React.Dispatch<React.SetStateAction<boolean>>;
-    }
-
     calculationData: {
         totalOrder: number;
         setTotalOrder: React.Dispatch<React.SetStateAction<number>>;

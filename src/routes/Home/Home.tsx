@@ -30,11 +30,6 @@ const Home = () => {
   // Orders
   const [orders, setOrders] = useState<any[]>([]);
 
-  // Shop
-  const [taxPercent, setTaxPercent] = useState(0);
-  const [servicePercent, setServicePercent] = useState(0);
-  const [taxServiceIncluded, setTaxServiceIncluded] = useState(false);
-
   // Calculation
   const [totalOrder, setTotalOrder] = useState(0);
   const [totalTaxService, setTotalTaxService] = useState(0);
@@ -52,29 +47,6 @@ const Home = () => {
   // END STATES
 
   // START QUERIES
-  const { data: shopInfo, refetch: shopInfoRefetch } = useQuery({
-    queryKey: ['shopInfo'],
-    queryFn: () =>
-      axios
-        .get(`http://localhost:3001/multiusers/configuration/${user?.username}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
-          },
-        })
-        .then((res) => {
-          const shopInfo = res.data.data.shop;
-
-          setTaxPercent(shopInfo.included_tax_service ? 0 : shopInfo.tax);
-          setServicePercent(shopInfo.included_tax_service ? 0 : shopInfo.service);
-          setTaxServiceIncluded(shopInfo.included_tax_service);
-
-          return shopInfo;
-        })
-        .catch((err) => {
-          return console.log(err);
-        }),
-  });
-
   const { data: reports, refetch: reportsRefetch } = useQuery({
     queryKey: ['unpaidReports'],
     queryFn: () =>
@@ -95,8 +67,7 @@ const Home = () => {
     // Update orders whenever something changes
     setTotalOrder(sumOrders(orders));
 
-    setTotalTaxService(shopInfo?.included_tax_service ? 0 : ((sumOrders(orders) + (sumOrders(orders) * shopInfo?.service) / 100) * shopInfo?.tax) / 100);
-  }, [orders, shopInfo?.included_tax_service, shopInfo?.service, shopInfo?.tax, shopInfoRefetch, user.username]);
+  }, [orders, user.username]);
   // END HOOKS
 
   return (
@@ -150,14 +121,6 @@ const Home = () => {
               reports,
               reportsRefetch,
             }}
-            shopData={{
-              taxPercent,
-              setTaxPercent,
-              servicePercent,
-              setServicePercent,
-              taxServiceIncluded,
-              setTaxServiceIncluded,
-            }}
             calculationData={{
               totalOrder,
               setTotalOrder,
@@ -206,14 +169,6 @@ const Home = () => {
             unpaidReports={{
               reports,
               reportsRefetch,
-            }}
-            shopData={{
-              taxPercent,
-              setTaxPercent,
-              servicePercent,
-              setServicePercent,
-              taxServiceIncluded,
-              setTaxServiceIncluded,
             }}
             calculationData={{
               totalOrder,

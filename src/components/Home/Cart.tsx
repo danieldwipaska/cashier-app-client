@@ -5,22 +5,17 @@ import { VscNewFile } from 'react-icons/vsc';
 import { Alert, CircularProgress, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, TextField } from '@mui/material';
 import axios from 'axios';
 import CrewAuthAlertDialogSlide from './CrewAuthAlertDialogSlide';
-import { useAuth } from '../../context/AuthContext';
 import SimpleSnackbar from '../snackbars/SimpleSnackbar';
 import { ReportStatus, ReportType } from 'configs/utils';
 import ICartProps from 'interfaces/CartProps';
 
-const Cart = ({ actionData, orderData, states, crewData, unpaidReports, shopData, calculationData }: ICartProps) => {
-  // Auth
-  const { user } = useAuth();
-
+const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculationData }: ICartProps) => {
   // START STATES
   const { setCardId, cardNumber, setCardNumber, customerName, setCustomerId, setCustomerName, paymentMethod, setPaymentMethod, note, setNote, openBill, setOpenBill } = actionData;
   const { orders, setOrders } = orderData;
   const { setOpenSummary } = states;
   const { crewCredential, setCrewCredential, openCrewAuthAlertDialog, setOpenCrewAuthAlertDialog, errorCrewCredential, setErrorCrewCredential, errorUnauthorizedCrew, setErrorUnauthorizedCrew } = crewData;
   const { reports, reportsRefetch } = unpaidReports;
-  const { taxPercent, servicePercent, taxServiceIncluded } = shopData;
   const { totalOrder, totalTaxService } = calculationData;
 
   const [customerNameIsEmpty, setCustomerNameIsEmpty] = useState(false);

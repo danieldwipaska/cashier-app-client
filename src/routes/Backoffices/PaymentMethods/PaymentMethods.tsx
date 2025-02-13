@@ -2,7 +2,7 @@ import Layout from '../Layout/Layout';
 import Header from 'components/Backoffices/Header';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { API_BASE_URL, PAYMENT_METHODS_QUERY_KEY } from 'configs/utils';
+import { PAYMENT_METHODS_QUERY_KEY } from 'configs/utils';
 import deleteIcon from '../../../assets/img/icons/icon-delete.svg';
 import editIcon from '../../../assets/img/icons/icon-edit.svg';
 import { useForm } from 'react-hook-form';
@@ -17,7 +17,7 @@ const PaymentMethods = () => {
     queryKey: PAYMENT_METHODS_QUERY_KEY,
     queryFn: () =>
       axios
-        .get(`${API_BASE_URL}/methods`)
+        .get(`${process.env.REACT_APP_API_BASE_URL}/methods`)
         .then((res) => {
           return res.data.data;
         })
@@ -55,7 +55,7 @@ const PaymentMethods = () => {
                     <form
                       onSubmit={handleSubmit(() => {
                         axios
-                          .delete(`${API_BASE_URL}/methods/${method.id}`)
+                          .delete(`${process.env.REACT_APP_API_BASE_URL}/methods/${method.id}`)
                           .then((res) => {
                             return paymentMethodsRefetch();
                           })

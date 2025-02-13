@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { API_BASE_URL } from 'configs/utils';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -12,7 +11,7 @@ const CategoryAdd = () => {
 
   const onSubmit = (data: any) => {
     axios
-      .post(`${API_BASE_URL}/categories`, data)
+      .post(`${process.env.REACT_APP_API_BASE_URL}/categories`, data)
       .then((res) => {
         return navigate('/backoffices/categories', { replace: true });
       })

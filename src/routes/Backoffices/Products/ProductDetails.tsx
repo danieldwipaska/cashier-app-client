@@ -2,11 +2,9 @@ import React from 'react';
 import Layout from '../Layout/Layout';
 import Header from 'components/Backoffices/Header';
 import SectionHeader from 'components/Backoffices/SectionHeader';
-import cx from 'classnames';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
-import { API_BASE_URL } from 'configs/utils';
 
 const ProductDetails = () => {
   // START HOOKS
@@ -19,7 +17,7 @@ const ProductDetails = () => {
     queryKey: ['product', productId],
     queryFn: () =>
       axios
-        .get(`${API_BASE_URL}/fnbs/${productId}`)
+        .get(`${process.env.REACT_APP_API_BASE_URL}/fnbs/${productId}`)
         .then((res) => {
           console.log(res.data.data);
           return res.data.data;

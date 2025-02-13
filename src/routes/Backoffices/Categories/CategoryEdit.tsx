@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { API_BASE_URL, CATEGORY_QUERY_KEY } from 'configs/utils';
+import { CATEGORY_QUERY_KEY } from 'configs/utils';
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Layout from '../Layout/Layout';
@@ -23,11 +23,11 @@ const CategoryEdit = () => {
   // END CHANGE
 
   // START QUERIES
-  const { data: category } = useQuery({
+  useQuery({
     queryKey: CATEGORY_QUERY_KEY,
     queryFn: () =>
       axios
-        .get(`${API_BASE_URL}/categories/${categoryId}`)
+        .get(`${process.env.REACT_APP_API_BASE_URL}/categories/${categoryId}`)
         .then((res) => {
           setName(res.data.data.name);
 
@@ -42,7 +42,7 @@ const CategoryEdit = () => {
 
   const onSubmit = () => {
     axios
-      .patch(`${API_BASE_URL}/categories/${categoryId}`, {
+      .patch(`${process.env.REACT_APP_API_BASE_URL}/categories/${categoryId}`, {
         name,
       })
       .then((res) => {

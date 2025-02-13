@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { API_BASE_URL, POSITIONS } from 'configs/utils';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../Layout/Layout';
@@ -14,7 +13,7 @@ const PaymentMethodAdd = () => {
   // START FUNCTIONS
   const onSubmit = (data: any) => {
     axios
-      .post(`${API_BASE_URL}/methods`, data)
+      .post(`${process.env.REACT_APP_API_BASE_URL}/methods`, data)
       .then((res) => {
         return navigate('/backoffices/payment-methods', { replace: true });
       })

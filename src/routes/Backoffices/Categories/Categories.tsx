@@ -2,8 +2,7 @@ import Layout from '../Layout/Layout';
 import Header from 'components/Backoffices/Header';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import cx from 'classnames';
-import { API_BASE_URL, CATEGORIES_QUERY_KEY } from 'configs/utils';
+import { CATEGORIES_QUERY_KEY } from 'configs/utils';
 import deleteIcon from '../../../assets/img/icons/icon-delete.svg';
 import editIcon from '../../../assets/img/icons/icon-edit.svg';
 import { useForm } from 'react-hook-form';
@@ -18,7 +17,7 @@ const Categories = () => {
     queryKey: CATEGORIES_QUERY_KEY,
     queryFn: () =>
       axios
-        .get(`${API_BASE_URL}/categories`)
+        .get(`${process.env.REACT_APP_API_BASE_URL}/categories`)
         .then((res) => {
           return res.data.data;
         })
@@ -59,7 +58,7 @@ const Categories = () => {
                       <form
                         onSubmit={handleSubmit(() => {
                           axios
-                            .delete(`${API_BASE_URL}/categories/${category.id}`)
+                            .delete(`${process.env.REACT_APP_API_BASE_URL}/categories/${category.id}`)
                             .then((res) => {
                               return categoriesRefetch();
                             })

@@ -1,12 +1,3 @@
-export const API_BASE_URL =
-  process.env.API_BASE_URL ||
-  (() => {
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error('API_BASE_URL must be set in production');
-    }
-    return 'http://localhost:3001';
-  })();
-
 // Categories
 export const CATEGORIES_QUERY_KEY = ['categories'];
 export const SINGLE_CATEGORY_QUERY_KEY = ['categoryId'];

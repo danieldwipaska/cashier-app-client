@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { API_BASE_URL, ErrorMessage } from 'configs/utils';
+import { ErrorMessage } from 'configs/utils';
 import { Card } from 'lib/interfaces/cards';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -12,7 +12,7 @@ const SearchCard = ({ setCardData }: { setCardData: React.Dispatch<React.SetStat
 
   const onSubmit = async (data: any) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/cards/${data.cardNumber}`);
+      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/cards/${data.cardNumber}`);
 
       const cardData: Card = {
         id: response.data.data.id,
