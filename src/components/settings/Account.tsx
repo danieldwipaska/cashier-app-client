@@ -27,13 +27,13 @@ const Account = () => {
         </div>
         <div className="mt-7 mx-6 ">
           <div>
-            <TextField id="outlined-basic" label="Username" variant="outlined" size="small" />
+            <TextField id="username" label="Username" variant="outlined" size="small" />
           </div>
           <div className="mt-5">
-            <TextField type="password" id="outlined-basic" label="Password" variant="outlined" size="small" />
+            <TextField type="password" id="password" label="Password" variant="outlined" size="small" />
           </div>
           <div className="mt-5">
-            <TextField type="password" id="outlined-basic" label="Outlet" variant="outlined" size="small" />
+            <TextField type="password" id="outlet" label="Outlet" variant="outlined" size="small" />
           </div>
         </div>
         <div className="flex mt-16 mx-6">

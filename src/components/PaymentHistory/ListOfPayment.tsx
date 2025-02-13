@@ -608,7 +608,7 @@ const ListOfPayment = () => {
           <div className="my-3 w-full border border-b-black border-dashed"></div>
           <div>
             {selectedPaymentData?.order_name.map((order: any, i: number) => (
-              <div className="flex justify-between">
+              <div key={i} className="flex justify-between">
                 <div className="flex">
                   <div>{order}</div>
                   <div>...x {selectedPaymentData?.order_amount[i]}</div>

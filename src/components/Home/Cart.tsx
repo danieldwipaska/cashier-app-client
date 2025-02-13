@@ -45,6 +45,7 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
 
   const handleChangeOpenBill = async (event: any) => {
     setOpenBill(event.target.value);
+
     if (!event.target.value) {
       setCardNumber('');
       setCustomerName('');
@@ -285,8 +286,8 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
           ) : null}
 
           <div className="flex flex-col overflow-y-auto thin-scrollbar mt-2 pr-2 h-60 2xl:h-96">
-            {orders?.map((order: any) => (
-              <div className="mt-5 border-b-2 pb-2">
+            {orders?.map((order: any, index: number) => (
+              <div className="mt-5 border-b-2 pb-2" key={index}>
                 <div className="flex justify-between items-center">
                   <div className="mr-2">
                     <p className="text-sm">{order.name}</p>
@@ -358,23 +359,23 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
               {paymentMethod === 'Gift Card' ? (
                 <FormControl size="small" sx={{ m: 0, minWidth: 120 }}>
                   {cardNumberIsEmpty ? (
-                    <TextField id="outlined-basic" error label="Card" variant="outlined" size="small" onChange={handleCardNumberChange} value={cardNumber} />
+                    <TextField id="card-number" error label="Card" variant="outlined" size="small" onChange={handleCardNumberChange} value={cardNumber} />
                   ) : (
-                    <TextField id="outlined-basic" label="Card" variant="outlined" size="small" onChange={handleCardNumberChange} value={cardNumber} />
+                    <TextField id="card-number" label="Card" variant="outlined" size="small" onChange={handleCardNumberChange} value={cardNumber} />
                   )}
                 </FormControl>
               ) : (
                 <FormControl size="small" sx={{ m: 0, minWidth: 120 }}>
                   {customerNameIsEmpty ? (
-                    <TextField id="outlined-basic" error label="Customer Name" variant="outlined" size="small" onChange={handleCustomerNameChange} value={customerName} />
+                    <TextField id="customer-name" error label="Customer Name" variant="outlined" size="small" onChange={handleCustomerNameChange} value={customerName} />
                   ) : (
-                    <TextField id="outlined-basic" label="Customer Name" variant="outlined" size="small" onChange={handleCustomerNameChange} value={customerName} />
+                    <TextField id="customer-name" label="Customer Name" variant="outlined" size="small" onChange={handleCustomerNameChange} value={customerName} />
                   )}
                 </FormControl>
               )}
 
               <FormControl size="small" sx={{ mt: 0, minWidth: 120 }}>
-                <TextField id="outlined-basic" label="Note" variant="outlined" size="small" onChange={handleNoteChange} value={note} />
+                <TextField id="note" label="Note" variant="outlined" size="small" onChange={handleNoteChange} value={note} />
               </FormControl>
             </div>
             <div className="flex justify-between">
