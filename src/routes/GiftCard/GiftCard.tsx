@@ -5,7 +5,7 @@ import SideNav from '../../components/SideNav';
 import Nav from '../../components/Nav';
 import CardDetails from 'routes/GiftCard/CardDetails';
 import SearchCard from 'routes/GiftCard/SearchCard';
-import { API_BASE_URL, CUSTOMER_REPORTS_QUERY_KEY } from 'configs/utils';
+import { CUSTOMER_REPORTS_QUERY_KEY } from 'configs/utils';
 import axios from 'axios';
 import { Card } from 'lib/interfaces/cards';
 import { useQuery } from '@tanstack/react-query';
@@ -22,7 +22,7 @@ const GiftCard = () => {
     queryKey: CUSTOMER_REPORTS_QUERY_KEY,
     queryFn: () =>
       axios
-        .get(`${API_BASE_URL}/reports/transactions/${cardData.cardNumber}?&customer_id=${cardData.customerId}`)
+        .get(`${process.env.REACT_APP_API_BASE_URL}/reports/transactions/${cardData.cardNumber}?&customer_id=${cardData.customerId}`)
         .then((res) => {
           return res.data.data;
         })
@@ -35,7 +35,7 @@ const GiftCard = () => {
 
   const refetchCardData = async (cardNumber: string) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/cards/${cardNumber}`);
+      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/cards/${cardNumber}`);
 
       const cardData: Card = {
         id: response.data.data.id,

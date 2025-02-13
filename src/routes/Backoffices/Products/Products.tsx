@@ -2,7 +2,7 @@ import Layout from '../Layout/Layout';
 import Header from '../../../components/Backoffices/Header';
 import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
-import { API_BASE_URL, PRODUCTS_QUERY_KEY } from 'configs/utils';
+import { PRODUCTS_QUERY_KEY } from 'configs/utils';
 import deleteIcon from '../../../assets/img/icons/icon-delete.svg';
 import editIcon from '../../../assets/img/icons/icon-edit.svg';
 import { useEffect, useState } from 'react';
@@ -18,7 +18,7 @@ const Products = () => {
     queryKey: PRODUCTS_QUERY_KEY,
     queryFn: () =>
       axios
-        .get(`${API_BASE_URL}/fnbs?page=${page}`)
+        .get(`${process.env.REACT_APP_API_BASE_URL}/fnbs?page=${page}`)
         .then((res) => {
           return res.data;
         })
@@ -33,7 +33,7 @@ const Products = () => {
   // START FUNC
   const handleAvailabilityClick = async (id: string, availability: boolean) => {
     try {
-      await axios.patch(`${API_BASE_URL}/fnbs/${id}`, { availability });
+      await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/fnbs/${id}`, { availability });
 
       productsRefetch();
     } catch (error) {
@@ -100,7 +100,7 @@ const Products = () => {
                       onSubmit={(e) => {
                         e.preventDefault();
                         axios
-                          .delete(`${API_BASE_URL}/fnbs/${product.id}`)
+                          .delete(`${process.env.REACT_APP_API_BASE_URL}/fnbs/${product.id}`)
                           .then((res) => {
                             productsRefetch();
                           })

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { ChildModal, NestedModal } from 'components/modals/Modal';
-import { API_BASE_URL, CardAction } from 'configs/utils';
+import { CardAction } from 'configs/utils';
 import { Card } from 'lib/interfaces/cards';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -40,7 +40,7 @@ const Adjust = ({ data, openAdjustModal, handleCloseAdjustModal, refetchCardData
     };
 
     try {
-      const response = await axios.patch(`${API_BASE_URL}/cards/${data?.id}/adjust`, formData);
+      const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/cards/${data?.id}/adjust`, formData);
 
       handleCloseAdjustModal();
       refetchCardData(response.data.data.card_number);

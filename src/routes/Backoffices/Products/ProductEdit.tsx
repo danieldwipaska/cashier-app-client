@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Layout from '../Layout/Layout';
 import Header from 'components/Backoffices/Header';
 import axios from 'axios';
-import { API_BASE_URL, CATEGORIES_QUERY_KEY, PRODUCT_QUERY_KEY } from 'configs/utils';
+import { CATEGORIES_QUERY_KEY, PRODUCT_QUERY_KEY } from 'configs/utils';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -47,7 +47,7 @@ const ProductEdit = () => {
     queryKey: CATEGORIES_QUERY_KEY,
     queryFn: () =>
       axios
-        .get(`${API_BASE_URL}/categories`)
+        .get(`${process.env.REACT_APP_API_BASE_URL}/categories`)
         .then((res) => {
           return res.data.data;
         })
@@ -56,11 +56,11 @@ const ProductEdit = () => {
         }),
   });
 
-  const { data: product } = useQuery({
+  useQuery({
     queryKey: PRODUCT_QUERY_KEY,
     queryFn: () =>
       axios
-        .get(`${API_BASE_URL}/fnbs/${productId}`)
+        .get(`${process.env.REACT_APP_API_BASE_URL}/fnbs/${productId}`)
         .then((res) => {
           setName(res.data.data.name);
           setPrice(res.data.data.price);
@@ -79,7 +79,7 @@ const ProductEdit = () => {
 
   const onSubmit = () => {
     axios
-      .patch(`${API_BASE_URL}/fnbs/${productId}`, {
+      .patch(`${process.env.REACT_APP_API_BASE_URL}/fnbs/${productId}`, {
         name,
         price: Number(price),
         categoryId: category,

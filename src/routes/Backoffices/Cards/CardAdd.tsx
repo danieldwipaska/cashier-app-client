@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { API_BASE_URL, CARD_TYPES } from 'configs/utils';
+import { CARD_TYPES } from 'configs/utils';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../Layout/Layout';
@@ -19,7 +19,7 @@ const CardAdd = () => {
     if (data.type === 'Basic') payload.is_member = false;
 
     axios
-      .post(`${API_BASE_URL}/cards`, data)
+      .post(`${process.env.REACT_APP_API_BASE_URL}/cards`, data)
       .then((res) => {
         return navigate('/backoffices/cards', { replace: true });
       })

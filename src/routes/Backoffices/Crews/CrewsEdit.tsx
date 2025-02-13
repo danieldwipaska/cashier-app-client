@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { API_BASE_URL, CREW_QUERY_KEY, POSITIONS } from 'configs/utils';
+import { CREW_QUERY_KEY, POSITIONS } from 'configs/utils';
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Layout from '../Layout/Layout';
@@ -39,7 +39,7 @@ const CrewEdit = () => {
     queryKey: CREW_QUERY_KEY,
     queryFn: () =>
       axios
-        .get(`${API_BASE_URL}/crews/${crewId}`)
+        .get(`${process.env.REACT_APP_API_BASE_URL}/crews/${crewId}`)
         .then((res) => {
           setName(res.data.data.name);
           setPosition(res.data.data.position);
@@ -56,7 +56,7 @@ const CrewEdit = () => {
 
   const onSubmit = (data: any) => {
     axios
-      .patch(`${API_BASE_URL}/crews/${crewId}`, data)
+      .patch(`${process.env.REACT_APP_API_BASE_URL}/crews/${crewId}`, data)
       .then((res) => {
         return navigate('/backoffices/crews', { replace: true });
       })

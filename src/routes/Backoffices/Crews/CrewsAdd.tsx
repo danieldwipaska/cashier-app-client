@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { API_BASE_URL, POSITIONS } from 'configs/utils';
+import { POSITIONS } from 'configs/utils';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -15,7 +15,7 @@ const CrewsAdd = () => {
   // START FUNCTIONS
   const onSubmit = (data: any) => {
     axios
-      .post(`${API_BASE_URL}/crews`, data)
+      .post(`${process.env.REACT_APP_API_BASE_URL}/crews`, data)
       .then((res) => {
         return navigate('/backoffices/crews', { replace: true });
       })

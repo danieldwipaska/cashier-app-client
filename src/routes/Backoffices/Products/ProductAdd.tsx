@@ -1,7 +1,7 @@
 import Layout from '../Layout/Layout';
 import Header from 'components/Backoffices/Header';
 import { useForm } from 'react-hook-form';
-import { API_BASE_URL, CATEGORIES_QUERY_KEY } from 'configs/utils';
+import { CATEGORIES_QUERY_KEY } from 'configs/utils';
 import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -15,7 +15,7 @@ const ProductAdd = () => {
     queryKey: CATEGORIES_QUERY_KEY,
     queryFn: () =>
       axios
-        .get(`${API_BASE_URL}/categories`)
+        .get(`${process.env.REACT_APP_API_BASE_URL}/categories`)
         .then((res) => {
           return res.data.data;
         })
@@ -28,7 +28,7 @@ const ProductAdd = () => {
 
   const onSubmit = (data: any) => {
     axios
-      .post(`${API_BASE_URL}/fnbs`, {
+      .post(`${process.env.REACT_APP_API_BASE_URL}/fnbs`, {
         ...data,
         price: Number(data.price)
       })

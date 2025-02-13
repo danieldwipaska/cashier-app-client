@@ -2,7 +2,7 @@ import Layout from '../Layout/Layout';
 import Header from 'components/Backoffices/Header';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { API_BASE_URL, REPORTS_QUERY_KEY } from 'configs/utils';
+import { REPORTS_QUERY_KEY } from 'configs/utils';
 import { useEffect, useState } from 'react';
 import Pagination from 'components/Pagination';
 
@@ -19,7 +19,7 @@ const Reports = () => {
     queryKey: REPORTS_QUERY_KEY,
     queryFn: () =>
       axios
-        .get(`${API_BASE_URL}/reports?${customerName ? 'customer_name=' + customerName : ''}&${server ? 'served_by=' + server : ''}&page=${page}`)
+        .get(`${process.env.REACT_APP_API_BASE_URL}/reports?${customerName ? 'customer_name=' + customerName : ''}&${server ? 'served_by=' + server : ''}&page=${page}`)
         .then((res) => {
           return res.data;
         })
