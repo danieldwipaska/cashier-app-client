@@ -1,7 +1,7 @@
 import { Badge, Box, FormControl, InputLabel, List, ListItem, ListItemButton, ListItemIcon, ListItemText, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import React, { DO_NOT_USE_OR_YOU_WILL_BE_FIRED_EXPERIMENTAL_REACT_NODES, useState } from 'react';
+import React, { useState } from 'react';
 
 const Menu = (props: any): JSX.Element => {
   const { orders, setOrders, openSummary } = props;
@@ -112,8 +112,8 @@ const Menu = (props: any): JSX.Element => {
             <InputLabel id="demo-simple-select-label">Category</InputLabel>
             <Select labelId="demo-simple-select-label" id="demo-simple-select" value={selectedCategory} label="Category" onChange={handleSelectCategoryChange}>
               <MenuItem value={'All'} key={-1}>All</MenuItem>
-              {categories?.map((category: any, index: number) => (
-                <MenuItem value={category.id} key={index}>{category.name}</MenuItem>
+              {categories?.map((category: any) => (
+                <MenuItem value={category.id} key={category.id}>{category.name}</MenuItem>
               ))}
             </Select>
           </FormControl>
@@ -128,8 +128,8 @@ const Menu = (props: any): JSX.Element => {
           <Box sx={{ m: 0, width: 'inherit', bgcolor: 'background.paper' }}>
             <div aria-label="main mailbox folders">
               <List disablePadding>
-                {availableFnbsByCategory?.map((fnb: any, index: number) => (
-                  <ListItem disablePadding sx={{ borderBottom: '1px solid #e0e0e0' }} key={index}>
+                {availableFnbsByCategory?.map((fnb: any) => (
+                  <ListItem disablePadding sx={{ borderBottom: '1px solid #e0e0e0' }} key={fnb.id}>
                     {openSummary ? (
                       <ListItemButton sx={{ p: 2 }} disabled>
                         <ListItemIcon sx={{ width: 100 }}>

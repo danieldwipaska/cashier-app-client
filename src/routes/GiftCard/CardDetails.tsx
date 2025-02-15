@@ -123,7 +123,7 @@ const CardDetails = ({ cardData, setCardData, refetchCardData, customerReports }
           {customerReports &&
             customerReports.map((report: any, index: number) => {
               return (
-                <div key={index} className="transaction p-3 w-full flex items-center gap-4 border-b-2">
+                <div key={report.id} className="transaction p-3 w-full flex items-center gap-4 border-b-2">
                   <div className="transaction-image">
                     {report.type === ReportType.TOPUP && <GoArrowUpRight size={40} color="#4ade80" />}
                     {report.type === ReportType.ADJUSTMENT && <HiOutlineArrowsRightLeft size={40} color="#999999" />}

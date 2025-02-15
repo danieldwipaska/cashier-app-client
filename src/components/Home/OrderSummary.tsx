@@ -254,8 +254,8 @@ const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, 
           </div>
 
           <div className="overflow-y-auto h-60 2xl:h-96">
-            {orders?.map((order: any, index: number) => (
-              <div key={index} className="flex items-center mt-2 2xl:mt-5">
+            {orders?.map((order: any) => (
+              <div key={order.id} className="flex items-center mt-2 2xl:mt-5">
                 <div>
                   <div className="bg-slate-800 p-2 rounded-lg">
                     <IoFastFoodOutline size={40} color="#ffffff" />

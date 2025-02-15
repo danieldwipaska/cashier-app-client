@@ -286,8 +286,8 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
           ) : null}
 
           <div className="flex flex-col overflow-y-auto thin-scrollbar mt-2 pr-2 h-60 2xl:h-96">
-            {orders?.map((order: any, index: number) => (
-              <div className="mt-5 border-b-2 pb-2" key={index}>
+            {orders?.map((order: any) => (
+              <div className="mt-5 border-b-2 pb-2" key={order.id}>
                 <div className="flex justify-between items-center">
                   <div className="mr-2">
                     <p className="text-sm">{order.name}</p>
