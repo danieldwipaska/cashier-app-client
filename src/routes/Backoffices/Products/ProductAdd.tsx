@@ -72,7 +72,7 @@ const ProductAdd = () => {
             <br />
             <br />
             <div>
-              <button type="submit" className="bg-green-500 py-2 px-3 rounded-lg">
+              <button type="submit" className="bg-green-300 py-2 px-3 rounded-lg">
                 Submit
               </button>
             </div>

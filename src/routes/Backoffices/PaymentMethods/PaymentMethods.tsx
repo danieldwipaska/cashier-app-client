@@ -34,20 +34,20 @@ const PaymentMethods = () => {
       <Header title="PAYMENT METHODS" />
       <section>
         <div className="mb-5">
-          <a href={'/backoffices/payment-methods/add'} className="bg-green-400 py-3 px-5 rounded-lg">
-            Add Payment Method
+          <a href={'/backoffices/payment-methods/add'} className="bg-green-300 py-3 px-5 rounded-lg">
+            Add
           </a>
         </div>
         <table className="w-2/4">
-          <tr className="">
-            <th className="border-b-4 py-3 text-left">Method Name</th>
-            <th className="border-b-4 py-3 text-left">Action</th>
+          <tr className="bg-green-200">
+            <th className="border-b-4 py-3 px-2 text-left">Method Name</th>
+            <th className="border-b-4 py-3 px-2 text-left">Action</th>
           </tr>
           {paymentMethods?.map((method: any) => {
             return (
-              <tr key={method.id} className="border-b-2">
-                <td className="py-3">{method.name}</td>
-                <td className="py-3">
+              <tr key={method.id} className="border-b-2 hover:bg-gray-100 duration-200">
+                <td className="py-3 px-2">{method.name}</td>
+                <td className="py-3 px-2">
                   <div className="flex items-center gap-2">
                     <a href={`/backoffices/payment-methods/${method.id}/edit`}>
                       <img src={editIcon} alt="editIcon" width={20} />

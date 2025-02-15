@@ -66,7 +66,7 @@ const CategoryEdit = () => {
           </div>
           <br />
           <br />
-          <button className="bg-green-500 py-2 px-3 rounded-lg" onClick={onSubmit}>
+          <button className="bg-green-300 py-2 px-3 rounded-lg" onClick={onSubmit}>
             Submit
           </button>
         </div>
