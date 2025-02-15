@@ -2,7 +2,6 @@ import { ArrowBackIosNew } from '@mui/icons-material';
 import axios, { AxiosError } from 'axios';
 
 import { IoFastFoodOutline } from 'react-icons/io5';
-import { useAuth } from '../../context/AuthContext';
 import { useState } from 'react';
 import { CircularProgress } from '@mui/material';
 import CrewAuthAlertDialogSlide from './CrewAuthAlertDialogSlide';
@@ -256,7 +255,7 @@ const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, 
 
           <div className="overflow-y-auto h-60 2xl:h-96">
             {orders?.map((order: any) => (
-              <div className="flex items-center mt-2 2xl:mt-5">
+              <div key={order.id} className="flex items-center mt-2 2xl:mt-5">
                 <div>
                   <div className="bg-slate-800 p-2 rounded-lg">
                     <IoFastFoodOutline size={40} color="#ffffff" />

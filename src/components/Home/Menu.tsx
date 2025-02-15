@@ -111,9 +111,9 @@ const Menu = (props: any): JSX.Element => {
           <FormControl fullWidth size="small">
             <InputLabel id="demo-simple-select-label">Category</InputLabel>
             <Select labelId="demo-simple-select-label" id="demo-simple-select" value={selectedCategory} label="Category" onChange={handleSelectCategoryChange}>
-              <MenuItem value={'All'}>All</MenuItem>
+              <MenuItem value={'All'} key={-1}>All</MenuItem>
               {categories?.map((category: any) => (
-                <MenuItem value={category.id}>{category.name}</MenuItem>
+                <MenuItem value={category.id} key={category.id}>{category.name}</MenuItem>
               ))}
             </Select>
           </FormControl>
@@ -129,7 +129,7 @@ const Menu = (props: any): JSX.Element => {
             <div aria-label="main mailbox folders">
               <List disablePadding>
                 {availableFnbsByCategory?.map((fnb: any) => (
-                  <ListItem disablePadding sx={{ borderBottom: '1px solid #e0e0e0' }}>
+                  <ListItem disablePadding sx={{ borderBottom: '1px solid #e0e0e0' }} key={fnb.id}>
                     {openSummary ? (
                       <ListItemButton sx={{ p: 2 }} disabled>
                         <ListItemIcon sx={{ width: 100 }}>

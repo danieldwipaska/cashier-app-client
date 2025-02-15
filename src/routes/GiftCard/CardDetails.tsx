@@ -10,7 +10,7 @@ import Adjust from 'components/GiftCard/Adjust';
 import Checkout from 'components/GiftCard/Checkout';
 import { ReportType } from 'configs/utils';
 import { IoCartOutline } from 'react-icons/io5';
-import { TbCreditCardRefund } from "react-icons/tb";
+import { TbCreditCardRefund } from 'react-icons/tb';
 import { Backdrop } from '@mui/material';
 import { CheckCircle } from '@mui/icons-material';
 
@@ -81,23 +81,27 @@ const CardDetails = ({ cardData, setCardData, refetchCardData, customerReports }
           <Adjust data={cardData} openAdjustModal={openAdjustModal} handleCloseAdjustModal={handleCloseAdjustModal} refetchCardData={refetchCardData} setOpenBackdrop={setOpenBackdrop} />
           <Checkout data={cardData} openCheckoutModal={openCheckoutModal} handleCloseCheckoutModal={handleCloseCheckoutModal} refetchCardData={refetchCardData} setOpenBackdrop={setOpenBackdrop} />
           <table className="mb-10">
-            <tr>
-              <td className="min-w-32">Card Number</td>
-              <td>:&nbsp;&nbsp;&nbsp;</td>
-              <td>{cardData?.cardNumber}</td>
-            </tr>
+            <tbody>
+              <tr>
+                <td className="min-w-32">Card Number</td>
+                <td>:&nbsp;&nbsp;&nbsp;</td>
+                <td>{cardData?.cardNumber}</td>
+              </tr>
+            </tbody>
           </table>
           <table>
-            <tr>
-              <td className="min-w-32">Name</td>
-              <td>:&nbsp;&nbsp;&nbsp;</td>
-              <td>{cardData?.customerName ? cardData?.customerName : '-'}</td>
-            </tr>
-            <tr>
-              <td className="min-w-32">Phone</td>
-              <td>:&nbsp;&nbsp;&nbsp;</td>
-              <td>{cardData?.customerId ? cardData?.customerId : '-'}</td>
-            </tr>
+            <tbody>
+              <tr>
+                <td className="min-w-32">Name</td>
+                <td>:&nbsp;&nbsp;&nbsp;</td>
+                <td>{cardData?.customerName ? cardData?.customerName : '-'}</td>
+              </tr>
+              <tr>
+                <td className="min-w-32">Phone</td>
+                <td>:&nbsp;&nbsp;&nbsp;</td>
+                <td>{cardData?.customerId ? cardData?.customerId : '-'}</td>
+              </tr>
+            </tbody>
           </table>
         </div>
         <div>
@@ -117,16 +121,16 @@ const CardDetails = ({ cardData, setCardData, refetchCardData, customerReports }
         </div>
         <div className="transaction-container xl:max-h-[400px] 2xl:max-h-[450px] overflow-y-auto">
           {customerReports &&
-            customerReports.map((report: any) => {
+            customerReports.map((report: any, index: number) => {
               return (
-                <div className="transaction p-3 w-full flex items-center gap-4 border-b-2">
+                <div key={report.id} className="transaction p-3 w-full flex items-center gap-4 border-b-2">
                   <div className="transaction-image">
                     {report.type === ReportType.TOPUP && <GoArrowUpRight size={40} color="#4ade80" />}
                     {report.type === ReportType.ADJUSTMENT && <HiOutlineArrowsRightLeft size={40} color="#999999" />}
                     {report.type === ReportType.CHECKOUT && <RiProhibited2Line size={40} color="#ff6363" />}
                     {report.type === ReportType.PAY && <IoCartOutline size={40} color="#fced77" />}
                     {report.type === ReportType.TOPUP_AND_ACTIVATE && <HiOutlineUserAdd size={40} color="#a9ffa3" />}
-                    {report.type === ReportType.REFUND && <TbCreditCardRefund size={40} color='#bfbfbf' />}
+                    {report.type === ReportType.REFUND && <TbCreditCardRefund size={40} color="#bfbfbf" />}
                   </div>
                   <div className="transaction-content w-full">
                     <div className="flex justify-between">
