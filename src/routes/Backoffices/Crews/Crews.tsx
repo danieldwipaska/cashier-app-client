@@ -35,22 +35,22 @@ const Crews = () => {
       <Header title="crews" />
       <section>
         <div className="mb-5">
-          <a href={'/backoffices/crews/add'} className="bg-green-400 py-3 px-5 rounded-lg">
-            Add Crew
+          <a href={'/backoffices/crews/add'} className="bg-green-300 py-3 px-5 rounded-lg">
+            Add
           </a>
         </div>
         <table className="w-2/4">
-          <tr className="">
-            <th className="border-b-4 py-3 text-left">Crew Name</th>
-            <th className="border-b-4 py-3 text-left">Position</th>
-            <th className="border-b-4 py-3 text-left">Action</th>
+          <tr className="bg-green-200">
+            <th className="border-b-4 py-3 px-2 text-left">Crew Name</th>
+            <th className="border-b-4 py-3 px-2 text-left">Position</th>
+            <th className="border-b-4 py-3 px-2 text-left">Action</th>
           </tr>
           {crews?.map((crew: any) => {
             return (
-              <tr key={crew.id} className="border-b-2">
-                <td className="py-3">{crew.name}</td>
-                <td className="py-3">{crew.position}</td>
-                <td className="py-3">
+              <tr key={crew.id} className="border-b-2 hover:bg-gray-100 duration-200">
+                <td className="py-3 px-2">{crew.name}</td>
+                <td className="py-3 px-2">{crew.position}</td>
+                <td className="py-3 px-2">
                   <div className="flex items-center gap-2">
                     <a href={`/backoffices/crews/${crew.id}/edit`}>
                       <img src={editIcon} alt="editIcon" width={20} />

@@ -58,7 +58,7 @@ const Reports = () => {
           <div className="search-wrapper">
             <div className="mb-2 flex gap-2">
               <button
-                className={`py-1 px-3 border border-green-500 ${searchByServer ? 'bg-green-500' : null} text-xs rounded-full duration-200`}
+                className={`py-1 px-3 border border-green-300 ${searchByServer ? 'bg-green-300' : null} text-xs rounded-full duration-200`}
                 onClick={() => {
                   setCustomerName('');
                   setSearchByServer(true);
@@ -67,7 +67,7 @@ const Reports = () => {
                 Search by server
               </button>
               <button
-                className={`py-1 px-3 border border-green-500 ${searchByServer ? null : 'bg-green-500'} text-xs rounded-full duration-200`}
+                className={`py-1 px-3 border border-green-300 ${searchByServer ? null : 'bg-green-300'} text-xs rounded-full duration-200`}
                 onClick={() => {
                   setServer('');
                   setSearchByServer(false);
@@ -79,13 +79,13 @@ const Reports = () => {
             <div className="flex justify-end mb-5">
               <div className={`flex gap-2 ${searchByServer ? 'hidden' : null}`}>
                 <input type="text" className="border border-gray-400 px-3 py-2 rounded-lg max-w-52" id="search" placeholder="customer name" value={customerName} onChange={handleChangeCustomerName} />
-                <button className="bg-green-500 py-2 px-3 rounded-lg" onClick={handleSubmitSearch}>
+                <button className="bg-green-300 py-2 px-3 rounded-lg" onClick={handleSubmitSearch}>
                   Search
                 </button>
               </div>
               <div className={`flex gap-2 ${searchByServer ? null : 'hidden'}`}>
                 <input type="text" className="border border-gray-400 px-3 py-2 rounded-lg max-w-52" id="search" placeholder="server" value={server} onChange={handleChangeServer} />
-                <button className="bg-green-500 py-2 px-3 rounded-lg" onClick={handleSubmitSearch}>
+                <button className="bg-green-300 py-2 px-3 rounded-lg" onClick={handleSubmitSearch}>
                   Search
                 </button>
               </div>
@@ -93,27 +93,27 @@ const Reports = () => {
           </div>
         </div>
         <table className="w-full mb-5">
-          <tr className="">
-            <th className="border-b-4 py-3 text-left">Number</th>
-            <th className="border-b-4 py-3 text-left">Type</th>
-            <th className="border-b-4 py-3 text-left">Status</th>
-            <th className="border-b-4 py-3 text-left">Customer</th>
-            <th className="border-b-4 py-3 text-left">Customer ID (phone)</th>
-            <th className="border-b-4 py-3 text-left">Served By</th>
-            <th className="border-b-4 py-3 text-left">Date</th>
-            <th className="border-b-4 py-3 text-left">Time</th>
+          <tr className="bg-green-300">
+            <th className="border-b-4 py-3 text-left px-2">Number</th>
+            <th className="border-b-4 py-3 text-left px-2">Type</th>
+            <th className="border-b-4 py-3 text-left px-2">Status</th>
+            <th className="border-b-4 py-3 text-left px-2">Customer</th>
+            <th className="border-b-4 py-3 text-left px-2">Customer ID (phone)</th>
+            <th className="border-b-4 py-3 text-left px-2">Served By</th>
+            <th className="border-b-4 py-3 text-left px-2">Date</th>
+            <th className="border-b-4 py-3 text-left px-2">Time</th>
           </tr>
           {reports?.data?.map((report: any) => {
             return (
-              <tr key={report.id} className="border-b-2">
-                <td className="py-3 text-sm">{report.report_id}</td>
-                <td className="py-3 text-sm">{report.type}</td>
-                <td className="py-3 text-sm">{report.status}</td>
-                <td className="py-3 text-sm">{report.customer_name}</td>
-                <td className="py-3 text-sm">{report.customer_id ? report.customer_id : '-'}</td>
-                <td className="py-3 text-sm">{report.served_by}</td>
-                <td className="py-3 text-sm">{new Date(report.created_at).toLocaleDateString('id-ID')}</td>
-                <td className="py-3 text-sm">{new Date(report.created_at).toLocaleTimeString()}</td>
+              <tr key={report.id} className="border-b-2 hover:bg-gray-100 duration-200">
+                <td className="py-3 text-sm px-2">{report.report_id}</td>
+                <td className="py-3 text-sm px-2">{report.type}</td>
+                <td className="py-3 text-sm px-2">{report.status}</td>
+                <td className="py-3 text-sm px-2">{report.customer_name}</td>
+                <td className="py-3 text-sm px-2">{report.customer_id ? report.customer_id : '-'}</td>
+                <td className="py-3 text-sm px-2">{report.served_by}</td>
+                <td className="py-3 text-sm px-2">{new Date(report.created_at).toLocaleDateString('id-ID')}</td>
+                <td className="py-3 text-sm px-2">{new Date(report.created_at).toLocaleTimeString()}</td>
               </tr>
             );
           })}

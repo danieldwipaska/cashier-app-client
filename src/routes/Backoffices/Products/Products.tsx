@@ -54,27 +54,27 @@ const Products = () => {
       <Header title="PRODUCTS" />
       <section>
         <div className="mb-5">
-          <a href={'/backoffices/products/add'} className="bg-green-400 py-3 px-5 rounded-lg">
-            Add Product
+          <a href={'/backoffices/products/add'} className="bg-green-300 py-3 px-5 rounded-lg">
+            Add
           </a>
         </div>
         <table className="w-full">
-          <tr className="">
-            <th className="border-b-4 py-3 text-left">Product Name</th>
-            <th className="border-b-4 py-3 text-left">Availability</th>
-            <th className="border-b-4 py-3 text-left">Price</th>
-            <th className="border-b-4 py-3 text-left">Category</th>
-            <th className="border-b-4 py-3 text-left">Discount Status</th>
-            <th className="border-b-4 py-3 text-left">Discount Percent</th>
-            <th className="border-b-4 py-3 text-left">Action</th>
+          <tr className="bg-green-200">
+            <th className="border-b-4 py-3 px-2 text-left">Product Name</th>
+            <th className="border-b-4 py-3 px-2 text-left">Availability</th>
+            <th className="border-b-4 py-3 px-2 text-left">Price</th>
+            <th className="border-b-4 py-3 px-2 text-left">Category</th>
+            <th className="border-b-4 py-3 px-2 text-left">Discount Status</th>
+            <th className="border-b-4 py-3 px-2 text-left">Discount Percent</th>
+            <th className="border-b-4 py-3 px-2 text-left">Action</th>
           </tr>
           {products?.data?.map((product: any) => {
             return (
-              <tr key={product.id} className="border-b-2">
-                <td className="py-3">
+              <tr key={product.id} className="border-b-2 hover:bg-gray-100 duration-200">
+                <td className="py-3 px-2">
                   <a href={`/backoffices/products/${product.id}`} className='font-semibold hover:opacity-70 duration-100'>{product.name}</a>
                 </td>
-                <td className="py-3">
+                <td className="py-3 px-2">
                   <div className='flex items-center gap-2'>
                     {product.availability ? <div className='text-green-700'>Available</div> : <div className='text-red-700'>Out of Stock</div>}
                     <button
@@ -87,11 +87,11 @@ const Products = () => {
                     </button>
                   </div>
                 </td>
-                <td className="py-3">{Intl.NumberFormat('id-ID').format(product.price)}</td>
-                <td className="py-3">{product.category.name}</td>
-                <td className="py-3">{product.discount_status ? 'yes' : 'no'}</td>
-                <td className="py-3">{product.discount_percent ? Intl.NumberFormat('id-ID').format(product.discount_percent) : '-'}</td>
-                <td className="py-3">
+                <td className="py-3 px-2">{Intl.NumberFormat('id-ID').format(product.price)}</td>
+                <td className="py-3 px-2">{product.category.name}</td>
+                <td className="py-3 px-2">{product.discount_status ? 'yes' : 'no'}</td>
+                <td className="py-3 px-2">{product.discount_percent ? Intl.NumberFormat('id-ID').format(product.discount_percent) : '-'}</td>
+                <td className="py-3 px-2">
                   <div className='flex items-center gap-2'>
                     <a href={`/backoffices/products/${product.id}/edit`} className=''>
                       <img src={editIcon} alt="editIcon" width={20} />

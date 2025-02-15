@@ -95,7 +95,7 @@
   width: 200px;
   height: 100%;
   flex: 1;
-  background-color: #1eb254;
+  background-color: rgba(78, 190, 119, 0.904);
   position: fixed;
   padding: 0 10px 0 30px;
 }

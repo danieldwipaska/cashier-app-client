@@ -4,8 +4,6 @@ import cx from 'classnames';
 
 const Nav = () => {
   const path = useLocation().pathname;
-
-  const linkClass = cx(style.sidebarLinks, style.link);
   const productsClass = cx(style.sidebarLinks, style.link, path.includes('/backoffices/products') ? style.active : null);
   const categoriesClass = cx(style.sidebarLinks, style.link, path.includes('/backoffices/categories') ? style.active : null);
   const reportsClass = cx(style.sidebarLinks, style.link, path.includes('/backoffices/reports') ? style.active : null);
