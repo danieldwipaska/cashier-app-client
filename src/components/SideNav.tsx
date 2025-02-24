@@ -2,12 +2,13 @@ import { FaCartShopping, FaFolderOpen } from 'react-icons/fa6';
 import { IoIosSettings } from 'react-icons/io';
 import { FaAddressCard } from 'react-icons/fa';
 import { Link, useLocation } from 'react-router-dom';
+import { GrDatabase } from 'react-icons/gr';
 
 const SideNav = () => {
   const location = useLocation();
 
   return (
-    <div className="h-screen min-w-24 pt-24">
+    <div className="h-screen min-w-24 pt-24 flex flex-col justify-between">
       <div className="grid grid-cols-1 justify-items-center">
         {location?.pathname === '/' ? (
           <Link to={'/'} className="flex flex-col items-center mb-3 duration-500" onClick={() => {}}>
@@ -56,6 +57,10 @@ const SideNav = () => {
           </Link>
         )}
       </div>
+      <Link to={'/backoffices'} className="flex flex-col items-center mb-7">
+        <GrDatabase size={30} color="#BDBDBD" />
+        <p className="text-xs text-gray-400 mt-1">Backoffices</p>
+      </Link>
     </div>
   );
 };
