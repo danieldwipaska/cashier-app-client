@@ -2,6 +2,7 @@ import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Button, Menu, MenuItem } from '@mui/material';
 import { ArrowDropDown } from '@mui/icons-material';
+import bahariLogo from '../assets/img/bahari-logo.webp';
 
 const Nav = () => {
   const { user, signOut } = useAuth();
@@ -23,7 +24,9 @@ const Nav = () => {
     <nav className="bg-white h-16 w-full grid grid-cols-1 content-center fixed">
       <div className="flex my-auto justify-between">
         <div className="flex items-stretch min-w-24 justify-center">
-          <div className="self-center">BAHARI</div>
+          <div className="self-center">
+            <img src={bahariLogo} alt="profile" className='w-14' />
+          </div>
         </div>
         <div className="flex-col mx-12">
           <div className="text-xs text-gray-500">Cashier</div>

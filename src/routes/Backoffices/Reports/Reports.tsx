@@ -99,6 +99,7 @@ const Reports = () => {
             <th className="border-b-4 py-3 text-left px-2">Status</th>
             <th className="border-b-4 py-3 text-left px-2">Customer</th>
             <th className="border-b-4 py-3 text-left px-2">Customer ID (phone)</th>
+            <th className="border-b-4 py-3 text-left px-2">Payment</th>
             <th className="border-b-4 py-3 text-left px-2">Served By</th>
             <th className="border-b-4 py-3 text-left px-2">Date</th>
             <th className="border-b-4 py-3 text-left px-2">Time</th>
@@ -111,6 +112,7 @@ const Reports = () => {
                 <td className="py-3 text-sm px-2">{report.status}</td>
                 <td className="py-3 text-sm px-2">{report.customer_name}</td>
                 <td className="py-3 text-sm px-2">{report.customer_id ? report.customer_id : '-'}</td>
+                <td className="py-3 text-sm px-2">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(report.total_payment_after_tax_service)}</td>
                 <td className="py-3 text-sm px-2">{report.served_by}</td>
                 <td className="py-3 text-sm px-2">{new Date(report.created_at).toLocaleDateString('id-ID')}</td>
                 <td className="py-3 text-sm px-2">{new Date(report.created_at).toLocaleTimeString()}</td>

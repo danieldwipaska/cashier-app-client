@@ -1,0 +1,36 @@
+import React, { useState } from 'react'
+import Card from './Card'
+import { PiHandDeposit } from 'react-icons/pi'
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import { getOperationalHours, getTotalPayment } from 'functions/operational.report';
+import { ReportStatus, ReportType } from 'configs/utils';
+
+const TopupCard = () => {
+    const [totalTopup, setTotalTopup] = useState(0);
+
+    useQuery({
+        queryKey: ['todayTopupPaidReports'],
+        queryFn: () => {
+          const { from, to } = getOperationalHours();
+    
+          axios
+            .get(`${process.env.REACT_APP_API_BASE_URL}/reports?from=${from}&to=${to}&status=${ReportStatus.PAID}&type=${ReportType.TOPUP}&type=${ReportType.TOPUP_AND_ACTIVATE}`)
+            .then((res) => {
+              setTotalTopup(getTotalPayment(res.data.data));
+    
+              return res.data.data;
+            })
+            .catch((err) => {
+              return console.log(err);
+            });
+        },
+      });
+  return (
+    <div>
+        <Card icon={<PiHandDeposit />} bgClass={'bg-green-400'} title={`Total Top-up`} value={Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalTopup)} />
+    </div>
+  )
+}
+
+export default TopupCard

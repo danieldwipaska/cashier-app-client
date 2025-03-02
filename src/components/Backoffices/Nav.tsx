@@ -1,9 +1,11 @@
 import { useLocation } from 'react-router-dom';
 import style from '../../assets/css/style.module.css';
 import cx from 'classnames';
+import { GrDatabase } from 'react-icons/gr';
 
 const Nav = () => {
   const path = useLocation().pathname;
+  const dashboardClass = cx(style.sidebarLinks, style.link, path === '/backoffices' ? style.active : null);
   const productsClass = cx(style.sidebarLinks, style.link, path.includes('/backoffices/products') ? style.active : null);
   const categoriesClass = cx(style.sidebarLinks, style.link, path.includes('/backoffices/categories') ? style.active : null);
   const reportsClass = cx(style.sidebarLinks, style.link, path.includes('/backoffices/reports') ? style.active : null);
@@ -12,9 +14,15 @@ const Nav = () => {
   const cardsClass = cx(style.sidebarLinks, style.link, path.includes('/backoffices/cards') ? style.active : null);
 
   return (
-    <nav className={style.sidebar}>
-      <header className={style.sidebarHeader}>Backoffices</header>
+    <nav className={style.sidebar + ' relative'}>
+      <header className="flex gap-1 items-center py-5">
+        <GrDatabase size={20} />
+        <h1 className="text-xl font-semibold">Backoffice</h1>
+      </header>
       <div className={style.sidebarLinks}>
+        <a href="/backoffices" className={dashboardClass} aria-label="Navigate to Products">
+          Dashboard
+        </a>
         <a href="/backoffices/products" className={productsClass} aria-label="Navigate to Products">
           Products
         </a>
@@ -34,6 +42,9 @@ const Nav = () => {
           Cards
         </a>
       </div>
+      <a href="/" className="absolute bottom-0 w-full" aria-label="Navigate to POS">
+        <h4 className='font-semibold px-1 py-3'>Go to POS</h4>
+      </a>
     </nav>
   );
 };
