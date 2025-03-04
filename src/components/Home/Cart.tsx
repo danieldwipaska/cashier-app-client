@@ -268,7 +268,7 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
                 <Select value={openBill} onChange={handleChangeOpenBill} displayEmpty inputProps={{ 'aria-label': 'Without label' }}>
                   <MenuItem value="">New</MenuItem>
                   {reports?.map((report: any) => (
-                    <MenuItem value={report.id}>
+                    <MenuItem key={report.id} value={report.id}>
                       OpenBill-{report.customer_name}-{report.served_by}
                     </MenuItem>
                   ))}
