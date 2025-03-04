@@ -25,7 +25,7 @@ const SideNav = () => {
         </Link>
         <Link to={'/settings'} className="flex flex-col items-center mb-5 duration-500">
           <SettingIcon className={`h-[36px] ${location?.pathname === '/settings' ? 'text-green-600' : 'text-gray-400'}`} />
-          <p className={`text-xs ${location?.pathname === '/settings' ? 'text-green-700' : 'text-gray-400'}`}>Orders</p>
+          <p className={`text-xs ${location?.pathname === '/settings' ? 'text-green-700' : 'text-gray-400'}`}>Settings</p>
         </Link>
       </div>
       <Link to={'/backoffices'} className="flex flex-col items-center mb-7">
