@@ -1,7 +1,6 @@
 import { ArrowBackIosNew } from '@mui/icons-material';
 import axios, { AxiosError } from 'axios';
-
-import { IoFastFoodOutline } from 'react-icons/io5';
+import { ReactComponent as FoodIcon } from "../../assets/img/icons/food.svg";
 import { useState } from 'react';
 import { CircularProgress } from '@mui/material';
 import CrewAuthAlertDialogSlide from './CrewAuthAlertDialogSlide';
@@ -258,7 +257,7 @@ const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, 
               <div key={order.id} className="flex items-center mt-2 2xl:mt-5">
                 <div>
                   <div className="bg-slate-800 p-2 rounded-lg">
-                    <IoFastFoodOutline size={40} color="#ffffff" />
+                    <FoodIcon className='w-[40px] text-white' />
                   </div>
                 </div>
                 <div className="mx-3">

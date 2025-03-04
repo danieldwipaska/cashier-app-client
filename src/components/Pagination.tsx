@@ -1,6 +1,6 @@
 import IPage from 'interfaces/Pagination';
-import { PiArrowFatLeftFill } from 'react-icons/pi';
-import { PiArrowFatRightFill } from 'react-icons/pi';
+import { ReactComponent as ArrowTurnRightIcon } from "../assets/img/icons/arrow-turn-right.svg";
+import { ReactComponent as ArrowTurnLeftIcon } from "../assets/img/icons/arrow-turn-left.svg";
 
 const Pagination = ({ setPage, pageMetaData }: IPage) => {
   const increasePage = () => {
@@ -15,14 +15,14 @@ const Pagination = ({ setPage, pageMetaData }: IPage) => {
     <div className={`flex justify-between items-center w-full my-5 ${(pageMetaData?.totalPages ?? 0) <= 1 ? 'hidden' : null}`}>
       <div className="flex items-center gap-2">
         <button onClick={() => decreasePage()} className={`${pageMetaData?.hasPrevPage ? null : 'hidden'}`}>
-          <PiArrowFatLeftFill size={30} className="text-green-700" />
+          <ArrowTurnLeftIcon className="text-green-700 w-[30px]" />
         </button>
         <p className={`text-sm ${pageMetaData?.hasPrevPage ? null : 'hidden'}`}>Previous</p>
       </div>
       <div className="flex items-center gap-2">
         <p className={`text-sm ${pageMetaData?.hasNextPage ? null : 'hidden'}`}>Next</p>
-        <button onClick={() => increasePage()}>
-          <PiArrowFatRightFill size={30} className={`text-green-700 ${pageMetaData?.hasNextPage ? null : 'hidden'}`} />
+        <button onClick={() => increasePage()} className={`${pageMetaData?.hasNextPage ? null : 'hidden'}`}>
+          <ArrowTurnRightIcon className={`text-green-700 w-[30px]`} />
         </button>
       </div>
     </div>

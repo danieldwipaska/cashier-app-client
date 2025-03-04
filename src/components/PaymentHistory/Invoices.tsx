@@ -1,7 +1,8 @@
-import React, { useRef } from 'react';
+import { useRef } from 'react';
 import jsPDF from 'jspdf';
-import { GoDownload } from 'react-icons/go';
 import bahariLogo from '../../assets/img/bahari-logo.webp';
+import { ReactComponent as DownloadIcon } from '../../assets/img/icons/download.svg'
+import { ReportType } from 'configs/utils';
 
 const Invoices = ({ selectedPaymentData, totalPaymentSelectedData }: any) => {
   const useReff = useRef<HTMLDivElement>(null);
@@ -69,7 +70,7 @@ const Invoices = ({ selectedPaymentData, totalPaymentSelectedData }: any) => {
                 <div>IDR {Intl.NumberFormat('en-us').format(selectedPaymentData.order_price[i] * selectedPaymentData.order_amount[i])}</div>
               </div>
             ))}
-            {selectedPaymentData?.type !== 'pay' ? (
+            {selectedPaymentData?.type !== ReportType.PAY ? (
               <div className="flex justify-between">
                 <div>{selectedPaymentData?.type}</div>
                 <div>IDR {Intl.NumberFormat('en-us').format(selectedPaymentData?.total_payment_after_tax_service)}</div>
@@ -77,7 +78,7 @@ const Invoices = ({ selectedPaymentData, totalPaymentSelectedData }: any) => {
             ) : null}
           </div>
 
-          {selectedPaymentData?.type !== 'pay' ? null : (
+          {selectedPaymentData?.type !== ReportType.PAY ? null : (
             <div className=" mb-1">
               <div className="flex justify-between">
                 <div>Subtotal</div>
@@ -120,7 +121,7 @@ const Invoices = ({ selectedPaymentData, totalPaymentSelectedData }: any) => {
       </div>
 
       <button onClick={generatePDF}>
-        <GoDownload size={30} />
+        <DownloadIcon className='w-[30px]' />
       </button>
     </div>
   );
