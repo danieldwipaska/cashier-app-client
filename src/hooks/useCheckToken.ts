@@ -6,22 +6,37 @@ import { useNavigate } from 'react-router-dom';
 export const useCheckToken = (user: IUser) => {
   const navigate = useNavigate();
 
-  return useEffect(() => {
-    if (!user.username) return navigate('/login');
+  useEffect(() => {
+    // Cek apakah username ada
+    if (!user.username) {
+      navigate('/login');
+      return; // Penting: tambahkan return untuk memberhentikan eksekusi
+    }
 
-    axios
-      .get('http://localhost:3001/auth/verify', {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
-        },
-      })
-      .then((res) => {
-        return;
-      })
-      .catch((err) => {
+    // Fungsi untuk verifikasi token
+    const verifyToken = async () => {
+      try {
+        await axios.get('http://localhost:3001/auth/verify', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        });
+      } catch (err) {
+        // Hapus localStorage
         localStorage.removeItem('username');
         localStorage.removeItem('access-token');
-        return navigate('/login');
-      });
-  });
+
+        // Navigasi ke halaman login
+        navigate('/login');
+      }
+    };
+
+    // Jalankan verifikasi token
+    verifyToken();
+
+    // Optional: Cleanup function
+    return () => {
+      // Pembersihan jika diperlukan
+    };
+  }, [user.username, navigate]);
 };
