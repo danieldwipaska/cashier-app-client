@@ -65,14 +65,14 @@ const AccountSettings = () => {
           },
         })
         .then((res) => {
-          setShopId(res.data.data.shop.id);
-          setDiscountStatus(res.data.data.shop.discount_status);
-          setDiscount(res.data.data.shop.discount);
-          setTax(res.data.data.shop.tax);
-          setTaxStatus(res.data.data.shop.tax_status);
-          setService(res.data.data.shop.service);
-          setServiceStatus(res.data.data.shop.service_status);
-          setIncludedTaxService(res.data.data.shop.included_tax_service);
+          setShopId(res.data.data.shops[0].shop.id);
+          setDiscountStatus(res.data.data.shops[0].shop.discount_status);
+          setDiscount(res.data.data.shops[0].shop.discount);
+          setTax(res.data.data.shops[0].shop.tax);
+          setTaxStatus(res.data.data.shops[0].shop.tax_status);
+          setService(res.data.data.shops[0].shop.service);
+          setServiceStatus(res.data.data.shops[0].shop.service_status);
+          setIncludedTaxService(res.data.data.shops[0].shop.included_tax_service);
           return res.data.data;
         })
         .catch((err) => {

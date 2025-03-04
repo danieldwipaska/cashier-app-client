@@ -29,13 +29,6 @@ const Login = () => {
     }
   };
 
-  const handleKeyPress = (event: any) => {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      handleSubmit(onSubmit);
-    }
-  };
-
   return (
     <Box component="form" onSubmit={handleSubmit(onSubmit)}>
       <div className="grid grid-cols-1 h-screen">
