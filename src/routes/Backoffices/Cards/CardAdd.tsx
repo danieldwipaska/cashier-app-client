@@ -13,13 +13,13 @@ const CardAdd = () => {
   const onSubmit = (data: NewCardFormData) => {
     const payload: INewCardData = {
       card_number: data.card_number,
+      is_member: false,
     }
 
     if (data.type === 'Member') payload.is_member = true;
-    if (data.type === 'Basic') payload.is_member = false;
 
     axios
-      .post(`${process.env.REACT_APP_API_BASE_URL}/cards`, data)
+      .post(`${process.env.REACT_APP_API_BASE_URL}/cards`, payload)
       .then((res) => {
         return navigate('/backoffices/cards', { replace: true });
       })

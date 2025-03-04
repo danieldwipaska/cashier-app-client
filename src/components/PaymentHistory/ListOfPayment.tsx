@@ -3,10 +3,12 @@ import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import React, { useState } from 'react';
 import { CSVLink } from 'react-csv';
-import { MdCancel, MdDownload } from 'react-icons/md';
-import { RiArrowRightDoubleLine } from 'react-icons/ri';
-import { FaMinus, FaPlus } from 'react-icons/fa6';
-import { GrPowerCycle } from 'react-icons/gr';
+import { ReactComponent as CancelIcon } from '../../assets/img/icons/cancel.svg';
+import { ReactComponent as DownloadIcon } from '../../assets/img/icons/download.svg';
+import { ReactComponent as ArrowRightDoubleIcon } from '../../assets/img/icons/arrow-right-double.svg';
+import { ReactComponent as MinusIcon } from '../../assets/img/icons/minus.svg';
+import { ReactComponent as PlusIcon } from '../../assets/img/icons/plus.svg';
+import { ReactComponent as ReloadIcon } from '../../assets/img/icons/reload.svg';
 import { ReportStatus, ReportType } from 'configs/utils';
 import ModalConfirmation from '../modals/ModalConfirmation';
 import orderDiscountedPrice from 'functions/discount.report';
@@ -205,7 +207,7 @@ function PartiallyRefundModal({ row }: { row: Data }) {
   return (
     <React.Fragment>
       <button className={`px-2 py-1 bg-gray-300 rounded-full shadow-lg ${row.order_amount.toString() === row.refunded_order_amount.toString() ? 'hidden' : null}`} onClick={handleOpen}>
-        <GrPowerCycle />
+        <ReloadIcon className="w-[12px]" />
       </button>
 
       <Modal open={open} onClose={handleClose} aria-labelledby="child-modal-title" aria-describedby="child-modal-description">
@@ -227,7 +229,7 @@ function PartiallyRefundModal({ row }: { row: Data }) {
                         decreaseRefundedItems(i);
                       }}
                     >
-                      <FaMinus size={10} color="#000000" />
+                      <MinusIcon className="w-[10px]" />
                     </button>
                     <div className="mx-1">
                       <input type="text" className="text-xs text-center text-black/80 py-1 px-2 rounded-md border border-black/40 max-w-8" readOnly value={refundedItems[i]} />
@@ -238,7 +240,7 @@ function PartiallyRefundModal({ row }: { row: Data }) {
                         increaseRefundedItems(i);
                       }}
                     >
-                      <FaPlus size={10} color="#000000" />
+                      <PlusIcon className="w-[10px]" />
                     </button>
                   </div>
                 </div>
@@ -346,7 +348,7 @@ const ListOfPayment = () => {
               report.customer_name,
               report.customer_id,
               report.served_by,
-              report.type === 'pay' || report.type === 'refund' ? report.total_payment_after_tax_service : report.total_payment,
+              report.type === ReportType.PAY || report.type === ReportType.REFUND ? report.total_payment_after_tax_service : report.total_payment,
               ordersString,
               new Date(report.updated_at).toLocaleDateString(),
               new Date(report.updated_at).toLocaleTimeString(),
@@ -430,7 +432,7 @@ const ListOfPayment = () => {
   const ButtonCancelOpenBill = () => {
     return (
       <>
-        <MdCancel size={24} />
+        <CancelIcon className="w-[25px] text-red-600" />
       </>
     );
   };
@@ -456,7 +458,7 @@ const ListOfPayment = () => {
               }, 1000);
             }}
           />
-          <RiArrowRightDoubleLine size={28} />
+          <ArrowRightDoubleIcon className="w-[25px] mx-2" />
           <input
             type="datetime-local"
             id="DTPickerTo"
@@ -472,7 +474,7 @@ const ListOfPayment = () => {
           />
           {reports ? (
             <CSVLink data={reportDataCSV} headers={headers}>
-              <MdDownload size={28} />
+              <DownloadIcon className="w-[25px] ml-2" />
             </CSVLink>
           ) : null}
         </div>
@@ -616,7 +618,7 @@ const ListOfPayment = () => {
                 <div>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(selectedPaymentData?.order_price[i] * selectedPaymentData?.order_amount[i])}</div>
               </div>
             ))}
-            {selectedPaymentData?.type !== 'pay' ? (
+            {selectedPaymentData?.type !== ReportType.PAY ? (
               <div className="flex justify-between">
                 <div>{selectedPaymentData?.type}</div>
                 <div>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(selectedPaymentData?.total_payment_after_tax_service)}</div>
@@ -625,7 +627,7 @@ const ListOfPayment = () => {
 
             <div className="my-3 w-full border border-b-black border-dashed"></div>
 
-            {selectedPaymentData?.type !== 'pay' ? null : (
+            {selectedPaymentData?.type !== ReportType.PAY ? null : (
               <div className=" mb-1">
                 <div className="flex justify-between">
                   <div>Subtotal</div>

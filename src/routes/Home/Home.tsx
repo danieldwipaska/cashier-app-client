@@ -11,6 +11,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useCheckToken } from '../../hooks/useCheckToken';
 import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
+import { ReportStatus } from 'configs/utils';
 
 const Home = () => {
   // Auth
@@ -51,7 +52,7 @@ const Home = () => {
     queryKey: ['unpaidReports'],
     queryFn: () =>
       axios
-        .get(`http://localhost:3001/reports?status=unpaid`)
+        .get(`http://localhost:3001/reports?status=${ReportStatus.UNPAID}`)
         .then((res) => {
           return res.data.data;
         })

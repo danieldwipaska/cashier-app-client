@@ -1,7 +1,7 @@
 import { useLocation } from 'react-router-dom';
 import style from '../../assets/css/style.module.css';
 import cx from 'classnames';
-import { GrDatabase } from 'react-icons/gr';
+import { ReactComponent as StackIcon } from '../../assets/img/icons/stacks.svg';
 
 const Nav = () => {
   const path = useLocation().pathname;
@@ -16,7 +16,7 @@ const Nav = () => {
   return (
     <nav className={style.sidebar + ' relative'}>
       <header className="flex gap-1 items-center py-5">
-        <GrDatabase size={20} />
+        <StackIcon className="w-[25px]" />
         <h1 className="text-xl font-semibold">Backoffice</h1>
       </header>
       <div className={style.sidebarLinks}>
@@ -43,7 +43,7 @@ const Nav = () => {
         </a>
       </div>
       <a href="/" className="absolute bottom-0 w-full" aria-label="Navigate to POS">
-        <h4 className='font-semibold px-1 py-3'>Go to POS</h4>
+        <h4 className="font-semibold px-1 py-3">Go to POS</h4>
       </a>
     </nav>
   );

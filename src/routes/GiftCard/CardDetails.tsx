@@ -1,16 +1,16 @@
-import { VscAccount } from 'react-icons/vsc';
-import { GoArrowUpRight } from 'react-icons/go';
-import { HiOutlineArrowsRightLeft } from 'react-icons/hi2';
-import { RiProhibited2Line } from 'react-icons/ri';
+import { ReactComponent as AccountIcon } from '../../assets/img/icons/account.svg';
+import { ReactComponent as AccountPlusIcon } from '../../assets/img/icons/account-plus.svg';
+import { ReactComponent as ArrowUpRightIcon } from '../../assets/img/icons/arrow-up-right.svg';
+import { ReactComponent as ArrowRightLeftIcon } from '../../assets/img/icons/arrow-right-left.svg';
+import { ReactComponent as CheckoutIcon } from '../../assets/img/icons/checkout.svg';
+import { ReactComponent as CartIcon } from '../../assets/img/icons/cart.svg';
+import { ReactComponent as ReceiptRefundIcon } from '../../assets/img/icons/receipt-refund.svg';
 import { Card } from 'lib/interfaces/cards';
-import { HiOutlineUserAdd } from 'react-icons/hi';
 import Topup from 'components/GiftCard/Topup';
 import { useState } from 'react';
 import Adjust from 'components/GiftCard/Adjust';
 import Checkout from 'components/GiftCard/Checkout';
 import { ReportType } from 'configs/utils';
-import { IoCartOutline } from 'react-icons/io5';
-import { TbCreditCardRefund } from 'react-icons/tb';
 import { Backdrop } from '@mui/material';
 import { CheckCircle } from '@mui/icons-material';
 
@@ -48,7 +48,7 @@ const CardDetails = ({ cardData, setCardData, refetchCardData, customerReports }
           </div>
           <div className="flex gap-8 mb-4">
             <div>
-              <VscAccount size={60} color="gray" />
+              <AccountIcon className='w-20 text-gray-500' />
             </div>
             <div className="flex flex-col gap-1">
               <h1 className="text-3xl text-gray-600">Rp. {Intl.NumberFormat('id-ID').format(cardData?.balance)},-</h1>
@@ -59,21 +59,21 @@ const CardDetails = ({ cardData, setCardData, refetchCardData, customerReports }
               <>
                 <button className="px-4 py-1 rounded-full flex items-center justify-center gap-1 hover:scale-105 bg-green-400 duration-200" onClick={handleOpenTopupModal}>
                   <span>Top-up</span>
-                  <GoArrowUpRight size={20} />
+                  <ArrowUpRightIcon className='w-[15px]' />
                 </button>
                 <button className="px-4 py-1 rounded-full flex items-center justify-center gap-1 hover:scale-105 hover:bg-gray-400 border border-gray-400 duration-200" onClick={handleOpenAdjustModal}>
                   <span>Adjust</span>
-                  <HiOutlineArrowsRightLeft size={20} />
+                  <ArrowRightLeftIcon className='w-[15px]' />
                 </button>
                 <button className="px-4 py-1 rounded-full flex items-center justify-center gap-1 hover:scale-105 bg-red-200 duration-200" onClick={handleOpenCheckoutModal}>
                   <span>Checkout</span>
-                  <RiProhibited2Line size={20} />
+                  <CheckoutIcon className='w-[15px]' />
                 </button>
               </>
             ) : (
               <button className="px-4 py-1 rounded-full flex items-center justify-center gap-1 hover:scale-105 bg-green-200 hover:bg-green-400 duration-200" onClick={handleOpenTopupModal}>
                 <span>Activate</span>
-                <HiOutlineUserAdd size={20} />
+                <AccountPlusIcon className='w-[20px]' />
               </button>
             )}
           </div>
@@ -125,12 +125,12 @@ const CardDetails = ({ cardData, setCardData, refetchCardData, customerReports }
               return (
                 <div key={report.id} className="transaction p-3 w-full flex items-center gap-4 border-b-2">
                   <div className="transaction-image">
-                    {report.type === ReportType.TOPUP && <GoArrowUpRight size={40} color="#4ade80" />}
-                    {report.type === ReportType.ADJUSTMENT && <HiOutlineArrowsRightLeft size={40} color="#999999" />}
-                    {report.type === ReportType.CHECKOUT && <RiProhibited2Line size={40} color="#ff6363" />}
-                    {report.type === ReportType.PAY && <IoCartOutline size={40} color="#fced77" />}
-                    {report.type === ReportType.TOPUP_AND_ACTIVATE && <HiOutlineUserAdd size={40} color="#a9ffa3" />}
-                    {report.type === ReportType.REFUND && <TbCreditCardRefund size={40} color="#bfbfbf" />}
+                    {report.type === ReportType.TOPUP && <ArrowUpRightIcon className='w-[40px] text-green-600' />}
+                    {report.type === ReportType.ADJUSTMENT && <ArrowRightLeftIcon className='w-[40px] text-gray-600' />}
+                    {report.type === ReportType.CHECKOUT && <CheckoutIcon className='w-[40px] text-red-600' />}
+                    {report.type === ReportType.PAY && <CartIcon className='w-[40px] text-[#fced77]' />}
+                    {report.type === ReportType.TOPUP_AND_ACTIVATE && <AccountPlusIcon className='w-[40px] text-green-600' />}
+                    {report.type === ReportType.REFUND && <ReceiptRefundIcon className='w[40px] text-gray-500' />}
                   </div>
                   <div className="transaction-content w-full">
                     <div className="flex justify-between">
