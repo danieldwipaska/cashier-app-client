@@ -1,7 +1,7 @@
 import { Badge, Box, FormControl, InputLabel, List, ListItem, ListItemButton, ListItemIcon, ListItemText, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 const Menu = (props: any): JSX.Element => {
   const { orders, setOrders, openSummary } = props;
@@ -12,7 +12,7 @@ const Menu = (props: any): JSX.Element => {
     queryKey: ['categories'],
     queryFn: () =>
       axios
-        .get('http://localhost:3001/categories')
+        .get(`${process.env.REACT_APP_API_BASE_URL}/categories`)
         .then((res) => {
           return res.data.data;
         })
@@ -25,7 +25,7 @@ const Menu = (props: any): JSX.Element => {
     queryKey: ['availableFnbsByCategory'],
     queryFn: async () => {
       try {
-        const res = await axios.get('http://localhost:3001/fnbs');
+        const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/fnbs`);
 
         const availableFnbs = res.data.data.filter((fnb: any) => {
           return fnb.availability === true;
@@ -56,7 +56,7 @@ const Menu = (props: any): JSX.Element => {
 
   const addFnbToOrder = async (id: string) => {
     try {
-      const response = await axios.get(`http://localhost:3001/fnbs/${id}`);
+      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/fnbs/${id}`);
 
       if (response.data.statusCode === 200) {
         // check if exist

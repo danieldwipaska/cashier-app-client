@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Nav from '../../components/Nav';
 import SideNav from '../../components/SideNav';
 import Menu from '../../components/Home/Menu';
@@ -55,7 +55,7 @@ const Home = () => {
     queryKey: ['unpaidReports'],
     queryFn: () =>
       axios
-        .get(`http://localhost:3001/reports?status=${ReportStatus.UNPAID}`)
+        .get(`${process.env.REACT_APP_API_BASE_URL}/reports?status=${ReportStatus.UNPAID}`)
         .then((res) => {
           return res.data.data;
         })
@@ -68,7 +68,7 @@ const Home = () => {
     queryKey: ['shopData'],
     queryFn: () =>
       axios
-        .get(`http://localhost:3001/multiusers/configuration/${user?.username}`, {
+        .get(`${process.env.REACT_APP_API_BASE_URL}/multiusers/configuration/${user?.username}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access-token')}`,
           },

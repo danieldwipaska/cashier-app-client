@@ -13,7 +13,7 @@ const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, 
   const { setOpenSummary, setOpenBackdrop } = states;
   const { crewCredential, setCrewCredential, openCrewAuthAlertDialog, setOpenCrewAuthAlertDialog, errorCrewCredential, setErrorCrewCredential, errorUnauthorizedCrew, setErrorUnauthorizedCrew } = crewData;
   const { reportsRefetch } = unpaidReports;
-  const { totalOrder, totalPaymentAfterTaxService } = calculationData;
+  const { totalPaymentAfterTaxService } = calculationData;
 
   const [openConfirmProgressSpinner, setOpenConfirmProgressSpinner] = useState(false);
 
@@ -25,7 +25,7 @@ const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, 
     if (!crewCredential) return setErrorCrewCredential(true);
 
     try {
-      const crew = await axios.post(`http://localhost:3001/crews/code`, { code: crewCredential });
+      const crew = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/crews/code`, { code: crewCredential });
 
       const order_id: string[] = [];
       const order_name: string[] = [];
@@ -60,7 +60,7 @@ const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, 
         };
 
         try {
-          await axios.patch(`http://localhost:3001/cards/${cardId}/pay`, payload, {
+          await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/cards/${cardId}/pay`, payload, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('access-token')}`,
             },
@@ -101,7 +101,7 @@ const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, 
         };
 
         try {
-          await axios.post('http://localhost:3001/reports', payload, {
+          await axios.post(`${process.env.REACT_APP_API_BASE_URL}/reports`, payload, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('access-token')}`,
             },
@@ -140,11 +140,11 @@ const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, 
     if (!crewCredential) return setErrorCrewCredential(true);
 
     try {
-      const report = await axios.get(`http://localhost:3001/reports/${openBill}`);
+      const report = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports/${openBill}`);
       if (!report.data.data) return;
 
       try {
-        const crew = await axios.post(`http://localhost:3001/crews/code`, { code: crewCredential });
+        const crew = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/crews/code`, { code: crewCredential });
         if (!crew.data.data || report.data.data.served_by !== crew.data.data.name) return setErrorUnauthorizedCrew(true);
 
         const order_id: string[] = [];
@@ -178,7 +178,7 @@ const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, 
         }
 
         try {
-          await axios.patch(`http://localhost:3001/reports/${openBill}`, payload, {
+          await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/reports/${openBill}`, payload, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('access-token')}`,
             },

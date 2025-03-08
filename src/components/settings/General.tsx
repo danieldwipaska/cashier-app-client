@@ -5,13 +5,10 @@ import { useState } from 'react';
 
 const General = ({
   shopId,
-  setDiscount,
   tax,
   setTax,
-  taxStatus,
   service,
   setService,
-  serviceStatus,
   includedTaxService,
   setIncludedTaxService,
   userDataRefetch,
@@ -21,14 +18,11 @@ const General = ({
   discountStatus: any;
   setDiscountStatus: any;
   discount: any;
-  setDiscount: any;
   tax: any;
   setTax: any;
-  taxStatus: any;
   setTaxStatus: any;
   service: any;
   setService: any;
-  serviceStatus: any;
   setServiceStatus: any;
   includedTaxService: any;
   setIncludedTaxService: any;
@@ -52,7 +46,7 @@ const General = ({
 
   const handleUpdateGeneralSettings = async (event: any) => {
     try {
-      await axios.patch(`http://localhost:3001/shops/${shopId}`, {
+      await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/shops/${shopId}`, {
         included_tax_service: includedTaxService,
         tax: tax,
         service: service,

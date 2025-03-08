@@ -16,7 +16,7 @@ export const useCheckToken = (user: IUser) => {
     // Fungsi untuk verifikasi token
     const verifyToken = async () => {
       try {
-        await axios.get('http://localhost:3001/auth/verify', {
+        await axios.get(`${process.env.REACT_APP_API_BASE_URL}/auth/verify`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access-token')}`,
           },
