@@ -1,6 +1,6 @@
 import { Alert, Box, Button, TextField } from '@mui/material';
 import axios from 'axios';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useForm } from 'react-hook-form';
@@ -14,7 +14,7 @@ const Login = () => {
 
   const onSubmit = async (data: any) => {
     try {
-      const res = await axios.post('http://localhost:3001/auth/login', { username: data.username, password: data.password });
+      const res = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/auth/login`, { username: data.username, password: data.password });
 
       signIn(res.data.data.username);
 

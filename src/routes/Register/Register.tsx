@@ -1,6 +1,6 @@
 import { Alert, Box, Button, TextField } from '@mui/material';
 import axios from 'axios';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
@@ -26,7 +26,7 @@ const Register = () => {
 
   const handleSubmit = async () => {
     try {
-      await axios.post('http://localhost:3001/auth/signup', { username, password });
+      await axios.post(`${process.env.REACT_APP_API_BASE_URL}/auth/signup`, { username, password });
 
       setRegisterStatus('success');
     } catch (error: any) {

@@ -1,4 +1,3 @@
-import React from 'react';
 import bahariLogo from '../../img/Bahari_logo.jpg';
 import { Button, TextField } from '@mui/material';
 

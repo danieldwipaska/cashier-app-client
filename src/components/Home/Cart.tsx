@@ -17,7 +17,7 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
   const { setOpenSummary } = states;
   const { crewCredential, setCrewCredential, openCrewAuthAlertDialog, setOpenCrewAuthAlertDialog, errorCrewCredential, setErrorCrewCredential, errorUnauthorizedCrew, setErrorUnauthorizedCrew } = crewData;
   const { reports, reportsRefetch } = unpaidReports;
-  const { totalOrder, totalPaymentAfterTaxService } = calculationData;
+  const { totalPaymentAfterTaxService } = calculationData;
 
   const [customerNameIsEmpty, setCustomerNameIsEmpty] = useState(false);
   const [paymentMethodIsEmpty, setPaymentMethodIsEmpty] = useState(false);
@@ -59,7 +59,7 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
     }
 
     try {
-      const res = await axios.get(`http://localhost:3001/reports/${event.target.value}`);
+      const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports/${event.target.value}`);
 
       setCardNumber(res.data.data.card_number);
       setCustomerName(res.data.data.customer_name);
@@ -141,7 +141,7 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
     if (!crewCredential) return setErrorCrewCredential(true);
 
     try {
-      const crew = await axios.post(`http://localhost:3001/crews/code`, { code: crewCredential });
+      const crew = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/crews/code`, { code: crewCredential });
       if (!crew.data.data) return setErrorUnauthorizedCrew(true);
 
       const order_id: string[] = [];
@@ -175,7 +175,7 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
       };
 
       try {
-        await axios.post('http://localhost:3001/reports', payload, {
+        await axios.post(`${process.env.REACT_APP_API_BASE_URL}/reports`, payload, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access-token')}`,
           },
@@ -218,7 +218,7 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
       if (paymentMethod === 'Gift Card') {
         setOpenConfirmProgressSpinner(true);
         try {
-          const response = await axios.get(`http://localhost:3001/cards/${cardNumber}`);
+          const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/cards/${cardNumber}`);
           if (response.data.data.balance < totalPaymentAfterTaxService) throw new Error('Balance Not Enough');
 
           // setCardNumber(response.data.data.card_number);

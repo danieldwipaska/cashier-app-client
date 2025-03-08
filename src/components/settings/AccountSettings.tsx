@@ -50,16 +50,16 @@ const AccountSettings = () => {
   const [discount, setDiscount] = React.useState(0);
   const [discountStatus, setDiscountStatus] = React.useState(false);
   const [tax, setTax] = React.useState(0);
-  const [taxStatus, setTaxStatus] = React.useState(true);
+  const [, setTaxStatus] = React.useState(true);
   const [service, setService] = React.useState(0);
-  const [serviceStatus, setServiceStatus] = React.useState(true);
+  const [, setServiceStatus] = React.useState(true);
   const [includedTaxService, setIncludedTaxService] = React.useState(false);
 
   const { refetch: userDataRefetch } = useQuery({
     queryKey: ['userData'],
     queryFn: () =>
       axios
-        .get(`http://localhost:3001/multiusers/configuration/${user?.username}`, {
+        .get(`${process.env.REACT_APP_API_BASE_URL}/multiusers/configuration/${user?.username}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access-token')}`,
           },
@@ -100,14 +100,11 @@ const AccountSettings = () => {
               discountStatus={discountStatus}
               setDiscountStatus={setDiscountStatus}
               discount={discount}
-              setDiscount={setDiscount}
               tax={tax}
               setTax={setTax}
-              taxStatus={taxStatus}
               setTaxStatus={setTaxStatus}
               service={service}
               setService={setService}
-              serviceStatus={serviceStatus}
               setServiceStatus={setServiceStatus}
               includedTaxService={includedTaxService}
               setIncludedTaxService={setIncludedTaxService}

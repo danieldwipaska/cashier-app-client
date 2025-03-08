@@ -1,19 +1,16 @@
 import { Alert, Box, Button, CircularProgress, Modal, Paper, Snackbar, SnackbarCloseReason, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, useMediaQuery } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { CSVLink } from 'react-csv';
-import { ReactComponent as CancelIcon } from '../../assets/img/icons/cancel.svg';
 import { ReactComponent as DownloadIcon } from '../../assets/img/icons/download.svg';
 import { ReactComponent as ArrowRightDoubleIcon } from '../../assets/img/icons/arrow-right-double.svg';
 import { ReactComponent as MinusIcon } from '../../assets/img/icons/minus.svg';
 import { ReactComponent as PlusIcon } from '../../assets/img/icons/plus.svg';
-import { ReactComponent as ReloadIcon } from '../../assets/img/icons/reload.svg';
 import { ReactComponent as OptionIcon } from '../../assets/img/icons/option.svg';
 import { ReportStatus, ReportType } from 'configs/utils';
 import ModalConfirmation from '../modals/ModalConfirmation';
 import orderDiscountedPrice from 'functions/discount.report';
-import { calculateTaxService, calculateTaxServiceWithDiscount } from 'functions/refund.report';
 import { NestedModal } from 'components/modals/Modal';
 import Invoices from './Invoices';
 import bahariLogo from '../../assets/img/bahari-logo.webp';
@@ -157,7 +154,7 @@ function PartiallyRefundModal({ row }: { row: Data }) {
     if (emptyRefundedItems) return handleClose();
 
     try {
-      await axios.patch(`http://localhost:3001/reports/${row.id}/refund`, {
+      await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/reports/${row.id}/refund`, {
         refunded_order_amount: refundedItems,
       });
 
@@ -338,7 +335,7 @@ const ListOfPayment = () => {
       const rows: Data[] = [];
 
       try {
-        let res = await axios.get(`http://localhost:3001/reports?from=${DTPickerFrom}&to=${DTPickerTo}`);
+        let res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports?from=${DTPickerFrom}&to=${DTPickerTo}`);
         if (!res.data) return rows;
 
         if (searchedReport) {
@@ -432,7 +429,7 @@ const ListOfPayment = () => {
 
   const cancelOpenBill = async (id: string) => {
     try {
-      await axios.patch(`http://localhost:3001/reports/${id}/cancel`);
+      await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/reports/${id}/cancel`);
 
       reportsRefetch();
       setSuccessMessage('Payment has been cancelled');
