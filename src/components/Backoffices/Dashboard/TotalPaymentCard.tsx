@@ -27,7 +27,7 @@ const TotalPaymentCard = () => {
 
   return (
     <div className="px-5 py-3">
-      <h5 className="mb-2 text-sm text-gray-500">Total Successful Payments</h5>
+      <h5 className="mb-2 text-sm text-gray-500">Today's Successful Payments</h5>
       <p className="text-3xl font-bold">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalPayment)}</p>
     </div>
   );

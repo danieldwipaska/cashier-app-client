@@ -59,7 +59,7 @@ interface Data {
   refunded_order_amount: number[];
   order_discount_status: boolean[];
   order_discount_percent: number[];
-  tax_service_included: boolean;
+  included_tax_service: boolean;
   tax_percent: number;
   service_percent: number;
 }
@@ -85,7 +85,7 @@ function createData(
   refunded_order_amount: number[],
   order_discount_status: boolean[],
   order_discount_percent: number[],
-  tax_service_included: boolean,
+  included_tax_service: boolean,
   tax_percent: number,
   service_percent: number
 ): Data {
@@ -110,7 +110,7 @@ function createData(
     refunded_order_amount,
     order_discount_status,
     order_discount_percent,
-    tax_service_included,
+    included_tax_service,
     tax_percent,
     service_percent,
   };
@@ -189,7 +189,7 @@ function PartiallyRefundModal({ row }: { row: Data }) {
       row.tax_percent,
     );
 
-    if (!row.tax_service_included) {
+    if (!row.included_tax_service) {
       totalRefund = taxService.calculateTax()
     }
 
@@ -371,7 +371,7 @@ const ListOfPayment = () => {
               report.refunded_order_amount,
               report.order_discount_status,
               report.order_discount_percent,
-              report.tax_service_included,
+              report.included_tax_service,
               report.tax_percent,
               report.service_percent
             )
@@ -414,7 +414,6 @@ const ListOfPayment = () => {
     { label: 'Total Payment After Tax and Service', key: 'total_payment_after_tax_service' },
     { label: 'Tax Amount', key: 'tax_percent' },
     { label: 'Service Amount', key: 'service_percent' },
-    { label: 'Total Tax and Service', key: 'total_tax_service' },
     { label: 'Initial Balance', key: 'initial_balance' },
     { label: 'Final Balance', key: 'final_balance' },
     { label: 'Payment Method', key: 'payment_method' },

@@ -29,7 +29,7 @@ const CheckoutCard = () => {
 
   return (
     <div>
-      <Card icon={<CheckoutIcon className="w-[15px]" />} bgClass={'bg-red-300'} title={`Total Checkout`} value={Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalCheckout)} borderLeft={true} />
+      <Card icon={<CheckoutIcon className="w-[15px]" />} bgClass={'bg-red-300'} title={`Today's Checkout`} value={Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalCheckout)} borderLeft={true} />
     </div>
   );
 };
