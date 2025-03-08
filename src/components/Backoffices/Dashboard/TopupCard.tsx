@@ -28,7 +28,7 @@ const TopupCard = () => {
   });
   return (
     <div>
-      <Card icon={<CardIcon className="w-[15px]" />} bgClass={'bg-green-400'} title={`Total Top-up`} value={Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalTopup)} />
+      <Card icon={<CardIcon className="w-[15px]" />} bgClass={'bg-green-400'} title={`Today's Top-up`} value={Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalTopup)} />
     </div>
   );
 };

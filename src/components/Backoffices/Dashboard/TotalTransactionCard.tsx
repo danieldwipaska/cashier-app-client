@@ -29,7 +29,7 @@ const TotalTransactionCard = () => {
 
   return (
     <div>
-      <Card icon={<ReceiptIcon className="w-[15px]" />} bgClass={'bg-yellow-200'} title={`Total Transaction`} value={totalTransaction.toString()} borderLeft={true} />
+      <Card icon={<ReceiptIcon className="w-[15px]" />} bgClass={'bg-yellow-200'} title={`Today's Transaction`} value={totalTransaction.toString()} borderLeft={true} />
     </div>
   );
 };
