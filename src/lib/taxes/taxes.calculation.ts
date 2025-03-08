@@ -1,4 +1,4 @@
-export class TaxService {
+export class ServiceTax {
     constructor(
       readonly totalPayment: number,
       readonly servicePercent: number,

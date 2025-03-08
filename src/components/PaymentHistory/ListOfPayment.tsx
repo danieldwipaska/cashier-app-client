@@ -18,7 +18,7 @@ import { NestedModal } from 'components/modals/Modal';
 import Invoices from './Invoices';
 import bahariLogo from '../../assets/img/bahari-logo.webp';
 import { CheckCircle } from '@mui/icons-material';
-import { TaxService } from 'lib/taxes/taxes.calculation';
+import { ServiceTax } from 'lib/taxes/taxes.calculation';
 
 interface Column {
   id: 'type' | 'report_id' | 'status' | 'customer_name' | 'customer_id' | 'served_by' | 'total_payment_after_tax_service' | 'dateCreatedAt' | 'timeCreatedAt' | 'action';
@@ -186,7 +186,7 @@ function PartiallyRefundModal({ row }: { row: Data }) {
       }
     });
 
-    const taxService = new TaxService(
+    const taxService = new ServiceTax(
       totalRefund,
       row.service_percent,
       row.tax_percent,
