@@ -10,7 +10,6 @@ import {
 import { id } from 'date-fns/locale';
 
 export const processMonthlySales = (reports: any) => {
-  console.log(reports);
   // Get current date
   const currentDate = new Date();
   

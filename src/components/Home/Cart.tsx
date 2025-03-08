@@ -17,7 +17,7 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
   const { setOpenSummary } = states;
   const { crewCredential, setCrewCredential, openCrewAuthAlertDialog, setOpenCrewAuthAlertDialog, errorCrewCredential, setErrorCrewCredential, errorUnauthorizedCrew, setErrorUnauthorizedCrew } = crewData;
   const { reports, reportsRefetch } = unpaidReports;
-  const { totalOrder, totalTaxService } = calculationData;
+  const { totalOrder, totalPaymentAfterTaxService } = calculationData;
 
   const [customerNameIsEmpty, setCustomerNameIsEmpty] = useState(false);
   const [paymentMethodIsEmpty, setPaymentMethodIsEmpty] = useState(false);
@@ -219,7 +219,7 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
         setOpenConfirmProgressSpinner(true);
         try {
           const response = await axios.get(`http://localhost:3001/cards/${cardNumber}`);
-          if (response.data.data.balance < totalOrder + totalTaxService) throw new Error('Balance Not Enough');
+          if (response.data.data.balance < totalPaymentAfterTaxService) throw new Error('Balance Not Enough');
 
           // setCardNumber(response.data.data.card_number);
           setCustomerName(response.data.data.customer_name);
@@ -385,7 +385,7 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
               </div>
               <div>
                 <div className="flex text-black/60">
-                  <p className="mx-2">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalOrder + totalTaxService)}</p>
+                  <p className="mx-2">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalPaymentAfterTaxService)}</p>
                 </div>
               </div>
             </div>
