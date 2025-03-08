@@ -1,4 +1,5 @@
 import { Box, Button, Modal } from '@mui/material';
+import { ReportStatus, ReportType } from 'configs/utils';
 import { ModalConfirmationProps } from 'lib/interfaces/modal';
 import React, { useState } from 'react';
 
@@ -15,7 +16,7 @@ const style = {
   pb: 3,
 };
 
-const ModalConfirmation = ({ children, buttonContent, confirm }: ModalConfirmationProps) => {
+const ModalConfirmation = ({ children, buttonContent, confirm, row }: ModalConfirmationProps) => {
   const [open, setOpen] = useState(false);
   const handleOpen = () => {
     setOpen(true);
@@ -25,16 +26,19 @@ const ModalConfirmation = ({ children, buttonContent, confirm }: ModalConfirmati
   };
   const handleConfirm = () => {
     confirm();
+    setOpen(false);
   };
 
   return (
     <React.Fragment>
-      {typeof buttonContent === 'string' ? (
+      {buttonContent === 'Refund' ? (
         <Button variant="contained" onClick={handleOpen} color="success">
           {buttonContent}
         </Button>
       ) : (
-        <button onClick={handleOpen}>{buttonContent}</button>
+        <div className={`py-[10px] px-5 bg-gray-300 hover:bg-gray-400 duration-200 flex items-center justify-center ${row?.status === ReportStatus.UNPAID && row?.type === ReportType.PAY ? null : 'hidden'}`} onClick={handleOpen}>
+          Cancel
+        </div>
       )}
 
       <Modal open={open} onClose={handleClose} aria-labelledby="child-modal-title" aria-describedby="child-modal-description">

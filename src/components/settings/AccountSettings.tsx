@@ -50,9 +50,9 @@ const AccountSettings = () => {
   const [discount, setDiscount] = React.useState(0);
   const [discountStatus, setDiscountStatus] = React.useState(false);
   const [tax, setTax] = React.useState(0);
-  const [taxStatus, setTaxStatus] = React.useState(false);
+  const [taxStatus, setTaxStatus] = React.useState(true);
   const [service, setService] = React.useState(0);
-  const [serviceStatus, setServiceStatus] = React.useState(false);
+  const [serviceStatus, setServiceStatus] = React.useState(true);
   const [includedTaxService, setIncludedTaxService] = React.useState(false);
 
   const { refetch: userDataRefetch } = useQuery({
@@ -69,9 +69,7 @@ const AccountSettings = () => {
           setDiscountStatus(res.data.data.shops[0].shop.discount_status);
           setDiscount(res.data.data.shops[0].shop.discount);
           setTax(res.data.data.shops[0].shop.tax);
-          setTaxStatus(res.data.data.shops[0].shop.tax_status);
           setService(res.data.data.shops[0].shop.service);
-          setServiceStatus(res.data.data.shops[0].shop.service_status);
           setIncludedTaxService(res.data.data.shops[0].shop.included_tax_service);
           return res.data.data;
         })

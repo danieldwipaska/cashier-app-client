@@ -13,7 +13,7 @@ const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, 
   const { setOpenSummary, setOpenBackdrop } = states;
   const { crewCredential, setCrewCredential, openCrewAuthAlertDialog, setOpenCrewAuthAlertDialog, errorCrewCredential, setErrorCrewCredential, errorUnauthorizedCrew, setErrorUnauthorizedCrew } = crewData;
   const { reportsRefetch } = unpaidReports;
-  const { totalOrder, totalTaxService } = calculationData;
+  const { totalOrder, totalPaymentAfterTaxService } = calculationData;
 
   const [openConfirmProgressSpinner, setOpenConfirmProgressSpinner] = useState(false);
 
@@ -298,7 +298,7 @@ const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, 
               </div>
               <div>
                 <div className="flex text-black/60">
-                  <p className="mx-2">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalOrder + totalTaxService)}</p>
+                  <p className="mx-2">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalPaymentAfterTaxService)}</p>
                 </div>
               </div>
             </div>

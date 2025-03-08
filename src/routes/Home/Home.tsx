@@ -12,6 +12,8 @@ import { useCheckToken } from '../../hooks/useCheckToken';
 import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 import { ReportStatus } from 'configs/utils';
+import { calculateDiscountedPrice } from 'functions/tax-service';
+import { TaxService } from 'lib/taxes/taxes.calculation';
 
 const Home = () => {
   // Auth
@@ -30,10 +32,11 @@ const Home = () => {
 
   // Orders
   const [orders, setOrders] = useState<any[]>([]);
+  const [shop, setShop] = useState<any>(null);
 
   // Calculation
   const [totalOrder, setTotalOrder] = useState(0);
-  const [totalTaxService, setTotalTaxService] = useState(0);
+  const [totalPaymentAfterTaxService, setTotalPaymentAfterTaxService] = useState(0);
 
   // Cart & Summary
   const [openSummary, setOpenSummary] = useState(false);
@@ -60,6 +63,25 @@ const Home = () => {
           return console.log(err);
         }),
   });
+
+  useQuery({
+    queryKey: ['shopData'],
+    queryFn: () =>
+      axios
+        .get(`http://localhost:3001/multiusers/configuration/${user?.username}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        })
+        .then((res) => {
+          setShop(res.data.data.shops[0].shop);
+
+          return res.data.data.shops[0].shop;
+        })
+        .catch((err) => {
+          return console.log(err);
+        }),
+  });
   // END QUERIES
 
   // START HOOKS
@@ -68,7 +90,15 @@ const Home = () => {
     // Update orders whenever something changes
     setTotalOrder(sumOrders(orders));
 
-  }, [orders, user.username]);
+    const taxService = new TaxService(calculateDiscountedPrice(orders), shop?.tax, shop?.service);
+
+    if (shop?.included_tax_service === false) {
+      return setTotalPaymentAfterTaxService(taxService.calculateTax());
+    }
+    
+    return setTotalPaymentAfterTaxService(totalOrder);
+
+  }, [orders, shop?.included_tax_service, shop?.service, shop?.tax, totalOrder]);
   // END HOOKS
 
   return (
@@ -125,8 +155,8 @@ const Home = () => {
             calculationData={{
               totalOrder,
               setTotalOrder,
-              totalTaxService,
-              setTotalTaxService,
+              totalPaymentAfterTaxService,
+              setTotalPaymentAfterTaxService,
             }}
           />
         ) : (
@@ -174,8 +204,8 @@ const Home = () => {
             calculationData={{
               totalOrder,
               setTotalOrder,
-              totalTaxService,
-              setTotalTaxService,
+              totalPaymentAfterTaxService,
+              setTotalPaymentAfterTaxService,
             }}
           />
         )}

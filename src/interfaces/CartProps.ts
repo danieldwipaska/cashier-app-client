@@ -47,7 +47,7 @@ export default interface ICartProps {
     calculationData: {
         totalOrder: number;
         setTotalOrder: React.Dispatch<React.SetStateAction<number>>;
-        totalTaxService: number;
-        setTotalTaxService: React.Dispatch<React.SetStateAction<number>>;
+        totalPaymentAfterTaxService: number,
+        setTotalPaymentAfterTaxService: React.Dispatch<React.SetStateAction<number>>,
     }
 }

@@ -1,5 +1,7 @@
 import { FormControl, FormGroup, FormLabel, Switch, TextField } from '@mui/material';
 import axios from 'axios';
+import SimpleSnackbar from 'components/snackbars/SimpleSnackbar';
+import { useState } from 'react';
 
 const General = ({
   shopId,
@@ -11,6 +13,7 @@ const General = ({
   setService,
   serviceStatus,
   includedTaxService,
+  setIncludedTaxService,
   userDataRefetch,
 }: {
   shopId: any;
@@ -31,39 +34,40 @@ const General = ({
   setIncludedTaxService: any;
   userDataRefetch: any;
 }) => {
-  const updateTaxStatus = async (shopId: string, taxStatus: boolean, tax: number) => {
-    try {
-      await axios.patch(`http://localhost:3001/shops/${shopId}`, { tax_status: taxStatus, tax: Number(tax) });
-      userDataRefetch();
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('');
 
-  const updateServiceStatus = async (shopId: string, serviceStatus: boolean, service: number) => {
-    try {
-      await axios.patch(`http://localhost:3001/shops/${shopId}`, { service_status: serviceStatus, service: Number(service) });
-      userDataRefetch();
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const updateIncludedTaxService = async (shopId: string, includedTaxService: boolean) => {
-    try {
-      await axios.patch(`http://localhost:3001/shops/${shopId}`, { included_tax_service: includedTaxService });
-      userDataRefetch();
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  const handleIncludeTaxAndService = (event: any) => {
+    setIncludedTaxService(!includedTaxService);
+  }
 
   const handleChangeTax = (event: any) => {
-    setTax(event.target.value);
+    setTax(+event.target.value);
   };
 
   const handleChangeService = (event: any) => {
-    setService(event.target.value);
+    setService(+event.target.value);
+  };
+
+  const handleUpdateGeneralSettings = async (event: any) => {
+    try {
+      await axios.patch(`http://localhost:3001/shops/${shopId}`, {
+        included_tax_service: includedTaxService,
+        tax: tax,
+        service: service,
+      });
+
+      userDataRefetch();
+
+      setSnackbarMessage('Your setting updated!');
+      setSnackbarSeverity('success');
+      setOpenSnackbar(true);
+    } catch (error) {
+      setSnackbarMessage('Oops, error!');
+      setSnackbarSeverity('error');
+      setOpenSnackbar(true);
+    }
   };
 
   return (
@@ -80,15 +84,8 @@ const General = ({
               </FormLabel>
               <FormGroup aria-label="position" row>
                 <div className="flex items-center">
-                  <div>
-                    {taxStatus ? (
-                      <Switch sx={{ my: 0 }} color="success" onClick={() => updateTaxStatus(shopId, !taxStatus, tax)} checked />
-                    ) : (
-                      <Switch sx={{ my: 0 }} color="success" onClick={() => updateTaxStatus(shopId, !taxStatus, tax)} />
-                    )}
-                  </div>
                   <div className="pb-0">
-                    {taxStatus ? <TextField disabled id="standard-basic" variant="standard" value={tax} onChange={handleChangeTax} /> : <TextField id="standard-basic" variant="standard" value={tax} onChange={handleChangeTax} />}
+                    <TextField id="standard-basic" variant="standard" value={tax} onChange={handleChangeTax} />
                   </div>
                 </div>
               </FormGroup>
@@ -101,19 +98,8 @@ const General = ({
               </FormLabel>
               <FormGroup aria-label="position" row>
                 <div className="flex items-center">
-                  <div>
-                    {serviceStatus ? (
-                      <Switch sx={{ my: 0 }} color="success" onClick={() => updateServiceStatus(shopId, !serviceStatus, service)} checked />
-                    ) : (
-                      <Switch sx={{ my: 0 }} color="success" onClick={() => updateServiceStatus(shopId, !serviceStatus, service)} />
-                    )}
-                  </div>
                   <div className="pb-0">
-                    {serviceStatus ? (
-                      <TextField disabled id="standard-basic" variant="standard" value={service} onChange={handleChangeService} />
-                    ) : (
-                      <TextField id="standard-basic" variant="standard" value={service} onChange={handleChangeService} />
-                    )}
+                    <TextField id="standard-basic" variant="standard" value={service} onChange={handleChangeService} />
                   </div>
                 </div>
               </FormGroup>
@@ -125,13 +111,19 @@ const General = ({
                 Include Tax and/or Service <br /> without additional payments
               </FormLabel>
               {includedTaxService ? (
-                <Switch sx={{ my: 0 }} color="success" onClick={() => updateIncludedTaxService(shopId, !includedTaxService)} checked />
+                <Switch sx={{ my: 0 }} color="success" onClick={handleIncludeTaxAndService} checked />
               ) : (
-                <Switch sx={{ my: 0 }} color="success" onClick={() => updateIncludedTaxService(shopId, !includedTaxService)} />
+                <Switch sx={{ my: 0 }} color="success" onClick={handleIncludeTaxAndService} />
               )}
             </FormControl>
           </div>
+          <div className="mt-8">
+            <button className="py-2 px-3 bg-green-400 rounded-md hover:opacity-80 duration-200" onClick={handleUpdateGeneralSettings}>
+              Update
+            </button>
+          </div>
         </div>
+        <SimpleSnackbar open={openSnackbar} setOpen={setOpenSnackbar} message={snackbarMessage} severity={snackbarSeverity} />
       </div>
     </div>
   );

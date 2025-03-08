@@ -1,7 +1,7 @@
 import { Alert, Box, Button, CircularProgress, Modal, Paper, Snackbar, SnackbarCloseReason, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, useMediaQuery } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { CSVLink } from 'react-csv';
 import { ReactComponent as CancelIcon } from '../../assets/img/icons/cancel.svg';
 import { ReactComponent as DownloadIcon } from '../../assets/img/icons/download.svg';
@@ -9,6 +9,7 @@ import { ReactComponent as ArrowRightDoubleIcon } from '../../assets/img/icons/a
 import { ReactComponent as MinusIcon } from '../../assets/img/icons/minus.svg';
 import { ReactComponent as PlusIcon } from '../../assets/img/icons/plus.svg';
 import { ReactComponent as ReloadIcon } from '../../assets/img/icons/reload.svg';
+import { ReactComponent as OptionIcon } from '../../assets/img/icons/option.svg';
 import { ReportStatus, ReportType } from 'configs/utils';
 import ModalConfirmation from '../modals/ModalConfirmation';
 import orderDiscountedPrice from 'functions/discount.report';
@@ -17,9 +18,10 @@ import { NestedModal } from 'components/modals/Modal';
 import Invoices from './Invoices';
 import bahariLogo from '../../assets/img/bahari-logo.webp';
 import { CheckCircle } from '@mui/icons-material';
+import { TaxService } from 'lib/taxes/taxes.calculation';
 
 interface Column {
-  id: 'type' | 'report_id' | 'status' | 'customer_name' | 'customer_id' | 'served_by' | 'total_payment_after_tax_service' | 'dateCreatedAt' | 'timeCreatedAt';
+  id: 'type' | 'report_id' | 'status' | 'customer_name' | 'customer_id' | 'served_by' | 'total_payment_after_tax_service' | 'dateCreatedAt' | 'timeCreatedAt' | 'action';
   label: string;
   minWidth?: number;
   align?: 'right';
@@ -36,6 +38,7 @@ const columns: readonly Column[] = [
   { id: 'total_payment_after_tax_service', label: 'Total Payment', minWidth: 100, format: (value: number) => Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(value) },
   { id: 'dateCreatedAt', label: 'Date', minWidth: 100 },
   { id: 'timeCreatedAt', label: 'Time', minWidth: 100 },
+  { id: 'action', label: '', minWidth: 100 },
 ];
 
 interface Data {
@@ -183,32 +186,24 @@ function PartiallyRefundModal({ row }: { row: Data }) {
       }
     });
 
+    const taxService = new TaxService(
+      totalRefund,
+      row.service_percent,
+      row.tax_percent,
+    );
+
     if (!row.tax_service_included) {
-      totalRefund += refundTaxAndService();
+      totalRefund = taxService.calculateTax()
     }
 
-    return <span>{Intl.NumberFormat('id-ID').format(totalRefund)}</span>;
-  };
-
-  const refundTaxAndService = () => {
-    let sumTotalTaxAndService = 0;
-
-    row.order_price.forEach((price: number, i: number) => {
-      if (row.order_discount_status[i]) {
-        sumTotalTaxAndService += calculateTaxServiceWithDiscount({ price, amount: refundedItems[i], discountPercent: row.order_discount_percent[i], servicePercent: row.service_percent, taxPercent: row.tax_percent });
-      } else {
-        sumTotalTaxAndService += calculateTaxService({ price, amount: refundedItems[i], servicePercent: row.service_percent, taxPercent: row.tax_percent });
-      }
-    });
-
-    return sumTotalTaxAndService;
+    return <span>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalRefund)}</span>;
   };
 
   return (
     <React.Fragment>
-      <button className={`px-2 py-1 bg-gray-300 rounded-full shadow-lg ${row.order_amount.toString() === row.refunded_order_amount.toString() ? 'hidden' : null}`} onClick={handleOpen}>
-        <ReloadIcon className="w-[12px]" />
-      </button>
+      <div className={`py-[10px] px-5 bg-gray-300 hover:bg-gray-500 duration-200 flex items-center justify-center ${row.order_amount.toString() === row.refunded_order_amount.toString() ? 'hidden' : null}`} onClick={handleOpen}>
+        Refund
+      </div>
 
       <Modal open={open} onClose={handleClose} aria-labelledby="child-modal-title" aria-describedby="child-modal-description">
         <Box sx={{ ...style, width: 400, border: 0 }}>
@@ -266,9 +261,6 @@ function PartiallyRefundModal({ row }: { row: Data }) {
             <p className="font-medium text-sm">
               Total Refund : - Rp. <TotalRefund />
             </p>
-            <p className="text-sm text-gray-500">
-              Tax and Service : Rp. <span>{row.tax_service_included ? 0 : Intl.NumberFormat('id-ID').format(refundTaxAndService())}</span>
-            </p>
           </div>
           <div className="mt-5 flex gap-2">
             <ModalConfirmation buttonContent="Refund" confirm={handleRefund}>
@@ -302,7 +294,24 @@ const ListOfPayment = () => {
   const [selectedPaymentData, setSelectedPaymentData] = useState<any>(null);
   const [totalPaymentSelectedData, setTotalPaymentSelectedData] = useState(0);
 
+  // Dropdowns
+  const [openDropdownId, setOpenDropdownId] = useState('');
+
   const fullHD = useMediaQuery('(min-width:1400px)');
+
+  useEffect(() => {
+    const handleClickOutside = (event: any) => {
+      if (!event.target.closest("#dropdown-dialog")) {
+        setOpenDropdownId(''); 
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleSearchReportChange = (event: any) => {
     setSearchedReport(event.target.value);
@@ -318,6 +327,10 @@ const ListOfPayment = () => {
   const handleOpenDetailModal = () => {
     setOpenDetailModal(true);
   };
+
+  const handleDropdown = (id: string) => {
+    setOpenDropdownId(id);
+  }
 
   const { data: reports, refetch: reportsRefetch } = useQuery({
     queryKey: ['reports'],
@@ -429,14 +442,6 @@ const ListOfPayment = () => {
     }
   };
 
-  const ButtonCancelOpenBill = () => {
-    return (
-      <>
-        <CancelIcon className="w-[25px] text-red-600" />
-      </>
-    );
-  };
-
   return (
     <div className="bg-gray-200 max-h-screen pt-20 px-8 w-full">
       <div className="mb-5 flex justify-between">
@@ -500,14 +505,39 @@ const ListOfPayment = () => {
                       role="checkbox"
                       tabIndex={-1}
                       key={row.id}
-                      sx={{ cursor: 'pointer' }}
                       onClick={() => {
                         setSelectedPaymentData(row);
                         setTotalPaymentSelectedData(row.total_payment_after_tax_service);
-                        handleOpenDetailModal();
                       }}
                     >
                       {columns.map((column) => {
+                        if (column.id === 'action') {
+                          return (
+                            <TableCell key={column.id} align={column.align} sx={{ fontSize: 12, position: 'relative' }}>
+                              <OptionIcon className="w-[30px]" onClick={() => {
+                                handleDropdown(row.id);
+                              }} />
+                              <div className={`absolute hover:cursor-pointer z-[1] duration-200 transition-all overflow-hidden -translate-x-1/2 ${openDropdownId !== row.id ? 'max-h-0 opacity-0' : 'max-h-40 opacity-100'}`} id='dropdown-dialog'>
+                              <PartiallyRefundModal row={row} />
+                                <ModalConfirmation
+                                    buttonContent={'Cancel'}
+                                    confirm={() => {
+                                      cancelOpenBill(row.id);
+                                    }}
+                                    row={row}
+                                  >
+                                    <p className="text-xl font-semibold">Warning</p>
+                                    <p className="mt-2">Cancel this payment?</p>
+                                  </ModalConfirmation>
+                                  <div className='py-[10px] px-5 bg-gray-300 hover:bg-gray-400 duration-200 flex items-center justify-center' onClick={handleOpenDetailModal}>
+                                    Receipt
+                                  </div>
+                              </div>
+                               
+                            </TableCell>
+                          );
+                        }
+
                         const value = row[column.id];
                         return (
                           <TableCell key={column.id} align={column.align} sx={{ fontSize: 12 }}>
@@ -534,19 +564,6 @@ const ListOfPayment = () => {
                             {column.id === 'type' && value === ReportType.PAY ? (
                               <div className="flex gap-2">
                                 <p className="px-3 py-1 bg-teal-300 text-black rounded-full">{value}</p>
-                                {row.status === ReportStatus.UNPAID ? (
-                                  <ModalConfirmation
-                                    buttonContent={<ButtonCancelOpenBill />}
-                                    confirm={() => {
-                                      cancelOpenBill(row.id);
-                                    }}
-                                  >
-                                    <p className="text-xl font-semibold">Warning</p>
-                                    <p className="mt-2">Cancel this payment?</p>
-                                  </ModalConfirmation>
-                                ) : (
-                                  row.status === ReportStatus.PAID && <PartiallyRefundModal row={row} />
-                                )}
                               </div>
                             ) : null}
                             {column.id === 'type' && value === ReportType.REFUND ? (
