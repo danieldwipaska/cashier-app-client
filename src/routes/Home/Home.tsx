@@ -13,7 +13,7 @@ import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 import { ReportStatus } from 'configs/utils';
 import { calculateDiscountedPrice } from 'functions/tax-service';
-import { TaxService } from 'lib/taxes/taxes.calculation';
+import { ServiceTax } from 'lib/taxes/taxes.calculation';
 
 const Home = () => {
   // Auth
@@ -90,7 +90,7 @@ const Home = () => {
     // Update orders whenever something changes
     setTotalOrder(sumOrders(orders));
 
-    const taxService = new TaxService(calculateDiscountedPrice(orders), shop?.tax, shop?.service);
+    const taxService = new ServiceTax(calculateDiscountedPrice(orders), shop?.service, shop?.tax);
 
     if (shop?.included_tax_service === false) {
       return setTotalPaymentAfterTaxService(taxService.calculateTax());
