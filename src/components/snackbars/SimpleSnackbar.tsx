@@ -4,7 +4,7 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import { Alert } from '@mui/material';
 
-export default function SimpleSnackbar({ open, setOpen, message, severity = 'error' }: any) {
+export default function SimpleSnackbar({ open, setOpen, position = { vertical: 'bottom', horizontal: 'left' }, message, severity = 'error' }: any) {
   const handleClose = (event: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return;
@@ -23,7 +23,7 @@ export default function SimpleSnackbar({ open, setOpen, message, severity = 'err
 
   return (
     <div>
-      <Snackbar open={open} autoHideDuration={3000} onClose={handleClose} action={action}>
+      <Snackbar anchorOrigin={position} open={open} autoHideDuration={3000} onClose={handleClose} action={action}>
         <Alert onClose={handleClose} severity={severity} variant="filled" sx={{ width: '100%' }}>
           {message}
         </Alert>

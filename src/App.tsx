@@ -26,6 +26,7 @@ import PaymentMethodAdd from 'routes/Backoffices/PaymentMethods/PaymentMethodAdd
 import PaymentMethodEdit from 'routes/Backoffices/PaymentMethods/PaymentMethodEdit';
 import Cards from 'routes/Backoffices/Cards/Cards';
 import CardAdd from 'routes/Backoffices/Cards/CardAdd';
+import { MessageProvider } from 'context/MessageContext';
 
 function App() {
   const client = new QueryClient({
@@ -38,33 +39,35 @@ function App() {
     <div className="App">
       <AuthProvider>
         <QueryClientProvider client={client}>
-          <Router>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/report" element={<PaymentHistory />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/gift-card" element={<GiftCard />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/backoffices" element={<Backoffices />} />
-              <Route path="/backoffices/products" element={<Products />} />
-              <Route path="/backoffices/products/:productId" element={<ProductDetails />} />
-              <Route path="/backoffices/products/:productId/edit" element={<ProductEdit />} />
-              <Route path="/backoffices/products/add" element={<ProductAdd />} />
-              <Route path="/backoffices/categories" element={<Categories />} />
-              <Route path="/backoffices/categories/add" element={<CategoryAdd />} />
-              <Route path="/backoffices/categories/:categoryId/edit" element={<CategoryEdit />} />
-              <Route path="/backoffices/reports" element={<Reports />} />
-              <Route path="/backoffices/crews" element={<Crews />} />
-              <Route path="/backoffices/crews/add" element={<CrewsAdd />} />
-              <Route path="/backoffices/crews/:crewId/edit" element={<CrewEdit />} />
-              <Route path="/backoffices/payment-methods" element={<PaymentMethods />} />
-              <Route path="/backoffices/payment-methods/add" element={<PaymentMethodAdd />} />
-              <Route path="/backoffices/payment-methods/:paymentMethodId/edit" element={<PaymentMethodEdit />} />
-              <Route path="/backoffices/cards" element={<Cards />} />
-              <Route path="/backoffices/cards/add" element={<CardAdd />} />
-            </Routes>
-          </Router>
+          <MessageProvider>
+            <Router>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/report" element={<PaymentHistory />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/gift-card" element={<GiftCard />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/backoffices" element={<Backoffices />} />
+                <Route path="/backoffices/products" element={<Products />} />
+                <Route path="/backoffices/products/:productId" element={<ProductDetails />} />
+                <Route path="/backoffices/products/:productId/edit" element={<ProductEdit />} />
+                <Route path="/backoffices/products/add" element={<ProductAdd />} />
+                <Route path="/backoffices/categories" element={<Categories />} />
+                <Route path="/backoffices/categories/add" element={<CategoryAdd />} />
+                <Route path="/backoffices/categories/:categoryId/edit" element={<CategoryEdit />} />
+                <Route path="/backoffices/reports" element={<Reports />} />
+                <Route path="/backoffices/crews" element={<Crews />} />
+                <Route path="/backoffices/crews/add" element={<CrewsAdd />} />
+                <Route path="/backoffices/crews/:crewId/edit" element={<CrewEdit />} />
+                <Route path="/backoffices/payment-methods" element={<PaymentMethods />} />
+                <Route path="/backoffices/payment-methods/add" element={<PaymentMethodAdd />} />
+                <Route path="/backoffices/payment-methods/:paymentMethodId/edit" element={<PaymentMethodEdit />} />
+                <Route path="/backoffices/cards" element={<Cards />} />
+                <Route path="/backoffices/cards/add" element={<CardAdd />} />
+              </Routes>
+            </Router>
+          </MessageProvider>
         </QueryClientProvider>
       </AuthProvider>
     </div>
