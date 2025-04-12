@@ -20,6 +20,10 @@ export const CARD_TYPES = ['Basic', 'Member'];
 export enum ErrorMessage {
   CARD_NOT_FOUND = 'Card Not Found',
   CARD_NOT_ACTIVE = 'Card Not Active',
+  INTERNAL_SERVER_ERROR = 'Internal Server Error',
+  INVALID_CREW_CODE = 'Wrong crew code',
+  UNEXPECTED_ERROR = 'An unexpected or connection error occurred',
+  BAD_REQUEST = 'Bad Request',
 }
 
 // ENUM

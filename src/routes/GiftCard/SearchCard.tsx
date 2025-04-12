@@ -1,14 +1,12 @@
 import axios from 'axios';
 import { ErrorMessage } from 'configs/utils';
+import { useMessages } from 'context/MessageContext';
 import { Card } from 'lib/interfaces/cards';
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import SimpleSnackbar from '../../components/snackbars/SimpleSnackbar';
 
 const SearchCard = ({ setCardData }: { setCardData: React.Dispatch<React.SetStateAction<Card | null>> }) => {
   const { handleSubmit, register } = useForm();
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const { showMessage } = useMessages();
 
   const onSubmit = async (data: any) => {
     try {
@@ -28,14 +26,12 @@ const SearchCard = ({ setCardData }: { setCardData: React.Dispatch<React.SetStat
       return;
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        if (error?.response?.data?.statusCode === 404) setSnackbarMessage(ErrorMessage.CARD_NOT_FOUND);
-        if (error?.response?.data?.statusCode === 500) setSnackbarMessage('Server Error');
+        if (error?.response?.data?.statusCode === 404) showMessage(ErrorMessage.CARD_NOT_FOUND, 'error');
+        if (error?.response?.data?.statusCode === 500) showMessage(ErrorMessage.INTERNAL_SERVER_ERROR, 'error');
       } else {
-        setSnackbarMessage('Unknown Error');
+        showMessage('An unexpected error occurred', 'error');
         console.error(error);
       }
-
-      setOpenSnackbar(true);
     }
   };
 
@@ -52,7 +48,6 @@ const SearchCard = ({ setCardData }: { setCardData: React.Dispatch<React.SetStat
           <button className="py-2 bg-green-400">Search</button>
         </div>
       </form>
-      <SimpleSnackbar open={openSnackbar} setOpen={setOpenSnackbar} message={snackbarMessage} />
     </>
   );
 };

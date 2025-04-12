@@ -36,7 +36,7 @@ const ProductAdd = () => {
         price: Number(data.price),
       })
       .then((res) => {
-        showMessage('Product added successfully', 'success', { vertical: 'bottom', horizontal: 'right' });
+        showMessage('Product added successfully', 'success');
         return navigate('/backoffices/products', { replace: true });
       })
       .catch((err) => {

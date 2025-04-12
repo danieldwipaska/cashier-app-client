@@ -7,8 +7,13 @@ import deleteIcon from '../../../assets/img/icons/icon-delete.svg';
 import editIcon from '../../../assets/img/icons/icon-edit.svg';
 import { useEffect, useState } from 'react';
 import Pagination from 'components/Pagination';
+import { useMessages } from 'context/MessageContext';
 
 const Products = () => {
+  // START CONTEXTS
+  const { showMessage } = useMessages();
+  // END CONTEXTS
+
   // START STATES
   const [page, setPage] = useState(1);
   // END STATES
@@ -33,8 +38,11 @@ const Products = () => {
   // START FUNC
   const handleAvailabilityClick = async (id: string, availability: boolean) => {
     try {
-      await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/fnbs/${id}`, { availability });
+      const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/fnbs/${id}`, { availability });
 
+      const product = response.data.data;
+
+      showMessage(`${product.name} is ${product.availability ? 'now available' : 'out of stock'}`, 'success');
       productsRefetch();
     } catch (error) {
       console.log(error);

@@ -32,6 +32,7 @@ export const MessageProvider = ({ children }: { children: React.ReactNode } ) =>
 
   const clearMessage = useCallback(() => {
     setMessageState(null);
+    setOpen(false);
   }, []);
 
   const value = {

@@ -1,14 +1,15 @@
 import axios from 'axios';
 import { ChildModal, NestedModal } from 'components/modals/Modal';
-import { CardAction } from 'configs/utils';
+import { CardAction, ErrorMessage } from 'configs/utils';
 import { Card } from 'lib/interfaces/cards';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar';
-import Alert from '@mui/material/Alert';
 import formatNumber from 'functions/format.number';
+import { useMessages } from 'context/MessageContext';
 
 const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, setOpenBackdrop }: { data: Card; openTopupModal: any; handleCloseTopupModal: any; refetchCardData: any; setOpenBackdrop: any }) => {
+  const { showMessage } = useMessages();
+
   const { handleSubmit } = useForm();
   const [customerName, setCustomerName] = useState('');
   const [customerId, setCustomerId] = useState('');
@@ -18,8 +19,6 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
   const [note, setNote] = useState('');
   const [code, setCode] = useState('');
   const [error, setError] = useState<any>(null);
-  const [serverErrorMessage, setServerErrorMessage] = useState('');
-  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const handleChangeCustomerName = (event: any) => {
     setCustomerName(event.target.value);
@@ -65,9 +64,15 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
           setOpenBackdrop(false);
         }, 3000);
       } catch (error: any) {
-        if (error.response.data.statusCode === 401) return handleClickSnackbar('Wrong Crew Code');
-        
-        return handleClickSnackbar('Server Error');
+        console.log(error);
+        if (axios.isAxiosError(error)) {
+          if (error?.response?.data?.statusCode === 404) showMessage(ErrorMessage.CARD_NOT_FOUND, 'error');
+          if (error?.response?.data?.statusCode === 500) showMessage(ErrorMessage.INTERNAL_SERVER_ERROR, 'error');
+          if (error?.response?.data?.statusCode === 400) showMessage(ErrorMessage.BAD_REQUEST, 'error');
+          if (error?.response?.data?.statusCode === 401) showMessage(ErrorMessage.INVALID_CREW_CODE, 'error');
+        } else {
+          showMessage(ErrorMessage.UNEXPECTED_ERROR, 'error');
+        }
       }
     } else if (data.status === 'inactive') {
       const formData = {
@@ -86,7 +91,8 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
         refetchCardData(response.data.data.card_number);
         resetTopupData();
       } catch (error) {
-        handleClickSnackbar('Server Error');
+        console.log(error);
+        showMessage(ErrorMessage.INTERNAL_SERVER_ERROR, 'error');
       }
     }
   };
@@ -99,19 +105,6 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
     setNote('');
     setCode('');
     setError(null);
-  };
-
-  const handleClickSnackbar = (message: string) => {
-    setServerErrorMessage(message);
-    setOpenSnackbar(true);
-  };
-
-  const handleClose = (event?: React.SyntheticEvent | Event, reason?: SnackbarCloseReason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-
-    setOpenSnackbar(false);
   };
 
   return (
@@ -217,11 +210,6 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
           </form>
         </ChildModal>
       </NestedModal>
-      <Snackbar open={openSnackbar} autoHideDuration={3000} onClose={handleClose}>
-        <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
-          {serverErrorMessage}
-        </Alert>
-      </Snackbar>
     </>
   );
 };
