@@ -1,7 +1,6 @@
 import { FormControl, FormGroup, FormLabel, Switch, TextField } from '@mui/material';
 import axios from 'axios';
-import SimpleSnackbar from 'components/snackbars/SimpleSnackbar';
-import { useState } from 'react';
+import { useMessages } from 'context/MessageContext';
 
 const General = ({
   shopId,
@@ -28,9 +27,9 @@ const General = ({
   setIncludedTaxService: any;
   userDataRefetch: any;
 }) => {
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState('');
+  // START HOOKS
+  const { showMessage } = useMessages();
+  // END HOOKS
 
   const handleIncludeTaxAndService = (event: any) => {
     setIncludedTaxService(!includedTaxService);
@@ -54,13 +53,10 @@ const General = ({
 
       userDataRefetch();
 
-      setSnackbarMessage('Your setting updated!');
-      setSnackbarSeverity('success');
-      setOpenSnackbar(true);
+      showMessage('General settings updated successfully', 'success');
     } catch (error) {
-      setSnackbarMessage('Oops, error!');
-      setSnackbarSeverity('error');
-      setOpenSnackbar(true);
+      showMessage('Failed to update general settings', 'error');
+      console.log(error);
     }
   };
 
@@ -117,7 +113,6 @@ const General = ({
             </button>
           </div>
         </div>
-        <SimpleSnackbar open={openSnackbar} setOpen={setOpenSnackbar} message={snackbarMessage} severity={snackbarSeverity} />
       </div>
     </div>
   );

@@ -25,7 +25,7 @@ const Menu = (props: any): JSX.Element => {
     queryKey: ['availableFnbsByCategory'],
     queryFn: async () => {
       try {
-        const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/fnbs`);
+        const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/fnbs?pagination=false`);
 
         const availableFnbs = res.data.data.filter((fnb: any) => {
           return fnb.availability === true;

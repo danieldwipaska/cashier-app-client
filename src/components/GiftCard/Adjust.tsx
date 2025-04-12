@@ -1,22 +1,22 @@
 import axios from 'axios';
 import { ChildModal, NestedModal } from 'components/modals/Modal';
-import { CardAction } from 'configs/utils';
+import { CardAction, ErrorMessage } from 'configs/utils';
 import { Card } from 'lib/interfaces/cards';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar';
-import Alert from '@mui/material/Alert';
 import formatNumber from 'functions/format.number';
+import { useMessages } from 'context/MessageContext';
 
 const Adjust = ({ data, openAdjustModal, handleCloseAdjustModal, refetchCardData, setOpenBackdrop }: { data: Card; openAdjustModal: any; handleCloseAdjustModal: any; refetchCardData: any; setOpenBackdrop: any }) => {
+  // START HOOKS
   const { handleSubmit } = useForm();
+  const { showMessage } = useMessages();
+  // END HOOKS
   const [adjustedBalance, setAdjustedBalance] = useState(0);
   const [formattedAdjustedBalance, setFormattedAdjustedBalance] = useState<string>('');
   const [note, setNote] = useState('');
   const [code, setCode] = useState('');
   const [error, setError] = useState<any>(null);
-  const [serverErrorMessage, setServerErrorMessage] = useState('');
-  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const handleChangeAdjustedBalance = (event: any) => {
     const input = event.target.value;
@@ -51,7 +51,16 @@ const Adjust = ({ data, openAdjustModal, handleCloseAdjustModal, refetchCardData
         setOpenBackdrop(false);
       }, 3000);
     } catch (error) {
-      handleClickSnackbar('Server Error');
+      console.log(error);
+      if (axios.isAxiosError(error)) {
+        if (error?.response?.data?.statusCode === 404) showMessage(ErrorMessage.CARD_NOT_FOUND, 'error');
+        if (error?.response?.data?.statusCode === 500) showMessage(ErrorMessage.INTERNAL_SERVER_ERROR, 'error');
+        if (error?.response?.data?.statusCode === 400) showMessage(ErrorMessage.BAD_REQUEST, 'error');
+        if (error?.response?.data?.statusCode === 401) showMessage(ErrorMessage.INVALID_CREW_CODE, 'error');
+      } else {
+        showMessage(ErrorMessage.UNEXPECTED_ERROR, 'error');
+        console.error(error);
+      }
     }
   };
 
@@ -60,19 +69,6 @@ const Adjust = ({ data, openAdjustModal, handleCloseAdjustModal, refetchCardData
     setNote('');
     setCode('');
     setError(null);
-  };
-
-  const handleClickSnackbar = (message: string) => {
-    setServerErrorMessage(message);
-    setOpenSnackbar(true);
-  };
-
-  const handleClose = (event?: React.SyntheticEvent | Event, reason?: SnackbarCloseReason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-
-    setOpenSnackbar(false);
   };
 
   return (
@@ -143,11 +139,6 @@ const Adjust = ({ data, openAdjustModal, handleCloseAdjustModal, refetchCardData
           </form>
         </ChildModal>
       </NestedModal>
-      <Snackbar open={openSnackbar} autoHideDuration={3000} onClose={handleClose}>
-        <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
-          {serverErrorMessage}
-        </Alert>
-      </Snackbar>
     </>
   );
 };

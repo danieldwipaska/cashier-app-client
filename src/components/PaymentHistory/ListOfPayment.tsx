@@ -1,4 +1,4 @@
-import { Alert, Box, Button, CircularProgress, Modal, Paper, Snackbar, SnackbarCloseReason, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, useMediaQuery } from '@mui/material';
+import { Box, Button, CircularProgress, Modal, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, useMediaQuery } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
@@ -16,6 +16,7 @@ import Invoices from './Invoices';
 import bahariLogo from '../../assets/img/bahari-logo.webp';
 import { CheckCircle } from '@mui/icons-material';
 import { ServiceTax } from 'lib/taxes/taxes.calculation';
+import { useMessages } from 'context/MessageContext';
 
 interface Column {
   id: 'type' | 'report_id' | 'status' | 'customer_name' | 'customer_id' | 'served_by' | 'total_payment_after_tax_service' | 'dateCreatedAt' | 'timeCreatedAt' | 'action';
@@ -275,6 +276,7 @@ function PartiallyRefundModal({ row }: { row: Data }) {
 }
 
 const ListOfPayment = () => {
+  const { showMessage } = useMessages();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(25);
   const [DTPickerFrom, setDTPickerFrom] = React.useState('');
@@ -283,9 +285,6 @@ const ListOfPayment = () => {
   const [reportDataCSV, setReportDataCSV] = React.useState<any>([]);
 
   const [searchedReport, setSearchedReport] = React.useState('');
-
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
 
   const [openDetailModal, setOpenDetailModal] = useState(false);
   const [selectedPaymentData, setSelectedPaymentData] = useState<any>(null);
@@ -397,12 +396,6 @@ const ListOfPayment = () => {
     setPage(0);
   };
 
-  const handleCloseSnackbar = (event?: React.SyntheticEvent | Event, reason?: SnackbarCloseReason) => {
-    if (reason === 'clickaway') return;
-
-    setOpenSnackbar(false);
-  };
-
   const headers = [
     { label: 'ID', key: 'id' },
     { label: 'Type', key: 'type' },
@@ -431,8 +424,7 @@ const ListOfPayment = () => {
       await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/reports/${id}/cancel`);
 
       reportsRefetch();
-      setSuccessMessage('Payment has been cancelled');
-      setOpenSnackbar(true);
+      showMessage('Payment has been cancelled', 'success');
     } catch (error) {
       console.log(error);
     }
@@ -688,11 +680,6 @@ const ListOfPayment = () => {
           )}
         </div>
       </NestedModal>
-      <Snackbar open={openSnackbar} autoHideDuration={3000} onClose={handleCloseSnackbar}>
-        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
-          {successMessage}
-        </Alert>
-      </Snackbar>
     </div>
   );
 };
