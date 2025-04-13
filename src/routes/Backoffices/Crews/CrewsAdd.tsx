@@ -14,7 +14,11 @@ const CrewsAdd = () => {
   // START FUNCTIONS
   const onSubmit = (data: any) => {
     axios
-      .post(`${process.env.REACT_APP_API_BASE_URL}/crews`, data)
+      .post(`${process.env.REACT_APP_API_BASE_URL}/crews`, data, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+        },
+      })
       .then((res) => {
         return navigate('/backoffices/crews', { replace: true });
       })
