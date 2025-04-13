@@ -9,6 +9,7 @@ import CrewAuthAlertDialogSlide from './CrewAuthAlertDialogSlide';
 import SimpleSnackbar from '../snackbars/SimpleSnackbar';
 import { ReportStatus, ReportType } from 'configs/utils';
 import ICartProps from 'interfaces/CartProps';
+import { useQuery } from '@tanstack/react-query';
 
 const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculationData }: ICartProps) => {
   // START STATES
@@ -30,7 +31,26 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
 
+  const [methods, setMethods] = useState([]);
+
   // END STATES
+
+  // START QUERY
+  useQuery({
+    queryKey: ['methods'],
+    queryFn: () => {
+      axios
+        .get(`${process.env.REACT_APP_API_BASE_URL}/methods`)
+        .then((res) => {
+          setMethods(res.data.data);
+          return;
+        })
+        .catch((err) => {
+          return console.log(err);
+        });
+    },
+  });
+  // END QUERY
 
   // START FUNCTIONS
   const handleClickNewOrder = () => {
@@ -346,12 +366,16 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
 
                 {paymentMethodIsEmpty ? (
                   <Select labelId="demo-select-small-label" id="demo-select-small" label="Payment" value={paymentMethod} onChange={handlePaymentMethodChange} error>
-                    <MenuItem value="Cash">Cash</MenuItem>
+                    {methods.map((method: any) => {
+                      return (<MenuItem value={method.name}>{method.name}</MenuItem>)
+                    })}
                     <MenuItem value="Gift Card">Gift Card</MenuItem>
                   </Select>
                 ) : (
                   <Select labelId="demo-select-small-label" id="demo-select-small" label="Payment" value={paymentMethod} onChange={handlePaymentMethodChange}>
-                    <MenuItem value="Cash">Cash</MenuItem>
+                    {methods.map((method: any) => {
+                      return (<MenuItem value={method.name}>{method.name}</MenuItem>)
+                    })}
                     <MenuItem value="Gift Card">Gift Card</MenuItem>
                   </Select>
                 )}
