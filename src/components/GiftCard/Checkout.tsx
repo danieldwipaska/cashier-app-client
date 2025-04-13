@@ -5,14 +5,16 @@ import { Card } from 'lib/interfaces/cards';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useMessages } from 'context/MessageContext';
+import { useQuery } from '@tanstack/react-query';
 
 const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCardData, setOpenBackdrop }: { data: Card; openCheckoutModal: any; handleCloseCheckoutModal: any; refetchCardData: any; setOpenBackdrop: any }) => {
   // START HOOKS
-  const { showMessage } = useMessages()
+  const { showMessage } = useMessages();
   // END HOOKS
 
   const { handleSubmit } = useForm();
   const [paymentMethod, setPaymentMethod] = useState('');
+  const [methods, setMethods] = useState([]);
   const [note, setNote] = useState('');
   const [code, setCode] = useState('');
   const [error, setError] = useState<any>(null);
@@ -26,6 +28,21 @@ const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCa
   const handleChangeCode = (event: any) => {
     setCode(event.target.value);
   };
+
+  useQuery({
+    queryKey: ['methods'],
+    queryFn: () => {
+      axios
+        .get(`${process.env.REACT_APP_API_BASE_URL}/methods`)
+        .then((res) => {
+          setMethods(res.data.data);
+          return;
+        })
+        .catch((err) => {
+          return console.log(err);
+        });
+    },
+  });
 
   const onSubmit = async () => {
     const formData = {
@@ -76,9 +93,9 @@ const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCa
             </label>
             <select value={paymentMethod} onChange={handleChangePaymentMethod} id="paymentMethod" className="border px-3 py-2" required>
               <option value="">------</option>
-              <option value="cash">Cash</option>
-              <option value="EDC BCA">EDC BCA</option>
-              <option value="EDC Mandiri">EDC Mandiri</option>
+              {methods.map((method: any) => {
+                return <option value={method.name}>{method.name}</option>;
+              })}
             </select>
             <div></div>
             {error && <p className="text-red-500 text-xs">{error.paymentMethod}</p>}
