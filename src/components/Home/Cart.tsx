@@ -1,14 +1,15 @@
 import { useState } from 'react';
-import {ReactComponent as NewCartIcon } from '../../assets/img/icons/new-cart.svg';
-import {ReactComponent as MinusIcon } from '../../assets/img/icons/minus.svg';
-import {ReactComponent as PlusIcon } from '../../assets/img/icons/plus.svg';
-import {ReactComponent as SaveIcon } from '../../assets/img/icons/save.svg';
+import { ReactComponent as NewCartIcon } from '../../assets/img/icons/new-cart.svg';
+import { ReactComponent as MinusIcon } from '../../assets/img/icons/minus.svg';
+import { ReactComponent as PlusIcon } from '../../assets/img/icons/plus.svg';
+import { ReactComponent as SaveIcon } from '../../assets/img/icons/save.svg';
 import { Alert, CircularProgress, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, TextField } from '@mui/material';
 import axios from 'axios';
 import CrewAuthAlertDialogSlide from './CrewAuthAlertDialogSlide';
 import SimpleSnackbar from '../snackbars/SimpleSnackbar';
 import { ReportStatus, ReportType } from 'configs/utils';
 import ICartProps from 'interfaces/CartProps';
+import { useQuery } from '@tanstack/react-query';
 
 const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculationData }: ICartProps) => {
   // START STATES
@@ -30,7 +31,24 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
 
+  const [methods, setMethods] = useState([]);
+
   // END STATES
+
+  // START QUERY
+  useQuery({
+    queryKey: ['methods'],
+    queryFn: async () => {
+      try {
+        const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/methods`);
+        setMethods(res.data.data);
+        return res.data.data;
+      } catch (err) {
+        return console.log(err);
+      }
+    },
+  });
+  // END QUERY
 
   // START FUNCTIONS
   const handleClickNewOrder = () => {
@@ -261,7 +279,7 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
             <div className="flex items-center">
               <div className="flex place-content-center">
                 <button onClick={handleClickNewOrder} className=" hover:opacity-30 duration-300">
-                  <NewCartIcon className='w-[30px]' />
+                  <NewCartIcon className="w-[30px]" />
                 </button>
               </div>
               <FormControl sx={{ ml: 2, minWidth: 120 }} size="small">
@@ -300,7 +318,7 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
                         decreaseAmount(order.id);
                       }}
                     >
-                      <MinusIcon className='w-[9px]' />
+                      <MinusIcon className="w-[9px]" />
                     </button>
                     <div className="mx-1">
                       <input type="text" className="text-xs text-center text-black/60 py-1 px-2 rounded-md border border-black/25 max-w-8" readOnly value={order.amount} />
@@ -311,7 +329,7 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
                         increaseAmount(order.id);
                       }}
                     >
-                      <PlusIcon className='w-[9px]' />
+                      <PlusIcon className="w-[9px]" />
                     </button>
                   </div>
                 </div>
@@ -346,12 +364,16 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
 
                 {paymentMethodIsEmpty ? (
                   <Select labelId="demo-select-small-label" id="demo-select-small" label="Payment" value={paymentMethod} onChange={handlePaymentMethodChange} error>
-                    <MenuItem value="Cash">Cash</MenuItem>
+                    {methods.map((method: any) => {
+                      return <MenuItem key={method.id} value={method.name}>{method.name}</MenuItem>;
+                    })}
                     <MenuItem value="Gift Card">Gift Card</MenuItem>
                   </Select>
                 ) : (
                   <Select labelId="demo-select-small-label" id="demo-select-small" label="Payment" value={paymentMethod} onChange={handlePaymentMethodChange}>
-                    <MenuItem value="Cash">Cash</MenuItem>
+                    {methods.map((method: any) => {
+                      return <MenuItem key={method.id} value={method.name}>{method.name}</MenuItem>;
+                    })}
                     <MenuItem value="Gift Card">Gift Card</MenuItem>
                   </Select>
                 )}
@@ -396,7 +418,7 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
               onClick={handleClickOpenCrewAuthAlertDialog}
               disabled={paymentMethod === 'Gift Card' || !paymentMethod || openBill ? true : false}
             >
-              {openSaveProgressSpinner ? <CircularProgress color="secondary" size={15} /> : <SaveIcon className='w-[25px]' />}
+              {openSaveProgressSpinner ? <CircularProgress color="secondary" size={15} /> : <SaveIcon className="w-[25px]" />}
             </button>
 
             <button className="text-center w-full my-2 py-2 bg-green-500 hover:opacity-70 duration-500 rounded-lg" onClick={handleConfirm}>
