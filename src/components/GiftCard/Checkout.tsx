@@ -32,16 +32,18 @@ const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCa
   useQuery({
     queryKey: ['methods'],
     queryFn: () => {
-      axios
+      return axios
         .get(`${process.env.REACT_APP_API_BASE_URL}/methods`)
         .then((res) => {
           setMethods(res.data.data);
-          return;
+          return res.data.data;
         })
         .catch((err) => {
-          return console.log(err);
+          console.log(err);
+          throw err;
         });
     },
+    staleTime: 5 * 60 * 1000,
   });
 
   const onSubmit = async () => {
@@ -94,7 +96,7 @@ const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCa
             <select value={paymentMethod} onChange={handleChangePaymentMethod} id="paymentMethod" className="border px-3 py-2" required>
               <option value="">------</option>
               {methods.map((method: any) => {
-                return <option value={method.name}>{method.name}</option>;
+                return <option key={method.id} value={method.name}>{method.name}</option>;
               })}
             </select>
             <div></div>
