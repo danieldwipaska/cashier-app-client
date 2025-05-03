@@ -32,7 +32,7 @@ const Crews = () => {
 
   return (
     <Layout>
-      <Header title="crews" />
+      <Header title="CREWS" />
       <section>
         <div className="mb-5">
           <a href={'/backoffices/crews/add'} className="bg-green-300 py-3 px-5 rounded-lg">

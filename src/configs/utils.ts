@@ -11,6 +11,7 @@ export const PAYMENT_METHODS_QUERY_KEY = ['paymentMethods'];
 export const PAYMENT_METHOD_QUERY_KEY = ['paymentMethodId'];
 export const CARDS_METHOD_QUERY_KEY = ['cards'];
 export const CARD_METHOD_QUERY_KEY = ['cardId'];
+export const BACKOFFICE_SETTINGS_QUERY_KEY = ['backofficeSettings'];
 
 // CHOICES
 export const POSITIONS = ['admin', 'server', 'bartender', 'developer'];

@@ -12,6 +12,7 @@ const Nav = () => {
   const crewsClass = cx(style.sidebarLinks, style.link, path.includes('/backoffices/crews') ? style.active : null);
   const paymentMethodsClass = cx(style.sidebarLinks, style.link, path.includes('/backoffices/payment-methods') ? style.active : null);
   const cardsClass = cx(style.sidebarLinks, style.link, path.includes('/backoffices/cards') ? style.active : null);
+  const settingsClass = cx(style.sidebarLinks, style.link, path.includes('/backoffices/settings') ? style.active : null);
 
   return (
     <nav className={style.sidebar + ' relative'}>
@@ -40,6 +41,9 @@ const Nav = () => {
         </a>
         <a href="/backoffices/cards" className={cardsClass} aria-label="Navigate to Cards">
           Cards
+        </a>
+        <a href="/backoffices/settings" className={settingsClass} aria-label="Navigate to Settings">
+          Settings
         </a>
       </div>
       <a href="/" className="absolute bottom-0 w-full" aria-label="Navigate to POS">

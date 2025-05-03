@@ -5,7 +5,7 @@ import { getWeeklyOperationalHours } from 'functions/operational.report';
 import { useState } from 'react';
 
 const WeeklyEmployeeAwards = () => {
-  const [crewWeeklyPurchases, setCrewWeeklyPurchases] = useState(0);
+  const [crewWeeklyPurchases, setCrewWeeklyPurchases] = useState<any>(null);
 
   useQuery({
     queryKey: ['weeklyCrewReports'],
@@ -41,7 +41,8 @@ const WeeklyEmployeeAwards = () => {
           return acc;
         }, {});
 
-        setCrewWeeklyPurchases(groupedData);
+        const arrayData = Object.entries(groupedData).sort((a: any, b: any) => b[1].totalPayment - a[1].totalPayment);
+        setCrewWeeklyPurchases(arrayData);
 
         return groupedData;
       } catch (error) {
@@ -57,7 +58,7 @@ const WeeklyEmployeeAwards = () => {
         <h3 className="text-lg font-semibold">Weekly Top Employees</h3>
       </div>
       <div className="overflow-y-auto h-40">
-        {Object.entries(crewWeeklyPurchases)?.map(([crewName, payment]) => {
+        {crewWeeklyPurchases?.map(([crewName, payment]: any) => {
           return (
             <div className="flex items-center justify-between gap-3 border-b border-gray-200 py-2 hover:bg-gray-200 px-3">
               <div className="flex flex-col justify-center">

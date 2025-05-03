@@ -27,6 +27,7 @@ import PaymentMethodEdit from 'routes/Backoffices/PaymentMethods/PaymentMethodEd
 import Cards from 'routes/Backoffices/Cards/Cards';
 import CardAdd from 'routes/Backoffices/Cards/CardAdd';
 import { MessageProvider } from 'context/MessageContext';
+import BackofficeSettings from 'routes/Backoffices/Settings/Settings';
 
 function App() {
   const client = new QueryClient({
@@ -65,6 +66,7 @@ function App() {
                 <Route path="/backoffices/payment-methods/:paymentMethodId/edit" element={<PaymentMethodEdit />} />
                 <Route path="/backoffices/cards" element={<Cards />} />
                 <Route path="/backoffices/cards/add" element={<CardAdd />} />
+                <Route path="/backoffices/settings" element={<BackofficeSettings />} />
               </Routes>
             </Router>
           </MessageProvider>
