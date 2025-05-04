@@ -31,17 +31,14 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
 
-  const [methods, setMethods] = useState([]);
-
   // END STATES
 
   // START QUERY
-  useQuery({
+  const { data: methods } = useQuery({
     queryKey: ['methods'],
     queryFn: async () => {
       try {
         const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/methods`);
-        setMethods(res.data.data);
         return res.data.data;
       } catch (err) {
         return console.log(err);
@@ -354,29 +351,20 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
           <div>
             <div className="mb-5 grid grid-cols-2 gap-2">
               <FormControl sx={{ mb: 1, minWidth: 120 }} size="small">
-                {paymentMethodIsEmpty ? (
-                  <InputLabel id="demo-select-small-label" error>
+                  <InputLabel id="demo-select-small-label" error={paymentMethodIsEmpty}>
                     Payment
                   </InputLabel>
-                ) : (
-                  <InputLabel id="demo-select-small-label">Payment</InputLabel>
-                )}
 
-                {paymentMethodIsEmpty ? (
-                  <Select labelId="demo-select-small-label" id="demo-select-small" label="Payment" value={paymentMethod} onChange={handlePaymentMethodChange} error>
-                    {methods.map((method: any) => {
-                      return <MenuItem key={method.id} value={method.name}>{method.name}</MenuItem>;
-                    })}
-                    <MenuItem value="Gift Card">Gift Card</MenuItem>
-                  </Select>
-                ) : (
-                  <Select labelId="demo-select-small-label" id="demo-select-small" label="Payment" value={paymentMethod} onChange={handlePaymentMethodChange}>
-                    {methods.map((method: any) => {
-                      return <MenuItem key={method.id} value={method.name}>{method.name}</MenuItem>;
-                    })}
-                    <MenuItem value="Gift Card">Gift Card</MenuItem>
-                  </Select>
-                )}
+                <Select labelId="demo-select-small-label" id="demo-select-small" label="Payment" value={paymentMethod} onChange={handlePaymentMethodChange} error={paymentMethodIsEmpty}>
+                  {methods?.map((method: any) => {
+                    return (
+                      <MenuItem key={method.id} value={method.name}>
+                        {method.name}
+                      </MenuItem>
+                    );
+                  })}
+                  <MenuItem value="Gift Card">Gift Card</MenuItem>
+                </Select>
               </FormControl>
 
               {paymentMethod === 'Gift Card' ? (

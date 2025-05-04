@@ -48,13 +48,13 @@ const Categories = () => {
             return (
               <tr key={category.id} className="border-b-2 hover:bg-gray-100 duration-200">
                 <td className="py-3 px-2">{category.name}</td>
-                <td className="py-3 px-2">{category.Fnbs.length}</td>
+                <td className="py-3 px-2">{category.fnbs.length}</td>
                 <td className="py-3 px-2">
                   <div className='flex items-center gap-2'>
                     <a href={`/backoffices/categories/${category.id}/edit`}>
                       <img src={editIcon} alt="editIcon" width={20} />
                     </a>
-                    {!category.Fnbs.length ? (
+                    {!category.fnbs.length ? (
                       <form
                         onSubmit={handleSubmit(() => {
                           axios

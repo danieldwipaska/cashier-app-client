@@ -82,7 +82,7 @@ const ProductEdit = () => {
       .patch(`${process.env.REACT_APP_API_BASE_URL}/fnbs/${productId}`, {
         name,
         price: Number(price),
-        categoryId: category,
+        category_id: category,
         discount_status: discountStatus,
         discount_percent: Number(discountPercent),
       })

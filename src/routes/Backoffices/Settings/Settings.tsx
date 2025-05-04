@@ -1,4 +1,4 @@
-import { BACKOFFICE_SETTINGS_QUERY_KEY, CATEGORIES_QUERY_KEY } from 'configs/utils';
+import { BACKOFFICE_SETTINGS_QUERY_KEY, CATEGORIES_QUERY_KEY, ErrorMessage } from 'configs/utils';
 import Layout from '../Layout/Layout';
 import Header from 'components/Backoffices/Header';
 import { useQuery } from '@tanstack/react-query';
@@ -11,7 +11,7 @@ const Settings = () => {
   const { showMessage } = useMessages();
 
   // START QUERIES
-  const { data: backofficeSetting, refetch: backofficeSettingRefetch } = useQuery({
+  const { data: backofficeSetting } = useQuery({
     queryKey: BACKOFFICE_SETTINGS_QUERY_KEY,
     queryFn: () => {
       return axios
@@ -26,7 +26,7 @@ const Settings = () => {
     },
   });
 
-  const { data: categories, refetch: categoriesRefetch } = useQuery({
+  const { data: categories } = useQuery({
     queryKey: CATEGORIES_QUERY_KEY,
     queryFn: () => {
       return axios
@@ -54,8 +54,11 @@ const Settings = () => {
 
       showMessage('Backoffice Setting has been updated', 'success');
     } catch (error) {
-      console.log(error);
-      throw error;
+      if (axios.isAxiosError(error)) {
+        if (error?.response?.data?.statusCode === 500) showMessage(ErrorMessage.INTERNAL_SERVER_ERROR, 'error');
+      } else {
+        showMessage(ErrorMessage.UNEXPECTED_ERROR, 'error');
+      }
     }
   };
   // END FUNCTIONS

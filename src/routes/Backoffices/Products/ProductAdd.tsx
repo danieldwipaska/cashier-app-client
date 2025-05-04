@@ -66,7 +66,7 @@ const ProductAdd = () => {
               <label className="" htmlFor="categoryId">
                 Category
               </label>
-              <select {...register('categoryId')} id="categoryId" className="border px-3 py-2 rounded-lg" required>
+              <select {...register('category_id')} id="categoryId" className="border px-3 py-2 rounded-lg" required>
                 <option value="">----</option>
                 {categories?.map((category: any) => {
                   return (

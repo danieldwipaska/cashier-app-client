@@ -17,7 +17,6 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
   const [addBalance, setAddBalance] = useState(0);
   const [formattedAddBalance, setFormattedAddBalance] = useState<string>('');
   const [paymentMethod, setPaymentMethod] = useState('');
-  const [methods, setMethods] = useState([]);
   const [note, setNote] = useState('');
   const [code, setCode] = useState('');
   const [error, setError] = useState<any>(null);
@@ -45,13 +44,12 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
     setCode(event.target.value);
   };
 
-  useQuery({
+  const { data: methods } = useQuery({
     queryKey: ['methods'],
     queryFn: () => {
       return axios
         .get(`${process.env.REACT_APP_API_BASE_URL}/methods`)
         .then((res) => {
-          setMethods(res.data.data);
           return res.data.data;
         })
         .catch((err) => {
@@ -109,6 +107,11 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
         handleCloseTopupModal();
         refetchCardData(response.data.data.card_number);
         resetTopupData();
+        
+        setOpenBackdrop(true);
+        setTimeout(() => {
+          setOpenBackdrop(false);
+        }, 3000);
       } catch (error) {
         console.log(error);
         showMessage(ErrorMessage.INTERNAL_SERVER_ERROR, 'error');
@@ -165,7 +168,7 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
             </label>
             <select value={paymentMethod} onChange={handleChangePaymentMethod} id="paymentMethod" className="border px-3 py-2" required>
               <option value="">------</option>
-              {methods.map((method: any) => {
+              {methods?.map((method: any) => {
                 return <option key={method.id} value={method.name}>{method.name}</option>;
               })}
             </select>
