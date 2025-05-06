@@ -24,6 +24,7 @@ export const useCheckToken = (user: IUser) => {
       } catch (err) {
         // Hapus localStorage
         localStorage.removeItem('username');
+        localStorage.removeItem('shopCode');
         localStorage.removeItem('access-token');
 
         // Navigasi ke halaman login

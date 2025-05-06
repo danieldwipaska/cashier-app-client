@@ -5,10 +5,12 @@ import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import { useMessages } from 'context/MessageContext';
+import { useAuth } from 'context/AuthContext';
 
 const Settings = () => {
   const { handleSubmit, register } = useForm();
   const { showMessage } = useMessages();
+  const { user } = useAuth();
 
   // START QUERIES
   const { data: backofficeSetting } = useQuery({

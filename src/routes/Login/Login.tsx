@@ -14,11 +14,12 @@ const Login = () => {
 
   const onSubmit = async (data: any) => {
     try {
-      const res = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/auth/login`, { username: data.username, password: data.password });
+      const res = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/auth/login`, { username: data.username, password: data.password, shop_code: data.shop_code });
 
-      signIn(res.data.data.username);
+      signIn(res.data.data.username, res.data.data.shop_code);
 
       localStorage.setItem('username', res.data.data.username);
+      localStorage.setItem('shopCode', res.data.data.shop_code);
       localStorage.setItem('access-token', res.data.accessToken);
       navigate('/');
     } catch (error: any) {
@@ -47,6 +48,7 @@ const Login = () => {
             >
               <TextField id="filled-basic" label="Username" variant="filled" {...register('username')} />
               <TextField id="filled-basic" label="Password" variant="filled" type="password" {...register('password')} />
+              <TextField id="filled-basic" label="Shop ID" variant="filled" {...register('shop_code')} />
             </Box>
           </div>
           <div className="mt-16 ml-2 flex items-center">
