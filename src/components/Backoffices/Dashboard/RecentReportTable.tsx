@@ -13,7 +13,11 @@ const RecentReportTable = () => {
       const { from, to } = getOperationalHours();
 
       axios
-        .get(`${process.env.REACT_APP_API_BASE_URL}/reports?from=${from}&to=${to}&status=${ReportStatus.PAID}&type=${ReportType.PAY}`)
+        .get(`${process.env.REACT_APP_API_BASE_URL}/reports?from=${from}&to=${to}&status=${ReportStatus.PAID}&type=${ReportType.PAY}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        })
         .then((res) => {
           setDailyReports(res.data.data);
         })

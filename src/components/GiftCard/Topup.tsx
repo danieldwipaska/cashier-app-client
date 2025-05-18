@@ -48,7 +48,11 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
     queryKey: ['methods'],
     queryFn: () => {
       return axios
-        .get(`${process.env.REACT_APP_API_BASE_URL}/methods`)
+        .get(`${process.env.REACT_APP_API_BASE_URL}/methods`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        })
         .then((res) => {
           return res.data.data;
         })
@@ -70,7 +74,11 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
       };
 
       try {
-        const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/cards/${data?.id}/topup`, formData);
+        const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/cards/${data?.id}/topup`, formData, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        });
 
         handleCloseTopupModal();
         refetchCardData(response.data.data.card_number);
@@ -102,7 +110,11 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
       };
 
       try {
-        const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/cards/${data?.id}/topup/activate`, formData);
+        const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/cards/${data?.id}/topup/activate`, formData, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        });
 
         handleCloseTopupModal();
         refetchCardData(response.data.data.card_number);

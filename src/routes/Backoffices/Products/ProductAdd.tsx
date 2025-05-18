@@ -18,7 +18,11 @@ const ProductAdd = () => {
     queryKey: CATEGORIES_QUERY_KEY,
     queryFn: () =>
       axios
-        .get(`${process.env.REACT_APP_API_BASE_URL}/categories`)
+        .get(`${process.env.REACT_APP_API_BASE_URL}/categories`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          }
+        })
         .then((res) => {
           return res.data.data;
         })
@@ -34,6 +38,10 @@ const ProductAdd = () => {
       .post(`${process.env.REACT_APP_API_BASE_URL}/fnbs`, {
         ...data,
         price: Number(data.price),
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+        }
       })
       .then((res) => {
         showMessage('Product added successfully', 'success');

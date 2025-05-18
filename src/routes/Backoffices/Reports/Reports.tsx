@@ -19,7 +19,11 @@ const Reports = () => {
     queryKey: REPORTS_QUERY_KEY,
     queryFn: () =>
       axios
-        .get(`${process.env.REACT_APP_API_BASE_URL}/reports?${customerName ? 'customer_name=' + customerName : ''}&${server ? 'served_by=' + server : ''}&page=${page}`)
+        .get(`${process.env.REACT_APP_API_BASE_URL}/reports?${customerName ? 'customer_name=' + customerName : ''}&${server ? 'served_by=' + server : ''}&page=${page}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        })
         .then((res) => {
           return res.data;
         })

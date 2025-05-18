@@ -17,7 +17,11 @@ const Categories = () => {
     queryKey: CATEGORIES_QUERY_KEY,
     queryFn: () =>
       axios
-        .get(`${process.env.REACT_APP_API_BASE_URL}/categories`)
+        .get(`${process.env.REACT_APP_API_BASE_URL}/categories`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          }
+        })
         .then((res) => {
           return res.data.data;
         })
@@ -58,7 +62,11 @@ const Categories = () => {
                       <form
                         onSubmit={handleSubmit(() => {
                           axios
-                            .delete(`${process.env.REACT_APP_API_BASE_URL}/categories/${category.id}`)
+                            .delete(`${process.env.REACT_APP_API_BASE_URL}/categories/${category.id}`, {
+                              headers: {
+                                Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+                              },
+                            })
                             .then((res) => {
                               return categoriesRefetch();
                             })

@@ -5,19 +5,21 @@ import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import { useMessages } from 'context/MessageContext';
-import { useAuth } from 'context/AuthContext';
 
 const Settings = () => {
   const { handleSubmit, register } = useForm();
   const { showMessage } = useMessages();
-  const { user } = useAuth();
 
   // START QUERIES
   const { data: backofficeSetting } = useQuery({
     queryKey: BACKOFFICE_SETTINGS_QUERY_KEY,
     queryFn: () => {
       return axios
-        .get(`${process.env.REACT_APP_API_BASE_URL}/backoffice-settings`)
+        .get(`${process.env.REACT_APP_API_BASE_URL}/backoffice-settings`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        })
         .then((res) => {
           return res.data.data[0];
         })
@@ -32,7 +34,11 @@ const Settings = () => {
     queryKey: CATEGORIES_QUERY_KEY,
     queryFn: () => {
       return axios
-        .get(`${process.env.REACT_APP_API_BASE_URL}/categories`)
+        .get(`${process.env.REACT_APP_API_BASE_URL}/categories`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        })
         .then((res) => {
           return res.data.data;
         })
@@ -52,7 +58,11 @@ const Settings = () => {
     };
 
     try {
-      await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/backoffice-settings/${backofficeSetting?.id}`, payload);
+      await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/backoffice-settings/${backofficeSetting?.id}`, payload, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+        },
+      });
 
       showMessage('Backoffice Setting has been updated', 'success');
     } catch (error) {
@@ -83,7 +93,7 @@ const Settings = () => {
                       {...register('categories')}
                       value={category.id}
                       defaultChecked={
-                        backofficeSetting?.purchase_categories.find((categoryObj: any) => {
+                        backofficeSetting?.purchase_categories?.find((categoryObj: any) => {
                           return categoryObj.id === category.id;
                         })
                           ? true

@@ -47,7 +47,11 @@ const ProductEdit = () => {
     queryKey: CATEGORIES_QUERY_KEY,
     queryFn: () =>
       axios
-        .get(`${process.env.REACT_APP_API_BASE_URL}/categories`)
+        .get(`${process.env.REACT_APP_API_BASE_URL}/categories`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          }
+        })
         .then((res) => {
           return res.data.data;
         })
@@ -60,7 +64,11 @@ const ProductEdit = () => {
     queryKey: PRODUCT_QUERY_KEY,
     queryFn: () =>
       axios
-        .get(`${process.env.REACT_APP_API_BASE_URL}/fnbs/${productId}`)
+        .get(`${process.env.REACT_APP_API_BASE_URL}/fnbs/${productId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          }
+        })
         .then((res) => {
           setName(res.data.data.name);
           setPrice(res.data.data.price);
@@ -85,6 +93,10 @@ const ProductEdit = () => {
         category_id: category,
         discount_status: discountStatus,
         discount_percent: Number(discountPercent),
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+        }
       })
       .then((res) => {
         return navigate('/backoffices/products', { replace: true });

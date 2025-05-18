@@ -38,7 +38,11 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
     queryKey: ['methods'],
     queryFn: async () => {
       try {
-        const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/methods`);
+        const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/methods`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        });
         return res.data.data;
       } catch (err) {
         return console.log(err);
@@ -74,7 +78,11 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
     }
 
     try {
-      const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports/${event.target.value}`);
+      const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports/${event.target.value}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+        },
+      });
 
       setCardNumber(res.data.data.card_number);
       setCustomerName(res.data.data.customer_name);
@@ -156,7 +164,11 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
     if (!crewCredential) return setErrorCrewCredential(true);
 
     try {
-      const crew = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/crews/code`, { code: crewCredential });
+      const crew = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/crews/code`, { code: crewCredential }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+        },
+      });
       if (!crew.data.data) return setErrorUnauthorizedCrew(true);
 
       const order_id: string[] = [];
@@ -233,7 +245,11 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
       if (paymentMethod === 'Gift Card') {
         setOpenConfirmProgressSpinner(true);
         try {
-          const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/cards/${cardNumber}`);
+          const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/cards/${cardNumber}`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+            },
+          });
           if (response.data.data.balance < totalPaymentAfterTaxService) throw new Error('Balance Not Enough');
 
           // setCardNumber(response.data.data.card_number);

@@ -17,7 +17,11 @@ const PaymentMethods = () => {
     queryKey: PAYMENT_METHODS_QUERY_KEY,
     queryFn: () =>
       axios
-        .get(`${process.env.REACT_APP_API_BASE_URL}/methods`)
+        .get(`${process.env.REACT_APP_API_BASE_URL}/methods`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        })
         .then((res) => {
           return res.data.data;
         })
@@ -55,7 +59,11 @@ const PaymentMethods = () => {
                     <form
                       onSubmit={handleSubmit(() => {
                         axios
-                          .delete(`${process.env.REACT_APP_API_BASE_URL}/methods/${method.id}`)
+                          .delete(`${process.env.REACT_APP_API_BASE_URL}/methods/${method.id}`, {
+                            headers: {
+                              Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+                            },
+                          })
                           .then((res) => {
                             return paymentMethodsRefetch();
                           })

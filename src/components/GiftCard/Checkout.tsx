@@ -33,7 +33,11 @@ const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCa
     queryKey: ['methods'],
     queryFn: () => {
       return axios
-        .get(`${process.env.REACT_APP_API_BASE_URL}/methods`)
+        .get(`${process.env.REACT_APP_API_BASE_URL}/methods`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        })
         .then((res) => {
           setMethods(res.data.data);
           return res.data.data;
@@ -54,7 +58,11 @@ const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCa
     };
 
     try {
-      const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/cards/${data?.id}/checkout`, formData);
+      const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/cards/${data?.id}/checkout`, formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+        },
+      });
 
       handleCloseCheckoutModal();
       refetchCardData(response.data.data.card_number);

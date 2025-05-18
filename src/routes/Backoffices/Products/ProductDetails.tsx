@@ -17,7 +17,11 @@ const ProductDetails = () => {
     queryKey: ['product', productId],
     queryFn: () =>
       axios
-        .get(`${process.env.REACT_APP_API_BASE_URL}/fnbs/${productId}`)
+        .get(`${process.env.REACT_APP_API_BASE_URL}/fnbs/${productId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          }
+        })
         .then((res) => {
           console.log(res.data.data);
           return res.data.data;

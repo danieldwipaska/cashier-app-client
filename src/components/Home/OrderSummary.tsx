@@ -25,7 +25,11 @@ const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, 
     if (!crewCredential) return setErrorCrewCredential(true);
 
     try {
-      const crew = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/crews/code`, { code: crewCredential });
+      const crew = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/crews/code`, { code: crewCredential }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+        },
+      });
 
       const order_id: string[] = [];
       const order_name: string[] = [];
@@ -140,11 +144,19 @@ const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, 
     if (!crewCredential) return setErrorCrewCredential(true);
 
     try {
-      const report = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports/${openBill}`);
+      const report = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports/${openBill}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+        },
+      });
       if (!report.data.data) return;
 
       try {
-        const crew = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/crews/code`, { code: crewCredential });
+        const crew = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/crews/code`, { code: crewCredential }, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        });
         if (!crew.data.data || report.data.data.served_by !== crew.data.data.name) return setErrorUnauthorizedCrew(true);
 
         const order_id: string[] = [];

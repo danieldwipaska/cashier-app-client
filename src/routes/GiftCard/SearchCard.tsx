@@ -10,7 +10,11 @@ const SearchCard = ({ setCardData }: { setCardData: React.Dispatch<React.SetStat
 
   const onSubmit = async (data: any) => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/cards/${data.cardNumber}`);
+      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/cards/${data.cardNumber}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+        },
+      });
 
       const cardData: Card = {
         id: response.data.data.id,

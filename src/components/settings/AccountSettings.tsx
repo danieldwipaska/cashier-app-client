@@ -56,21 +56,21 @@ const AccountSettings = () => {
   const [includedTaxService, setIncludedTaxService] = React.useState(false);
 
   const { refetch: userDataRefetch } = useQuery({
-    queryKey: ['userData'],
+    queryKey: ['shopData'],
     queryFn: () =>
       axios
-        .get(`${process.env.REACT_APP_API_BASE_URL}/multiusers/configuration/${user?.username}`, {
+        .get(`${process.env.REACT_APP_API_BASE_URL}/shops/shop`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access-token')}`,
           },
         })
         .then((res) => {
-          setShopId(res.data.data.shops[0].shop.id);
-          setDiscountStatus(res.data.data.shops[0].shop.discount_status);
-          setDiscount(res.data.data.shops[0].shop.discount);
-          setTax(res.data.data.shops[0].shop.tax);
-          setService(res.data.data.shops[0].shop.service);
-          setIncludedTaxService(res.data.data.shops[0].shop.included_tax_service);
+          setShopId(res.data.data.id);
+          setDiscountStatus(res.data.data.discount_status);
+          setDiscount(res.data.data.discount);
+          setTax(res.data.data.tax);
+          setService(res.data.data.service);
+          setIncludedTaxService(res.data.data.included_tax_service);
           return res.data.data;
         })
         .catch((err) => {

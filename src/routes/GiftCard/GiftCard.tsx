@@ -22,7 +22,11 @@ const GiftCard = () => {
     queryKey: CUSTOMER_REPORTS_QUERY_KEY,
     queryFn: () =>
       axios
-        .get(`${process.env.REACT_APP_API_BASE_URL}/reports/transactions/${cardData.cardNumber}?&customer_id=${cardData.customerId}`)
+        .get(`${process.env.REACT_APP_API_BASE_URL}/reports/transactions/${cardData.cardNumber}?&customer_id=${cardData.customerId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        })
         .then((res) => {
           return res.data.data;
         })
@@ -35,7 +39,11 @@ const GiftCard = () => {
 
   const refetchCardData = async (cardNumber: string) => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/cards/${cardNumber}`);
+      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/cards/${cardNumber}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+        },
+      });
 
       const cardData: Card = {
         id: response.data.data.id,

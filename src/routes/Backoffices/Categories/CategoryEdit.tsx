@@ -27,7 +27,11 @@ const CategoryEdit = () => {
     queryKey: CATEGORY_QUERY_KEY,
     queryFn: () =>
       axios
-        .get(`${process.env.REACT_APP_API_BASE_URL}/categories/${categoryId}`)
+        .get(`${process.env.REACT_APP_API_BASE_URL}/categories/${categoryId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        })
         .then((res) => {
           setName(res.data.data.name);
 
@@ -42,9 +46,17 @@ const CategoryEdit = () => {
 
   const onSubmit = () => {
     axios
-      .patch(`${process.env.REACT_APP_API_BASE_URL}/categories/${categoryId}`, {
-        name,
-      })
+      .patch(
+        `${process.env.REACT_APP_API_BASE_URL}/categories/${categoryId}`,
+        {
+          name,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        }
+      )
       .then((res) => {
         return navigate('/backoffices/categories', { replace: true });
       })

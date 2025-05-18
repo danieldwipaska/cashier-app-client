@@ -157,6 +157,10 @@ function PartiallyRefundModal({ row }: { row: Data }) {
     try {
       await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/reports/${row.id}/refund`, {
         refunded_order_amount: refundedItems,
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+        },
       });
 
       window.location.reload();
@@ -334,7 +338,11 @@ const ListOfPayment = () => {
       const rows: Data[] = [];
 
       try {
-        let res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports?from=${DTPickerFrom}&to=${DTPickerTo}`);
+        let res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports?from=${DTPickerFrom}&to=${DTPickerTo}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        });
         if (!res.data) return rows;
 
         if (searchedReport) {
@@ -421,7 +429,11 @@ const ListOfPayment = () => {
 
   const cancelOpenBill = async (id: string) => {
     try {
-      await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/reports/${id}/cancel`);
+      await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/reports/${id}/cancel`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+        },
+      });
 
       reportsRefetch();
       showMessage('Payment has been cancelled', 'success');

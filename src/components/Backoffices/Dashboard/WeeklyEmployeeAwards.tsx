@@ -13,7 +13,11 @@ const WeeklyEmployeeAwards = () => {
       const { from, to } = getWeeklyOperationalHours();
 
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports?from=${from}&to=${to}&status=${ReportStatus.PAID}`);
+        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports?from=${from}&to=${to}&status=${ReportStatus.PAID}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        });
 
         const groupedData = response.data.data.reduce((acc: any, report: any) => {
           const crewName = report.served_by;

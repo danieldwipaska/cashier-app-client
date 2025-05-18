@@ -49,6 +49,10 @@ const General = ({
         included_tax_service: includedTaxService,
         tax: tax,
         service: service,
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+        },
       });
 
       userDataRefetch();

@@ -19,7 +19,11 @@ const CardAdd = () => {
     if (data.type === 'Member') payload.is_member = true;
 
     axios
-      .post(`${process.env.REACT_APP_API_BASE_URL}/cards`, payload)
+      .post(`${process.env.REACT_APP_API_BASE_URL}/cards`, payload, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+        },
+      })
       .then((res) => {
         return navigate('/backoffices/cards', { replace: true });
       })

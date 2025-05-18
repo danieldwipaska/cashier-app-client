@@ -40,7 +40,11 @@ const Adjust = ({ data, openAdjustModal, handleCloseAdjustModal, refetchCardData
     };
 
     try {
-      const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/cards/${data?.id}/adjust`, formData);
+      const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/cards/${data?.id}/adjust`, formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+        },
+      });
 
       handleCloseAdjustModal();
       refetchCardData(response.data.data.card_number);

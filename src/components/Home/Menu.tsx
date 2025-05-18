@@ -12,7 +12,11 @@ const Menu = (props: any): JSX.Element => {
     queryKey: ['categories'],
     queryFn: () =>
       axios
-        .get(`${process.env.REACT_APP_API_BASE_URL}/categories`)
+        .get(`${process.env.REACT_APP_API_BASE_URL}/categories`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        })
         .then((res) => {
           return res.data.data;
         })
@@ -25,7 +29,11 @@ const Menu = (props: any): JSX.Element => {
     queryKey: ['availableFnbsByCategory'],
     queryFn: async () => {
       try {
-        const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/fnbs?pagination=false`);
+        const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/fnbs?pagination=false`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        });
 
         const availableFnbs = res.data.data.filter((fnb: any) => {
           return fnb.availability === true;
@@ -56,7 +64,11 @@ const Menu = (props: any): JSX.Element => {
 
   const addFnbToOrder = async (id: string) => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/fnbs/${id}`);
+      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/fnbs/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+        },
+      });
 
       if (response.data.statusCode === 200) {
         // check if exist

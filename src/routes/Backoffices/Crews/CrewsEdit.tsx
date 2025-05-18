@@ -39,7 +39,11 @@ const CrewEdit = () => {
     queryKey: CREW_QUERY_KEY,
     queryFn: () =>
       axios
-        .get(`${process.env.REACT_APP_API_BASE_URL}/crews/${crewId}`)
+        .get(`${process.env.REACT_APP_API_BASE_URL}/crews/${crewId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        })
         .then((res) => {
           setName(res.data.data.name);
           setPosition(res.data.data.position);
@@ -56,7 +60,11 @@ const CrewEdit = () => {
 
   const onSubmit = (data: any) => {
     axios
-      .patch(`${process.env.REACT_APP_API_BASE_URL}/crews/${crewId}`, data)
+      .patch(`${process.env.REACT_APP_API_BASE_URL}/crews/${crewId}`, data, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+        },
+      })
       .then((res) => {
         return navigate('/backoffices/crews', { replace: true });
       })

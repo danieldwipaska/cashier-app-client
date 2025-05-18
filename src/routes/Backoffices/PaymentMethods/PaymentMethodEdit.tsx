@@ -29,7 +29,11 @@ const PaymentMethodEdit = () => {
     queryKey: PAYMENT_METHOD_QUERY_KEY,
     queryFn: () =>
       axios
-        .get(`${process.env.REACT_APP_API_BASE_URL}/methods/${paymentMethodId}`)
+        .get(`${process.env.REACT_APP_API_BASE_URL}/methods/${paymentMethodId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        })
         .then((res) => {
           setName(res.data.data.name);
 
@@ -44,7 +48,11 @@ const PaymentMethodEdit = () => {
 
   const onSubmit = (data: any) => {
     axios
-      .patch(`${process.env.REACT_APP_API_BASE_URL}/methods/${paymentMethodId}`, data)
+      .patch(`${process.env.REACT_APP_API_BASE_URL}/methods/${paymentMethodId}`, data, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+        },
+      })
       .then((res) => {
         return navigate('/backoffices/payment-methods', { replace: true });
       })

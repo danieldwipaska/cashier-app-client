@@ -23,7 +23,11 @@ const Products = () => {
     queryKey: PRODUCTS_QUERY_KEY,
     queryFn: () =>
       axios
-        .get(`${process.env.REACT_APP_API_BASE_URL}/fnbs?page=${page}`)
+        .get(`${process.env.REACT_APP_API_BASE_URL}/fnbs?page=${page}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        })
         .then((res) => {
           return res.data;
         })
@@ -38,7 +42,11 @@ const Products = () => {
   // START FUNC
   const handleAvailabilityClick = async (id: string, availability: boolean) => {
     try {
-      const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/fnbs/${id}`, { availability });
+      const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/fnbs/${id}`, { availability }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+        }
+      });
 
       const product = response.data.data;
 
@@ -52,9 +60,9 @@ const Products = () => {
 
   // START HOOKS
   useEffect(() => {
-      productsRefetch();
-      window.scrollTo(0, 0);
-    }, [page, productsRefetch]);
+    productsRefetch();
+    window.scrollTo(0, 0);
+  }, [page, productsRefetch]);
   // END HOOKS
 
   return (
@@ -80,11 +88,13 @@ const Products = () => {
             return (
               <tr key={product.id} className="border-b-2 hover:bg-gray-100 duration-200">
                 <td className="py-3 px-2">
-                  <a href={`/backoffices/products/${product.id}`} className='font-semibold hover:opacity-70 duration-100'>{product.name}</a>
+                  <a href={`/backoffices/products/${product.id}`} className="font-semibold hover:opacity-70 duration-100">
+                    {product.name}
+                  </a>
                 </td>
                 <td className="py-3 px-2">
-                  <div className='flex items-center gap-2'>
-                    {product.availability ? <div className='text-green-700'>Available</div> : <div className='text-red-700'>Out of Stock</div>}
+                  <div className="flex items-center gap-2">
+                    {product.availability ? <div className="text-green-700">Available</div> : <div className="text-red-700">Out of Stock</div>}
                     <button
                       className="rounded-full bg-gray-300 px-2 py-1"
                       onClick={() => {
@@ -100,24 +110,29 @@ const Products = () => {
                 <td className="py-3 px-2">{product.discount_status ? 'yes' : 'no'}</td>
                 <td className="py-3 px-2">{product.discount_percent ? Intl.NumberFormat('id-ID').format(product.discount_percent) : '-'}</td>
                 <td className="py-3 px-2">
-                  <div className='flex items-center gap-2'>
-                    <a href={`/backoffices/products/${product.id}/edit`} className=''>
+                  <div className="flex items-center gap-2">
+                    <a href={`/backoffices/products/${product.id}/edit`} className="">
                       <img src={editIcon} alt="editIcon" width={20} />
                     </a>
                     <form
                       onSubmit={(e) => {
                         e.preventDefault();
                         axios
-                          .delete(`${process.env.REACT_APP_API_BASE_URL}/fnbs/${product.id}`)
+                          .delete(`${process.env.REACT_APP_API_BASE_URL}/fnbs/${product.id}`, {
+                            headers: {
+                              Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+                            }
+                          })
                           .then((res) => {
                             productsRefetch();
                           })
                           .catch((err) => {
                             return console.log(err);
                           });
-                      }} className='flex items-center'
+                      }}
+                      className="flex items-center"
                     >
-                      <button type="submit" className=''>
+                      <button type="submit" className="">
                         <img src={deleteIcon} alt="deleteIcon" width={20} />
                       </button>
                     </form>

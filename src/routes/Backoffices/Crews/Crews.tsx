@@ -18,7 +18,11 @@ const Crews = () => {
     queryKey: CREWS_QUERY_KEY,
     queryFn: () =>
       axios
-        .get(`${process.env.REACT_APP_API_BASE_URL}/crews`)
+        .get(`${process.env.REACT_APP_API_BASE_URL}/crews`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        })
         .then((res) => {
           return res.data.data;
         })
@@ -58,7 +62,11 @@ const Crews = () => {
                     <form
                       onSubmit={handleSubmit(() => {
                         axios
-                          .delete(`${process.env.REACT_APP_API_BASE_URL}/crews/${crew.id}`)
+                          .delete(`${process.env.REACT_APP_API_BASE_URL}/crews/${crew.id}`, {
+                            headers: {
+                              Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+                            },
+                          })
                           .then((res) => {
                             return crewsRefetch();
                           })

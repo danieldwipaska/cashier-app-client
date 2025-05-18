@@ -10,7 +10,11 @@ const CategoryAdd = () => {
 
   const onSubmit = (data: any) => {
     axios
-      .post(`${process.env.REACT_APP_API_BASE_URL}/categories`, data)
+      .post(`${process.env.REACT_APP_API_BASE_URL}/categories`, data, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+        }
+      })
       .then((res) => {
         return navigate('/backoffices/categories', { replace: true });
       })
