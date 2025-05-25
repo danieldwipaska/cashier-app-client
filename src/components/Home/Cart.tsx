@@ -10,15 +10,17 @@ import SimpleSnackbar from '../snackbars/SimpleSnackbar';
 import { ReportStatus, ReportType } from 'configs/utils';
 import ICartProps from 'interfaces/CartProps';
 import { useQuery } from '@tanstack/react-query';
+import { useDispatch, useSelector } from 'react-redux';
+import { Order } from 'context/slices/orderSlice';
 
-const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculationData }: ICartProps) => {
+const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
+  const order = useSelector((state: any) => state.order.order);
+  const dispatch = useDispatch();
+
   // START STATES
-  const { setCardId, cardNumber, setCardNumber, customerName, setCustomerId, setCustomerName, paymentMethod, setPaymentMethod, note, setNote, openBill, setOpenBill } = actionData;
-  const { orders, setOrders } = orderData;
   const { setOpenSummary } = states;
   const { crewCredential, setCrewCredential, openCrewAuthAlertDialog, setOpenCrewAuthAlertDialog, errorCrewCredential, setErrorCrewCredential, errorUnauthorizedCrew, setErrorUnauthorizedCrew } = crewData;
   const { reports, reportsRefetch } = unpaidReports;
-  const { totalPaymentAfterTaxService } = calculationData;
 
   const [customerNameIsEmpty, setCustomerNameIsEmpty] = useState(false);
   const [paymentMethodIsEmpty, setPaymentMethodIsEmpty] = useState(false);
@@ -53,26 +55,14 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
 
   // START FUNCTIONS
   const handleClickNewOrder = () => {
-    setCardNumber('');
-    setCustomerName('');
-    setCustomerId('');
-    setPaymentMethod('');
-    setNote('');
-    setOrders([]);
+    dispatch({ type: 'clearOrder' });
     setCrewCredential('');
     return;
   };
 
   const handleChangeOpenBill = async (event: any) => {
-    setOpenBill(event.target.value);
-
     if (!event.target.value) {
-      setCardNumber('');
-      setCustomerName('');
-      setCustomerId('');
-      setPaymentMethod('');
-      setNote('');
-      setOrders([]);
+      dispatch({ type: 'clearOrder' });
       setCrewCredential('');
       return;
     }
@@ -84,79 +74,59 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
         },
       });
 
-      setCardNumber(res.data.data.card_number);
-      setCustomerName(res.data.data.customer_name);
-      setCustomerId(res.data.data.customer_id);
-      setPaymentMethod(res.data.data.payment_method);
-      setNote(res.data.data.note);
+      const order: Order = {
+        id: res.data.data.id,
+        card_id: res.data.data.card_id,
+        card_number: res.data.data.card_number,
+        customer_name: res.data.data.customer_name,
+        customer_id: res.data.data.customer_id,
+        method_id: res.data.data.method_id,
+        crew_id: res.data.data.crew_id,
+        note: res.data.data.note,
+        total_payment: res.data.data.total_payment,
+        total_payment_after_tax_service: res.data.data.total_payment_after_tax_service,
+        items: res.data.data.items,
+      };
 
-      const ordersData: any = [];
-      res.data.data.order_id.forEach((orderId: any, i: number) => {
-        const order = {
-          id: orderId,
-          name: res.data.data.order_name[i],
-          category: {
-            name: res.data.data.order_category[i],
-          },
-          price: res.data.data.order_price[i],
-          discount_status: res.data.data.order_discount_status[i],
-          discount_percent: res.data.data.order_discount_percent[i],
-          amount: res.data.data.order_amount[i],
-        };
-
-        ordersData.push(order);
-      });
-
-      setOrders(ordersData);
+      dispatch({ type: 'setOrder', payload: order });
     } catch (error) {
       console.log(error);
     }
   };
 
   const handleClickOpenCrewAuthAlertDialog = () => {
-    if (!customerName) return setCustomerNameIsEmpty(true);
+    if (!order.customer_name) return setCustomerNameIsEmpty(true);
     setOpenCrewAuthAlertDialog(true);
   };
 
   const handleCardNumberChange = (event: any) => {
     setCardNumberIsEmpty(false);
-    setCardNumber(event.target.value);
+    dispatch({ type: 'updateOrder', payload: { card_number: event.target.value }});
   };
 
   const increaseAmount = (id: number) => {
-    orders?.forEach((order: any) => {
-      if (order.id === id) {
-        order.amount++;
-        setOrders([...orders]);
-      }
-    });
+    dispatch({ type: 'increaseItemAmount', payload: { id }});
   };
 
   const decreaseAmount = (id: number) => {
-    orders?.forEach((order: any) => {
-      if (order.id === id) {
-        order.amount--;
-        setOrders([...orders]);
-
-        if (order.amount <= 0) {
-          const newOrders = orders?.filter((order: any) => order.id !== id);
-          setOrders([...newOrders]);
-        }
-      }
-    });
+    try {
+      dispatch({ type: 'decreaseItemAmount', payload: { id }});
+    } catch (error) {
+      console.error('Error decreasing amount:', error);
+    }
   };
 
   const handleCustomerNameChange = (event: any) => {
     setCustomerNameIsEmpty(false);
-    setCustomerName(event.target.value);
+    dispatch({ type: 'updateOrder', payload: { customer_name: event.target.value } });
   };
 
   const handlePaymentMethodChange = (event: SelectChangeEvent) => {
-    setPaymentMethod(event.target.value);
+    dispatch({ type: 'updateOrder', payload: { method_id: event.target.value } });
   };
 
   const handleNoteChange = (event: any) => {
-    setNote(event.target.value);
+    dispatch({ type: 'updateOrder', payload: { note: event.target.value } });
   };
 
   const handleSave = async () => {
@@ -171,34 +141,15 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
       });
       if (!crew.data.data) return setErrorUnauthorizedCrew(true);
 
-      const order_id: string[] = [];
-      const order_name: string[] = [];
-      const order_category: string[] = [];
-      const order_amount: number[] = [];
-      const order_price: number[] = [];
-      const order_discount_status: boolean[] = [];
-      const order_discount_percent: number[] = [];
-
-      orders.forEach((order: any) => {
-        order_id.push(order.id);
-        order_name.push(order.name);
-        order_category.push(order.category.name);
-        order_amount.push(order.amount);
-        order_price.push(order.price);
-        order_discount_status.push(order.discount_status);
-        order_discount_percent.push(order.discount_percent);
-      });
-
       const payload = {
         type: ReportType.PAY,
         status: ReportStatus.UNPAID,
-        customer_name: customerName,
+        customer_name: order.customer_name,
+        customer_id: order.customer_id,
         crew_id: crew.data.data.id,
-        payment_method: paymentMethod,
-        order_id,
-        order_amount,
-        card_number: cardNumber || null,
-        note: note || null,
+        method_id: order.method_id,
+        note: order.note,
+        item: order.items,
       };
 
       try {
@@ -208,12 +159,6 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
           },
         });
 
-        setOrders([]);
-        setCustomerName('');
-        setCustomerId('');
-        setPaymentMethod('');
-        setNote('');
-        setOpenBill('');
         setErrorCrewCredential(false);
         setErrorUnauthorizedCrew(false);
         setCrewCredential('');
@@ -221,6 +166,7 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
         setOpenCrewAuthAlertDialog(false);
         setOpenSaveProgressSpinner(false);
         reportsRefetch();
+        dispatch({ type: 'clearOrder' });
       } catch (error) {
         console.log(error);
       }
@@ -230,32 +176,38 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
   };
 
   const handleConfirm = async () => {
-    if (orders.length === 0) {
+    if (order.items.length === 0) {
       setOrderIsEmpty(true);
       setTimeout(() => {
         setOrderIsEmpty(false);
       }, 3000);
-    } else if (!customerName && paymentMethod !== 'Gift Card') {
+    } else if (!order.customer_name && order.method_id !== process.env.GIFT_CARD_METHOD_ID) {
       setCustomerNameIsEmpty(true);
-    } else if (!cardNumber && paymentMethod === 'Gift Card') {
+    } else if (!order.card_number && order.method_id === process.env.GIFT_CARD_METHOD_ID) {
       setCardNumberIsEmpty(true);
-    } else if (!paymentMethod) {
+    } else if (!order.method_id) {
       setPaymentMethodIsEmpty(true);
     } else {
-      if (paymentMethod === 'Gift Card') {
+      if (order.method_id === process.env.GIFT_CARD_METHOD_ID) {
         setOpenConfirmProgressSpinner(true);
         try {
-          const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/cards/${cardNumber}`, {
+          const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/cards/${order.card_number}`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('access-token')}`,
             },
           });
-          if (response.data.data.balance < totalPaymentAfterTaxService) throw new Error('Balance Not Enough');
+          if (response.data.data.balance < order.total_payment_after_tax_service) throw new Error('Balance Not Enough');
 
           // setCardNumber(response.data.data.card_number);
-          setCustomerName(response.data.data.customer_name);
-          setCustomerId(response.data.data.customer_id);
-          setCardId(response.data.data.id);
+          dispatch({
+            type: 'updateOrder',
+            payload: {
+              card_id: response.data.data.id,
+              card_number: response.data.data.card_number,
+              customer_name: response.data.data.customer_name,
+              customer_id: response.data.data.customer_id,
+            },
+          });
           setOpenSummary(true);
           setOpenConfirmProgressSpinner(false);
         } catch (error: unknown) {
@@ -296,7 +248,7 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
                 </button>
               </div>
               <FormControl sx={{ ml: 2, minWidth: 120 }} size="small">
-                <Select value={openBill} onChange={handleChangeOpenBill} displayEmpty inputProps={{ 'aria-label': 'Without label' }}>
+                <Select value={order.status === ReportStatus.UNPAID} onChange={handleChangeOpenBill} displayEmpty inputProps={{ 'aria-label': 'Without label' }}>
                   <MenuItem value="">New</MenuItem>
                   {reports?.map((report: any) => (
                     <MenuItem key={report.id} value={report.id}>
@@ -318,28 +270,28 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
           ) : null}
 
           <div className="flex flex-col overflow-y-auto thin-scrollbar mt-2 pr-2 h-60 2xl:h-96">
-            {orders?.map((order: any) => (
-              <div className="mt-5 border-b-2 pb-2" key={order.id}>
+            {order.items?.map((item: any) => (
+              <div className="mt-5 border-b-2 pb-2" key={item.id}>
                 <div className="flex justify-between items-center">
                   <div className="mr-2">
-                    <p className="text-sm">{order.name}</p>
+                    <p className="text-sm">{item.name}</p>
                   </div>
                   <div className="flex items-center">
                     <button
                       className=" bg-green-500 hover:opacity-70 duration-500 p-2 rounded-md"
                       onClick={() => {
-                        decreaseAmount(order.id);
+                        decreaseAmount(item.id);
                       }}
                     >
                       <MinusIcon className="w-[9px]" />
                     </button>
                     <div className="mx-1">
-                      <input type="text" className="text-xs text-center text-black/60 py-1 px-2 rounded-md border border-black/25 max-w-8" readOnly value={order.amount} />
+                      <input type="text" className="text-xs text-center text-black/60 py-1 px-2 rounded-md border border-black/25 max-w-8" readOnly value={item.amount} />
                     </div>
                     <button
                       className=" bg-green-500 hover:opacity-70 duration-500 p-2 rounded-md"
                       onClick={() => {
-                        increaseAmount(order.id);
+                        increaseAmount(item.id);
                       }}
                     >
                       <PlusIcon className="w-[9px]" />
@@ -348,14 +300,14 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
                 </div>
                 <div className="flex justify-between mt-2">
                   <div></div>
-                  {order.discount_status ? (
+                  {item.discount_percent ? (
                     <div className="flex items-center">
-                      <p className="text-sm text-orange-500 mr-1">(-{order.discount_percent}%)</p>
-                      <p className="text-sm">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(order.price * order.amount - (order.price * order.amount * order.discount_percent) / 100)}</p>
+                      <p className="text-sm text-orange-500 mr-1">(-{item.discount_percent}%)</p>
+                      <p className="text-sm">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.price * item.amount - (item.price * item.amount * item.discount_percent) / 100)}</p>
                     </div>
                   ) : (
                     <div className="">
-                      <p className="text-sm">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(order.price * order.amount)}</p>
+                      <p className="text-sm">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.price * item.amount)}</p>
                     </div>
                   )}
                 </div>
@@ -371,7 +323,7 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
                     Payment
                   </InputLabel>
 
-                <Select labelId="demo-select-small-label" id="demo-select-small" label="Payment" value={paymentMethod} onChange={handlePaymentMethodChange} error={paymentMethodIsEmpty}>
+                <Select labelId="demo-select-small-label" id="demo-select-small" label="Payment" value={order.method_id} onChange={handlePaymentMethodChange} error={paymentMethodIsEmpty}>
                   {methods?.map((method: any) => {
                     return (
                       <MenuItem key={method.id} value={method.name}>
@@ -383,26 +335,26 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
                 </Select>
               </FormControl>
 
-              {paymentMethod === 'Gift Card' ? (
+              {order.method_id === process.env.GIFT_CARD_METHOD_ID ? (
                 <FormControl size="small" sx={{ m: 0, minWidth: 120 }}>
                   {cardNumberIsEmpty ? (
-                    <TextField id="card-number" error label="Card" variant="outlined" size="small" onChange={handleCardNumberChange} value={cardNumber} />
+                    <TextField id="card-number" error label="Card" variant="outlined" size="small" onChange={handleCardNumberChange} value={order.card_number} />
                   ) : (
-                    <TextField id="card-number" label="Card" variant="outlined" size="small" onChange={handleCardNumberChange} value={cardNumber} />
+                    <TextField id="card-number" label="Card" variant="outlined" size="small" onChange={handleCardNumberChange} value={order.card_number} />
                   )}
                 </FormControl>
               ) : (
                 <FormControl size="small" sx={{ m: 0, minWidth: 120 }}>
                   {customerNameIsEmpty ? (
-                    <TextField id="customer-name" error label="Customer Name" variant="outlined" size="small" onChange={handleCustomerNameChange} value={customerName} />
+                    <TextField id="customer-name" error label="Customer Name" variant="outlined" size="small" onChange={handleCustomerNameChange} value={order.customer_name} />
                   ) : (
-                    <TextField id="customer-name" label="Customer Name" variant="outlined" size="small" onChange={handleCustomerNameChange} value={customerName} />
+                    <TextField id="customer-name" label="Customer Name" variant="outlined" size="small" onChange={handleCustomerNameChange} value={order.customer_name} />
                   )}
                 </FormControl>
               )}
 
               <FormControl size="small" sx={{ mt: 0, minWidth: 120 }}>
-                <TextField id="note" label="Note" variant="outlined" size="small" onChange={handleNoteChange} value={note} />
+                <TextField id="note" label="Note" variant="outlined" size="small" onChange={handleNoteChange} value={order.note} />
               </FormControl>
             </div>
             <div className="flex justify-between">
@@ -411,16 +363,16 @@ const Cart = ({ actionData, orderData, states, crewData, unpaidReports, calculat
               </div>
               <div>
                 <div className="flex text-black/60">
-                  <p className="mx-2">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalPaymentAfterTaxService)}</p>
+                  <p className="mx-2">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(order.total_payment_after_tax_service)}</p>
                 </div>
               </div>
             </div>
           </div>
           <div className="flex py-2">
             <button
-              className={`text-center my-2 mr-2 py-1 px-3 border border-black/60 duration-500 rounded-lg ${paymentMethod === 'Gift Card' || !paymentMethod || openBill ? 'opacity-30' : 'hover:border-green-500 hover:bg-green-500'}`}
+              className={`text-center my-2 mr-2 py-1 px-3 border border-black/60 duration-500 rounded-lg ${order.method_id === process.env.GIFT_CARD_METHOD_ID || !order.method_id || order.status === ReportStatus.UNPAID ? 'opacity-30' : 'hover:border-green-500 hover:bg-green-500'}`}
               onClick={handleClickOpenCrewAuthAlertDialog}
-              disabled={paymentMethod === 'Gift Card' || !paymentMethod || openBill ? true : false}
+              disabled={order.method_id === process.env.GIFT_CARD_METHOD_ID || !order.method_id || order.status === ReportStatus.UNPAID ? true : false}
             >
               {openSaveProgressSpinner ? <CircularProgress color="secondary" size={15} /> : <SaveIcon className="w-[25px]" />}
             </button>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Nav from '../../components/Nav';
 import SideNav from '../../components/SideNav';
 import Menu from '../../components/Home/Menu';
@@ -6,37 +6,18 @@ import Cart from '../../components/Home/Cart';
 import OrderSummary from '../../components/Home/OrderSummary';
 import { Backdrop } from '@mui/material';
 import { CheckCircle } from '@mui/icons-material';
-import sumOrders from '../../functions/sum';
 import { useAuth } from '../../context/AuthContext';
 import { useCheckToken } from '../../hooks/useCheckToken';
 import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 import { ReportStatus } from 'configs/utils';
-import { calculateDiscountedPrice } from 'functions/tax-service';
-import { ServiceTax } from 'lib/taxes/taxes.calculation';
 
 const Home = () => {
   // Auth
   const { user } = useAuth();
 
+
   // START STATES
-
-  // Action
-  const [cardId, setCardId] = useState('');
-  const [cardNumber, setCardNumber] = useState('');
-  const [customerName, setCustomerName] = useState('');
-  const [customerId, setCustomerId] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('');
-  const [note, setNote] = useState('');
-  const [openBill, setOpenBill] = useState('');
-
-  // Orders
-  const [orders, setOrders] = useState<any[]>([]);
-  const [shop, setShop] = useState<any>(null);
-
-  // Calculation
-  const [totalOrder, setTotalOrder] = useState(0);
-  const [totalPaymentAfterTaxService, setTotalPaymentAfterTaxService] = useState(0);
 
   // Cart & Summary
   const [openSummary, setOpenSummary] = useState(false);
@@ -67,42 +48,10 @@ const Home = () => {
           return console.log(err);
         }),
   });
-
-  useQuery({
-    queryKey: ['shopData'],
-    queryFn: () =>
-      axios
-        .get(`${process.env.REACT_APP_API_BASE_URL}/multiusers/configuration/${user?.username}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
-          },
-        })
-        .then((res) => {
-          setShop(res.data.data.shops[0].shop);
-
-          return res.data.data.shops[0].shop;
-        })
-        .catch((err) => {
-          return console.log(err);
-        }),
-  });
   // END QUERIES
 
   // START HOOKS
   useCheckToken(user);
-  useEffect(() => {
-    // Update orders whenever something changes
-    setTotalOrder(sumOrders(orders));
-
-    const taxService = new ServiceTax(calculateDiscountedPrice(orders), shop?.service, shop?.tax);
-
-    if (shop?.included_tax_service === false) {
-      return setTotalPaymentAfterTaxService(taxService.calculateTax());
-    }
-    
-    return setTotalPaymentAfterTaxService(totalOrder);
-
-  }, [orders, shop?.included_tax_service, shop?.service, shop?.tax, totalOrder]);
   // END HOOKS
 
   return (
@@ -112,30 +61,10 @@ const Home = () => {
       <div className="flex">
         <SideNav />
 
-        <Menu orders={orders} setOrders={setOrders} openSummary={openSummary} setOpenSummary={setOpenSummary} />
+        <Menu openSummary={openSummary} setOpenSummary={setOpenSummary} />
 
         {openSummary ? (
           <OrderSummary
-            actionData={{
-              cardId,
-              setCardId,
-              cardNumber,
-              setCardNumber,
-              customerName,
-              customerId,
-              setCustomerId,
-              setCustomerName,
-              paymentMethod,
-              setPaymentMethod,
-              note,
-              setNote,
-              openBill,
-              setOpenBill,
-            }}
-            orderData={{
-              orders,
-              setOrders,
-            }}
             states={{
               openSummary,
               setOpenSummary,
@@ -155,36 +84,10 @@ const Home = () => {
             unpaidReports={{
               reports,
               reportsRefetch,
-            }}
-            calculationData={{
-              totalOrder,
-              setTotalOrder,
-              totalPaymentAfterTaxService,
-              setTotalPaymentAfterTaxService,
             }}
           />
         ) : (
           <Cart
-            actionData={{
-              cardId,
-              setCardId,
-              cardNumber,
-              setCardNumber,
-              customerName,
-              customerId,
-              setCustomerId,
-              setCustomerName,
-              paymentMethod,
-              setPaymentMethod,
-              note,
-              setNote,
-              openBill,
-              setOpenBill,
-            }}
-            orderData={{
-              orders,
-              setOrders,
-            }}
             states={{
               openSummary,
               setOpenSummary,
@@ -204,12 +107,6 @@ const Home = () => {
             unpaidReports={{
               reports,
               reportsRefetch,
-            }}
-            calculationData={{
-              totalOrder,
-              setTotalOrder,
-              totalPaymentAfterTaxService,
-              setTotalPaymentAfterTaxService,
             }}
           />
         )}

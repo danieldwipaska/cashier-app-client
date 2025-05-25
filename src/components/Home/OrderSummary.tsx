@@ -6,14 +6,15 @@ import { CircularProgress } from '@mui/material';
 import CrewAuthAlertDialogSlide from './CrewAuthAlertDialogSlide';
 import { PaymentMethod, ReportStatus, ReportType } from 'configs/utils';
 import ICartProps from 'interfaces/CartProps';
+import { useDispatch, useSelector } from 'react-redux';
 
-const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, calculationData }: ICartProps) => {
-  const { cardId, setCardId, setCardNumber, customerName, customerId, setCustomerId, setCustomerName, paymentMethod, setPaymentMethod, note, setNote, openBill, setOpenBill } = actionData;
-  const { orders, setOrders } = orderData;
+const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
+  const order = useSelector((state: any) => state.order.order);
+  const dispatch = useDispatch();
+
   const { setOpenSummary, setOpenBackdrop } = states;
   const { crewCredential, setCrewCredential, openCrewAuthAlertDialog, setOpenCrewAuthAlertDialog, errorCrewCredential, setErrorCrewCredential, errorUnauthorizedCrew, setErrorUnauthorizedCrew } = crewData;
   const { reportsRefetch } = unpaidReports;
-  const { totalPaymentAfterTaxService } = calculationData;
 
   const [openConfirmProgressSpinner, setOpenConfirmProgressSpinner] = useState(false);
 
@@ -31,52 +32,28 @@ const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, 
         },
       });
 
-      const order_id: string[] = [];
-      const order_name: string[] = [];
-      const order_category: string[] = [];
-      const order_amount: number[] = [];
-      const order_price: number[] = [];
-      const order_discount_status: boolean[] = [];
-      const order_discount_percent: number[] = [];
-
       setOpenConfirmProgressSpinner(true);
 
-      orders.forEach((order: any) => {
-        order_id.push(order.id);
-        order_name.push(order.name);
-        order_category.push(order.category.name);
-        order_amount.push(order.amount);
-        order_price.push(order.price);
-        order_discount_status.push(order.discount_status);
-        order_discount_percent.push(order.discount_percent);
-      });
+      if (order.method_id !== process.env.GIFT_CARD_METHOD_ID) {
 
-      if (paymentMethod === PaymentMethod.GIFT_CARD) {
         const payload = {
           type: ReportType.PAY,
-          customer_name: customerName,
-          customer_id: customerId,
-          payment_method: paymentMethod,
-          order_id,
-          order_amount,
-          note: note || null,
+          status: ReportStatus.PAID,
+          customer_name: order.customer_name,
+          customer_id: order.customer_id,
           crew_id: crew.data.data.id,
+          method_id: order.method_id,
+          note: order.note,
+          item: order.items,
         };
 
         try {
-          await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/cards/${cardId}/pay`, payload, {
+          await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/cards/${order.card_id}/pay`, payload, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('access-token')}`,
             },
           });
 
-          setCardId('');
-          setCardNumber('');
-          setOrders([]);
-          setCustomerName('');
-          setCustomerId('');
-          setPaymentMethod('');
-          setNote('');
           setCrewCredential('');
           setErrorCrewCredential(false);
           setErrorUnauthorizedCrew(false);
@@ -86,6 +63,11 @@ const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, 
           setOpenCrewAuthAlertDialog(false);
           setOpenConfirmProgressSpinner(false);
           setOpenBackdrop(true);
+
+          // Clear order state
+          dispatch({
+            type: 'clearOrder',
+          });
 
           setTimeout(() => {
             setOpenBackdrop(false);
@@ -96,12 +78,12 @@ const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, 
       } else {
         const payload = {
           type: ReportType.PAY,
-          customer_name: customerName,
-          payment_method: paymentMethod,
-          order_id,
-          order_amount,
-          note: note || null,
+          status: ReportStatus.PAID,
+          customer_name: order.customer_name,
           crew_id: crew.data.data.id,
+          method_id: order.method_id,
+          note: order.note,
+          item: order.items,
         };
 
         try {
@@ -111,11 +93,6 @@ const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, 
             },
           });
 
-          setOrders([]);
-          setCustomerName('');
-          setCustomerId('');
-          setPaymentMethod('');
-          setNote('');
           setCrewCredential('');
           setErrorCrewCredential(false);
           setErrorUnauthorizedCrew(false);
@@ -125,6 +102,11 @@ const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, 
           setOpenCrewAuthAlertDialog(false);
           setOpenConfirmProgressSpinner(false);
           setOpenBackdrop(true);
+
+          // Clear order state
+          dispatch({
+            type: 'clearOrder',
+          });
 
           setTimeout(() => {
             setOpenBackdrop(false);
@@ -144,7 +126,7 @@ const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, 
     if (!crewCredential) return setErrorCrewCredential(true);
 
     try {
-      const report = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports/${openBill}`, {
+      const report = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports/${order.id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('access-token')}`,
         },
@@ -159,55 +141,27 @@ const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, 
         });
         if (!crew.data.data || report.data.data.served_by !== crew.data.data.name) return setErrorUnauthorizedCrew(true);
 
-        const order_id: string[] = [];
-        const order_name: string[] = [];
-        const order_category: string[] = [];
-        const order_amount: number[] = [];
-        const order_price: number[] = [];
-        const order_discount_status: boolean[] = [];
-        const order_discount_percent: number[] = [];
-
         setOpenConfirmProgressSpinner(true);
-
-        orders.forEach((order: any) => {
-          order_id.push(order.id);
-          order_name.push(order.name);
-          order_category.push(order.category.name);
-          order_amount.push(order.amount);
-          order_price.push(order.price);
-          order_discount_status.push(order.discount_status);
-          order_discount_percent.push(order.discount_percent);
-        });
 
         const payload = {
           status: ReportStatus.PAID,
-          customer_name: customerName,
+          customer_name: order.customer_name,
           crew_id: crew.data.data.id,
-          payment_method: paymentMethod,
-          order_id,
-          order_amount,
-          note: note || null,
-        }
+          method_id: order.method_id,
+          note: order.note,
+          item: order.items,
+        };
 
         try {
-          await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/reports/${openBill}`, payload, {
+          await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/reports/${order.id}`, payload, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('access-token')}`,
             },
           });
 
-          setCardId('');
-          setCardNumber('');
-          setOrders([]);
-          setCustomerName('');
-          setCustomerId('');
-          setPaymentMethod('');
-          setNote('');
           setCrewCredential('');
           setErrorCrewCredential(false);
           setErrorUnauthorizedCrew(false);
-
-          setOpenBill('');
 
           setOpenSummary(false);
 
@@ -215,6 +169,11 @@ const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, 
 
           setOpenConfirmProgressSpinner(false);
           setOpenBackdrop(true);
+
+          // Clear order state
+          dispatch({
+            type: 'clearOrder',
+          });
 
           setTimeout(() => {
             setOpenBackdrop(false);
@@ -249,15 +208,15 @@ const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, 
           </div>
           <div className="mt-2 grid grid-cols-2 w-2/3 text-gray-400">
             <p className="text-sm font-normal">Customer Name</p>
-            <p className="text-sm font-normal">: {customerName}</p>
+            <p className="text-sm font-normal">: {order.customer_name}</p>
           </div>
           <div className="mt-1 grid grid-cols-2 w-2/3 text-gray-400">
             <p className="text-sm font-normal">Payment Method</p>
-            <p className="text-sm font-normal">: {paymentMethod}</p>
+            <p className="text-sm font-normal">: {order.method_id}</p>
           </div>
           <div className="mt-1 grid grid-cols-2 w-2/3 text-gray-400">
             <p className="text-sm font-normal">Note</p>
-            <p className="text-sm font-normal">: {note}</p>
+            <p className="text-sm font-normal">: {order.note}</p>
           </div>
 
           <div className="mt-7">
@@ -265,8 +224,8 @@ const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, 
           </div>
 
           <div className="overflow-y-auto h-60 2xl:h-96">
-            {orders?.map((order: any) => (
-              <div key={order.id} className="flex items-center mt-2 2xl:mt-5">
+            {order.items.map((item: any) => (
+              <div key={item.id} className="flex items-center mt-2 2xl:mt-5">
                 <div>
                   <div className="bg-slate-800 p-2 rounded-lg">
                     <FoodIcon className='w-[40px] text-white' />
@@ -274,26 +233,26 @@ const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, 
                 </div>
                 <div className="mx-3">
                   <div>
-                    <p className="text-sm">{order.name}</p>
+                    <p className="text-sm">{item.name}</p>
                   </div>
                   <div className="flex items-center mt-2">
-                    {order.discount_status ? (
+                    {item.discount_percent ? (
                       <div className="flex items-center mx-1">
                         <div>
                           <input
                             type="text"
                             className="text-xs text-black/60 py-1 w-28"
                             readOnly
-                            value={`${order.amount} x ${Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(order.price - order.price * (order.discount_percent / 100))}`}
+                            value={`${item.amount} x ${Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.price - item.price * (item.discount_percent / 100))}`}
                           />
                         </div>
                         <div>
-                          <p className="text-xs text-orange-500">(-{order.discount_percent}%)</p>
+                          <p className="text-xs text-orange-500">(-{item.discount_percent}%)</p>
                         </div>
                       </div>
                     ) : (
                       <div className="mx-1">
-                        <input type="text" className="text-xs text-black/60 py-1" readOnly value={`${order.amount} x ${Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(order.price)}`} />
+                        <input type="text" className="text-xs text-black/60 py-1" readOnly value={`${item.amount} x ${Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.price)}`} />
                       </div>
                     )}
                   </div>
@@ -310,7 +269,7 @@ const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, 
               </div>
               <div>
                 <div className="flex text-black/60">
-                  <p className="mx-2">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalPaymentAfterTaxService)}</p>
+                  <p className="mx-2">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(order.total_payment_after_tax_service)}</p>
                 </div>
               </div>
             </div>
@@ -324,7 +283,7 @@ const OrderSummary = ({ actionData, orderData, states, crewData, unpaidReports, 
         <CrewAuthAlertDialogSlide
           openCrewAuthAlertDialog={openCrewAuthAlertDialog}
           setOpenCrewAuthAlertDialog={setOpenCrewAuthAlertDialog}
-          handleConfirm={openBill ? handlePayUpdate : handlePay}
+          handleConfirm={order.id ? handlePayUpdate : handlePay}
           crewCredential={crewCredential}
           setCrewCredential={setCrewCredential}
           errorCrewCredential={errorCrewCredential}
