@@ -75,25 +75,25 @@ export const getMonthlyOperationalHours = () => {
 
 export const getTotalPayment = (reports: any) => {
   let totalPayment = 0;
-  let totalRefund = 0;
+  let reportRefund = 0;
 
   reports?.forEach((report: any) => {
     totalPayment += report.total_payment_after_tax_service;
 
     for (let item of report.Item) {
       if (item.refunded_amount && item.discount_percent) {
-        totalRefund += item.price * item.refunded_amount - (item.price * item.refunded_amount * item.discount_percent) / 100;
+        reportRefund += item.price * item.refunded_amount - (item.price * item.refunded_amount * item.discount_percent) / 100;
       } else if (item.refunded_amount) {
-        totalRefund += item.price * item.refunded_amount;
+        reportRefund += item.price * item.refunded_amount;
       }
     }
     
-    let taxService = new ServiceTax(totalRefund, report.service_percent, report.tax_percent);
+    let taxService = new ServiceTax(reportRefund, report.service_percent, report.tax_percent);
     
     if (!report.included_tax_service) {
-      totalRefund = taxService.calculateTax();
+      reportRefund = taxService.calculateTax();
     }
   });
 
-  return totalPayment - totalRefund;
+  return totalPayment - reportRefund;
 };

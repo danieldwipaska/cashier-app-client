@@ -104,7 +104,7 @@ export const orderSlice = createSlice({
       state.serviceAndTax = {
         tax: 0,
         service: 0,
-        included_tax_service: false,
+        included_tax_service: true,
       };
     },
     addOrUpdateItem: (state, action: PayloadAction<Item>) => {
@@ -141,8 +141,6 @@ export const orderSlice = createSlice({
           // If amount is 1, remove the item from the order
           state.order.items = state.order.items.filter((i) => i.fnb_id !== fnbId);
         }
-      } else {
-        throw new Error(`Item with fnb_id ${fnbId} not found in order`);
       }
     },
   },

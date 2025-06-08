@@ -66,9 +66,9 @@ const Invoices = ({ selectedPaymentData, totalPaymentSelectedData }: any) => {
               <div key={i} className="flex justify-between">
                 <div className="flex">
                   <div>{item.fnb_name}</div>
-                  <div>...x {selectedPaymentData.items[i].amount}</div>
+                  <div>...x {item.amount}</div>
                 </div>
-                <div>IDR {Intl.NumberFormat('en-us').format(selectedPaymentData.items[i].price * selectedPaymentData.items[i].amount)}</div>
+                <div>IDR {Intl.NumberFormat('en-us').format(item.price * item.amount)}</div>
               </div>
             ))}
             {selectedPaymentData?.type !== ReportType.PAY ? (
