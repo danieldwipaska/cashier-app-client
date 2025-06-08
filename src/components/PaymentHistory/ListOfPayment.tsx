@@ -17,6 +17,8 @@ import bahariLogo from '../../assets/img/bahari-logo.webp';
 import { CheckCircle } from '@mui/icons-material';
 import { ServiceTax } from 'lib/taxes/taxes.calculation';
 import { useMessages } from 'context/MessageContext';
+import { Item } from 'context/slices/orderSlice';
+import RefundedItem from 'interfaces/RefundedItem';
 
 interface Column {
   id: 'type' | 'report_id' | 'status' | 'customer_name' | 'customer_id' | 'served_by' | 'total_payment_after_tax_service' | 'dateCreatedAt' | 'timeCreatedAt' | 'action';
@@ -47,19 +49,12 @@ interface Data {
   customer_name: string;
   customer_id: string;
   served_by: string;
+  total_payment: number;
   total_payment_after_tax_service: number;
   orders: string;
   dateCreatedAt: string;
   timeCreatedAt: string;
-  refund_status: boolean;
-  order_id: string[];
-  order_name: string[];
-  order_category: string[];
-  order_amount: number[];
-  order_price: number[];
-  refunded_order_amount: number[];
-  order_discount_status: boolean[];
-  order_discount_percent: number[];
+  items: Item[];
   included_tax_service: boolean;
   tax_percent: number;
   service_percent: number;
@@ -73,19 +68,12 @@ function createData(
   customer_name: string,
   customer_id: string,
   served_by: string,
+  total_payment: number,
   total_payment_after_tax_service: number,
   orders: string,
   dateCreatedAt: string,
   timeCreatedAt: string,
-  refund_status: boolean,
-  order_id: string[],
-  order_name: string[],
-  order_category: string[],
-  order_amount: number[],
-  order_price: number[],
-  refunded_order_amount: number[],
-  order_discount_status: boolean[],
-  order_discount_percent: number[],
+  items: Item[],
   included_tax_service: boolean,
   tax_percent: number,
   service_percent: number
@@ -98,19 +86,12 @@ function createData(
     customer_name,
     customer_id,
     served_by,
+    total_payment,
     total_payment_after_tax_service,
     orders,
     dateCreatedAt,
     timeCreatedAt,
-    refund_status,
-    order_id,
-    order_name,
-    order_category,
-    order_amount,
-    order_price,
-    refunded_order_amount,
-    order_discount_status,
-    order_discount_percent,
+    items,
     included_tax_service,
     tax_percent,
     service_percent,
@@ -134,34 +115,53 @@ const style = {
 
 function PartiallyRefundModal({ row }: { row: Data }) {
   const [open, setOpen] = React.useState(false);
-  const [refundedItems, setRefundedItems] = useState(row.refunded_order_amount.map((refundAmount: number, i: number) => row.order_amount[i] - refundAmount));
+  const [refundedItems, setRefundedItems] = useState(
+    row.items.map((item: Item) => {
+      return {
+        id: item.id ?? '',
+        added_refunded_amount: 0,
+        refundable_amount: item.amount - (item.refunded_amount ?? 0),
+      };
+    })
+  );
+
   const handleOpen = () => {
     setOpen(true);
   };
   const handleClose = () => {
     setOpen(false);
   };
-  const decreaseRefundedItems = (i: number) => {
-    const newRefundedItems = refundedItems.map((item, j) => {
-      if (j === i && item > 0) return item - 1;
+  const decreaseRefundedItems = (id: string) => {
+    const newRefundedItems: any = refundedItems.map((item: RefundedItem) => {
+      if (item.id === id) {
+        const addedRefundedAmount = item.added_refunded_amount ?? 0;
+
+        if (addedRefundedAmount > 0) return { ...item, added_refunded_amount: addedRefundedAmount - 1 };
+      }
+
       return item;
     });
 
     setRefundedItems(newRefundedItems);
+    console.log(newRefundedItems);
   };
 
   const handleRefund = async () => {
-    const emptyRefundedItems = refundedItems.every((amount) => amount === 0);
+    const emptyRefundedItems = refundedItems.every((item) => item.added_refunded_amount === 0);
     if (emptyRefundedItems) return handleClose();
 
+    const items = refundedItems.filter((item: RefundedItem) => item.added_refunded_amount > 0);
+
     try {
-      await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/reports/${row.id}/refund`, {
-        refunded_order_amount: refundedItems,
-      }, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
-        },
-      });
+      await axios.patch(
+        `${process.env.REACT_APP_API_BASE_URL}/reports/${row.id}/refund`,
+        { items },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        }
+      );
 
       window.location.reload();
     } catch (error) {
@@ -169,43 +169,62 @@ function PartiallyRefundModal({ row }: { row: Data }) {
     }
   };
 
-  const increaseRefundedItems = (i: number) => {
-    const newRefundedItems = refundedItems.map((item, j) => {
-      if (j === i && item < row.order_amount[j] - row.refunded_order_amount[j]) return item + 1;
+  const increaseRefundedItems = (id: string) => {
+    const newRefundedItems = refundedItems.map((item) => {
+      if (item.id === id) {
+        const addedRefundedAmount = item.added_refunded_amount ?? 0;
+        const refundableAmount = item.refundable_amount;
+
+        if (refundableAmount > addedRefundedAmount) return { ...item, added_refunded_amount: addedRefundedAmount + 1 };
+      }
+
       return item;
     });
 
     setRefundedItems(newRefundedItems);
+    console.log(newRefundedItems);
   };
 
   const TotalRefund = () => {
     let totalRefund = 0;
-    row.order_price.forEach((price: number, i: number) => {
-      if (row.order_discount_status[i]) {
-        totalRefund += price * refundedItems[i] - (price * refundedItems[i] * row.order_discount_percent[i]) / 100;
+    refundedItems.forEach((item: RefundedItem) => {
+      const id = item.id ?? '';
+      const addedRefundedAmount = item.added_refunded_amount ?? 0;
+      let price = 0;
+      let discount_percent = 0;
+
+      row.items.forEach((item: Item) => {
+        if (item.id === id) {
+          price = item.price;
+          discount_percent = item.discount_percent;
+        }
+      });
+
+      if (discount_percent) {
+        totalRefund += price * addedRefundedAmount - (price * addedRefundedAmount * discount_percent) / 100;
       } else {
-        totalRefund += price * refundedItems[i];
+        totalRefund += price * addedRefundedAmount;
       }
     });
 
-    const taxService = new ServiceTax(
-      totalRefund,
-      row.service_percent,
-      row.tax_percent,
-    );
+    const taxService = new ServiceTax(totalRefund, row.service_percent, row.tax_percent);
 
     if (!row.included_tax_service) {
-      totalRefund = taxService.calculateTax()
+      totalRefund = taxService.calculateTax();
     }
 
     return <span>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalRefund)}</span>;
   };
 
+  const findItemData = (id: string) => row.items.find((item) => item.id === id);
+
   return (
     <React.Fragment>
-      <div className={`py-[10px] px-5 bg-gray-300 hover:bg-gray-500 duration-200 flex items-center justify-center ${row.order_amount.toString() === row.refunded_order_amount.toString() ? 'hidden' : null}`} onClick={handleOpen}>
-        Refund
-      </div>
+      {refundedItems.some((item) => item.refundable_amount > 0) && (
+        <div className={`py-[10px] px-5 bg-gray-300 hover:bg-gray-500 duration-200 flex items-center justify-center`} onClick={handleOpen}>
+          Refund
+        </div>
+      )}
 
       <Modal open={open} onClose={handleClose} aria-labelledby="child-modal-title" aria-describedby="child-modal-description">
         <Box sx={{ ...style, width: 400, border: 0 }}>
@@ -213,28 +232,28 @@ function PartiallyRefundModal({ row }: { row: Data }) {
             Refund <span className=" text-gray-400">- {row.report_id}</span>
           </h4>
           <div className="flex flex-col overflow-y-auto thin-scrollbar mt-2 pr-2 h-60 2xl:h-96">
-            {row?.order_name.map((name: any, i: number) => (
-              <div className="mt-5 border-b-2 pb-2" key={i}>
+            {refundedItems?.map((item: RefundedItem) => (
+              <div className="mt-5 border-b-2 pb-2" key={item.id}>
                 <div className="flex justify-between items-center">
                   <div className="mr-2">
-                    <p className="text-sm">{name}</p>
+                    <p className="text-sm">{findItemData(item.id)?.fnb_name}</p>
                   </div>
                   <div className="flex items-center">
                     <button
-                      className={`bg-green-500 ${refundedItems[i] === 0 ? 'opacity-50' : 'hover:bg-green-700'} duration-500 p-2 rounded-md`}
+                      className={`bg-green-500 ${item.added_refunded_amount === 0 ? 'opacity-50' : 'hover:bg-green-700'} duration-500 p-2 rounded-md`}
                       onClick={() => {
-                        decreaseRefundedItems(i);
+                        decreaseRefundedItems(item.id ?? '');
                       }}
                     >
                       <MinusIcon className="w-[10px]" />
                     </button>
                     <div className="mx-1">
-                      <input type="text" className="text-xs text-center text-black/80 py-1 px-2 rounded-md border border-black/40 max-w-8" readOnly value={refundedItems[i]} />
+                      <input type="text" className="text-xs text-center text-black/80 py-1 px-2 rounded-md border border-black/40 max-w-8" readOnly value={item.added_refunded_amount} />
                     </div>
                     <button
-                      className={`bg-green-500 ${refundedItems[i] === row.order_amount[i] - row.refunded_order_amount[i] ? 'opacity-50' : 'hover:bg-green-700'} duration-500 p-2 rounded-md`}
+                      className={`bg-green-500 ${item.added_refunded_amount === item.refundable_amount ? 'opacity-50' : 'hover:bg-green-700'} duration-500 p-2 rounded-md`}
                       onClick={() => {
-                        increaseRefundedItems(i);
+                        increaseRefundedItems(item.id ?? '');
                       }}
                     >
                       <PlusIcon className="w-[10px]" />
@@ -243,16 +262,19 @@ function PartiallyRefundModal({ row }: { row: Data }) {
                 </div>
                 <div className="flex justify-between mt-2">
                   <div></div>
-                  {row.order_discount_status[i] ? (
+                  {findItemData(item.id)?.discount_percent ? (
                     <div className="flex items-center">
-                      <p className="text-sm text-orange-500 mr-1">({row.order_discount_percent[i]}%)</p>
+                      <p className="text-sm text-orange-500 mr-1">({findItemData(item.id)?.discount_percent}%)</p>
                       <p className="text-sm">
-                        - {Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(orderDiscountedPrice({ price: row.order_price[i], amount: refundedItems[i], discountPercent: row.order_discount_percent[i] }))}
+                        -{' '}
+                        {Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(
+                          orderDiscountedPrice({ price: findItemData(item.id)?.price ?? 0, amount: item.added_refunded_amount ?? 0, discountPercent: findItemData(item.id)?.discount_percent ?? 0 })
+                        )}
                       </p>
                     </div>
                   ) : (
                     <div className="">
-                      <p className="text-sm">- {Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(row.order_price[i] * refundedItems[i])}</p>
+                      <p className="text-sm">- {Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format((findItemData(item.id)?.price ?? 0) * (item.added_refunded_amount ?? 0))}</p>
                     </div>
                   )}
                 </div>
@@ -291,8 +313,10 @@ const ListOfPayment = () => {
   const [searchedReport, setSearchedReport] = React.useState('');
 
   const [openDetailModal, setOpenDetailModal] = useState(false);
+  const [openRefundDetailModal, setOpenRefundDetailModal] = useState(false);
   const [selectedPaymentData, setSelectedPaymentData] = useState<any>(null);
   const [totalPaymentSelectedData, setTotalPaymentSelectedData] = useState(0);
+  const [totalRefundSelectedData, setTotalRefundSelectedData] = useState(0);
 
   // Dropdowns
   const [openDropdownId, setOpenDropdownId] = useState('');
@@ -301,15 +325,15 @@ const ListOfPayment = () => {
 
   useEffect(() => {
     const handleClickOutside = (event: any) => {
-      if (!event.target.closest("#dropdown-dialog")) {
-        setOpenDropdownId(''); 
+      if (!event.target.closest('#dropdown-dialog')) {
+        setOpenDropdownId('');
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
 
@@ -324,13 +348,21 @@ const ListOfPayment = () => {
     setOpenDetailModal(false);
   };
 
+  const handleCloseRefundDetailModal = () => {
+    setOpenRefundDetailModal(false);
+  };
+
   const handleOpenDetailModal = () => {
     setOpenDetailModal(true);
   };
 
+  const handleOpenRefundDetailModal = () => {
+    setOpenRefundDetailModal(true);
+  };
+
   const handleDropdown = (id: string) => {
     setOpenDropdownId(id);
-  }
+  };
 
   const { data: reports, refetch: reportsRefetch } = useQuery({
     queryKey: ['reports'],
@@ -353,9 +385,22 @@ const ListOfPayment = () => {
 
         res.data.data.forEach((report: any) => {
           let ordersString = '';
-          report.order_name.forEach((order: any, i: number) => {
-            ordersString += `${order} (${report.order_amount[i]} x ${report.order_price[i]}); `;
+          report.items?.forEach((item: Item, i: number) => {
+            ordersString += `${item.fnb_name} (${report.items[i].amount} x ${report.items[i].price}); `;
           });
+
+          const items = report.Item?.map((item: any) => {
+            return {
+              id: item.id,
+              fnb_id: item.fnb_id,
+              fnb_name: item.fnb.name,
+              amount: item.amount,
+              price: item.price,
+              refunded_amount: item.refunded_amount,
+              discount_percent: item.discount_percent,
+            };
+          });
+
           rows.push(
             createData(
               report.id,
@@ -365,26 +410,29 @@ const ListOfPayment = () => {
               report.customer_name,
               report.customer_id,
               report.served_by,
-              report.type === ReportType.PAY || report.type === ReportType.REFUND ? report.total_payment_after_tax_service : report.total_payment,
+              report.total_payment,
+              report.total_payment_after_tax_service,
               ordersString,
               new Date(report.updated_at).toLocaleDateString(),
               new Date(report.updated_at).toLocaleTimeString(),
-              report.refund_status,
-              report.order_id,
-              report.order_name,
-              report.order_category,
-              report.order_amount,
-              report.order_price,
-              report.refunded_order_amount,
-              report.order_discount_status,
-              report.order_discount_percent,
+              items,
               report.included_tax_service,
               report.tax_percent,
               report.service_percent
             )
           );
         });
-        setReportDataCSV(res.data.data);
+
+        const reportCSVData = res.data.data.map((report: any) => {
+          return {
+            ...report,
+            served_by: report.crew.name,
+            payment_method: report.method.name,
+          }
+        });
+
+
+        setReportDataCSV(reportCSVData);
 
         setLoading(false);
         return rows;
@@ -411,17 +459,12 @@ const ListOfPayment = () => {
     { label: 'Customer Name', key: 'customer_name' },
     { label: 'Customer ID', key: 'customer_id' },
     { label: 'Served By', key: 'served_by' },
-    { label: 'Collected By', key: 'collected_by' },
     { label: 'Total Payment After Tax and Service', key: 'total_payment_after_tax_service' },
     { label: 'Tax Amount', key: 'tax_percent' },
     { label: 'Service Amount', key: 'service_percent' },
     { label: 'Initial Balance', key: 'initial_balance' },
     { label: 'Final Balance', key: 'final_balance' },
     { label: 'Payment Method', key: 'payment_method' },
-    { label: 'Order Name', key: 'order_name' },
-    { label: 'Order Category', key: 'order_category' },
-    { label: 'Order Amount', key: 'order_amount' },
-    { label: 'Order Price', key: 'order_price' },
     { label: 'Created At', key: 'created_at' },
     { label: 'Updated At', key: 'updated_at' },
     { label: 'Note', key: 'note' },
@@ -429,7 +472,7 @@ const ListOfPayment = () => {
 
   const cancelOpenBill = async (id: string) => {
     try {
-      await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/reports/${id}/cancel`, {
+      await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/reports/${id}/cancel`, {}, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('access-token')}`,
         },
@@ -506,34 +549,60 @@ const ListOfPayment = () => {
                       tabIndex={-1}
                       key={row.id}
                       onClick={() => {
+                        let totalRefund = 0;
+                        row.items?.forEach((item: Item) => {
+                          if (item.refunded_amount && item.discount_percent) {
+                            totalRefund += item.price * item.refunded_amount - (item.price * item.refunded_amount * item.discount_percent) / 100;
+                          } else if (item.refunded_amount) {
+                            totalRefund += item.price * item.refunded_amount;
+                          }
+                        });
+
+                        let taxService = new ServiceTax(totalRefund, row.service_percent, row.tax_percent);
+
+                        if (!row.included_tax_service) {
+                          totalRefund = taxService.calculateTax();
+                        }
+
                         setSelectedPaymentData(row);
                         setTotalPaymentSelectedData(row.total_payment_after_tax_service);
+                        setTotalRefundSelectedData(totalRefund);
                       }}
                     >
                       {columns.map((column) => {
                         if (column.id === 'action') {
                           return (
                             <TableCell key={column.id} align={column.align} sx={{ fontSize: 12, position: 'relative' }}>
-                              <OptionIcon className="w-[30px]" onClick={() => {
-                                handleDropdown(row.id);
-                              }} />
-                              <div className={`absolute hover:cursor-pointer z-[1] duration-200 transition-all overflow-hidden -translate-x-1/2 ${openDropdownId !== row.id ? 'max-h-0 opacity-0' : 'max-h-40 opacity-100'}`} id='dropdown-dialog'>
-                              <PartiallyRefundModal row={row} />
+                              <OptionIcon
+                                className="w-[30px]"
+                                onClick={() => {
+                                  handleDropdown(row.id);
+                                }}
+                              />
+                              <div
+                                className={`absolute hover:cursor-pointer z-[1] duration-200 transition-all overflow-hidden -translate-x-1/2 ${openDropdownId !== row.id ? 'max-h-0 opacity-0' : 'max-h-60 opacity-100'}`}
+                                id="dropdown-dialog"
+                              >
+                                <PartiallyRefundModal row={row} />
                                 <ModalConfirmation
-                                    buttonContent={'Cancel'}
-                                    confirm={() => {
-                                      cancelOpenBill(row.id);
-                                    }}
-                                    row={row}
-                                  >
-                                    <p className="text-xl font-semibold">Warning</p>
-                                    <p className="mt-2">Cancel this payment?</p>
-                                  </ModalConfirmation>
-                                  <div className='py-[10px] px-5 bg-gray-300 hover:bg-gray-400 duration-200 flex items-center justify-center' onClick={handleOpenDetailModal}>
-                                    Receipt
+                                  buttonContent={'Cancel'}
+                                  confirm={() => {
+                                    cancelOpenBill(row.id);
+                                  }}
+                                  row={row}
+                                >
+                                  <p className="text-xl font-semibold">Warning</p>
+                                  <p className="mt-2">Cancel this payment?</p>
+                                </ModalConfirmation>
+                                <div className="py-[10px] px-5 bg-gray-300 hover:bg-gray-400 duration-200 flex items-center justify-center" onClick={handleOpenDetailModal}>
+                                  Receipt
+                                </div>
+                                {row.items?.some((item) => (item.refunded_amount ?? 0) > 0) ? (
+                                  <div className="py-[10px] px-5 bg-gray-300 hover:bg-gray-400 duration-200 flex items-center justify-center" onClick={handleOpenRefundDetailModal}>
+                                    Refund Receipt
                                   </div>
+                                ) : null}
                               </div>
-                               
                             </TableCell>
                           );
                         }
@@ -561,14 +630,15 @@ const ListOfPayment = () => {
                                 <p className="px-3 py-1 bg-yellow-200 text-black rounded-full">{value}</p>
                               </div>
                             ) : null}
-                            {column.id === 'type' && value === ReportType.PAY ? (
+                            {column.id === 'type' && value === ReportType.PAY && !row.items.some((item) => (item.refunded_amount ?? 0) > 0) ? (
                               <div className="flex gap-2">
                                 <p className="px-3 py-1 bg-teal-300 text-black rounded-full">{value}</p>
                               </div>
                             ) : null}
-                            {column.id === 'type' && value === ReportType.REFUND ? (
-                              <div className="flex">
-                                <p className="px-3 py-1 bg-orange-300 text-black rounded-full">{value}</p>
+                            {column.id === 'type' && value === ReportType.PAY && row.items.some((item) => (item.refunded_amount ?? 0) > 0) ? (
+                              <div className="flex gap-2">
+                                <p className="px-3 py-1 bg-teal-300 text-black rounded-full">{value}</p>
+                                <p className="px-3 py-1 bg-orange-300 text-black rounded-full">refunded</p>
                               </div>
                             ) : null}
                             {column.id === 'status' && value === ReportStatus.UNPAID ? (
@@ -626,13 +696,13 @@ const ListOfPayment = () => {
           </div>
           <div className="my-3 w-full border border-b-black border-dashed"></div>
           <div>
-            {selectedPaymentData?.order_name.map((order: any, i: number) => (
+            {selectedPaymentData?.items?.map((item: Item, i: number) => (
               <div key={i} className="flex justify-between">
                 <div className="flex">
-                  <div>{order}</div>
-                  <div>...x {selectedPaymentData?.order_amount[i]}</div>
+                  <div>{item.fnb_name}</div>
+                  <div>...x {selectedPaymentData?.items[i].amount}</div>
                 </div>
-                <div>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(selectedPaymentData?.order_price[i] * selectedPaymentData?.order_amount[i])}</div>
+                <div>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(selectedPaymentData?.items[i].price * selectedPaymentData?.items[i].amount)}</div>
               </div>
             ))}
             {selectedPaymentData?.type !== ReportType.PAY ? (
@@ -648,14 +718,14 @@ const ListOfPayment = () => {
               <div className=" mb-1">
                 <div className="flex justify-between">
                   <div>Subtotal</div>
-                  <div>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalPaymentSelectedData ? totalPaymentSelectedData : 0)}</div>
+                  <div>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(selectedPaymentData?.total_payment)}</div>
                 </div>
                 <div className="flex justify-between">
-                  <div>Service - included</div>
+                  <div>Service {selectedPaymentData.included_tax_service ? '- included' : ''}</div>
                   <div></div>
                 </div>
                 <div className="flex justify-between">
-                  <div>Tax (PB1) - included</div>
+                  <div>Tax (PB1) {selectedPaymentData.included_tax_service ? '- included' : ''}</div>
                   <div></div>
                 </div>
               </div>
@@ -690,6 +760,73 @@ const ListOfPayment = () => {
           ) : (
             <div className="opacity-60 absolute top-2 right-0 p-2 border border-black font-semibold">{selectedPaymentData?.status}</div>
           )}
+        </div>
+      </NestedModal>
+      <NestedModal open={openRefundDetailModal} handleClose={handleCloseRefundDetailModal} divClass={`overflow-y-auto max-h-screen`}>
+        <div className=" relative">
+          <div className="flex flex-col items-center">
+            <div>
+              <img src={bahariLogo} alt="bahari" className="rounded-full w-24" />
+            </div>
+            <h1 className="text-base font-bold">Bahari Irish Pub</h1>
+            <p>Jl. Kawi No.8A, Kota Malang</p>
+            <p>Indonesia, 65119</p>
+            <div className="my-3 w-full border border-b-black border-dashed"></div>
+            <p>{selectedPaymentData?.served_by}</p>
+            <div className="my-3 w-full border border-b-black border-dashed"></div>
+          </div>
+          <div className="flex justify-between">
+            <p>{selectedPaymentData?.dateCreatedAt}</p>
+            <p>{selectedPaymentData?.timeCreatedAt}</p>
+          </div>
+          <div className="flex justify-between">
+            <p>Receipt Number</p>
+            <p>{selectedPaymentData?.report_id}</p>
+          </div>
+          <div className="flex justify-between">
+            <p>Customer Name</p>
+            <p>{selectedPaymentData?.customer_name}</p>
+          </div>
+          <div className="my-3 w-full border border-b-black border-dashed"></div>
+          <div>
+            {selectedPaymentData?.items?.map((item: Item, i: number) =>
+              item.refunded_amount ? (
+                <div key={item.id} className="flex justify-between">
+                  <div className="flex">
+                    <div>{item.fnb_name}</div>
+                    <div>...x {selectedPaymentData?.items[i].refunded_amount}</div>
+                  </div>
+                  <div>- {Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(selectedPaymentData?.items[i].price * selectedPaymentData?.items[i].refunded_amount)}</div>
+                </div>
+              ) : null
+            )}
+
+            <div className="my-3 w-full border border-b-black border-dashed"></div>
+
+            {selectedPaymentData?.type !== ReportType.PAY ? null : (
+              <div className=" mb-1">
+                <div className="flex justify-between">
+                  <div>Service {selectedPaymentData.included_tax_service ? '- included' : ''}</div>
+                  <div></div>
+                </div>
+                <div className="flex justify-between">
+                  <div>Tax (PB1) {selectedPaymentData.included_tax_service ? '- included' : ''}</div>
+                  <div></div>
+                </div>
+              </div>
+            )}
+
+            <div className=" font-bold mt-3">
+              <div className="flex justify-between">
+                <div>
+                  <div>Total</div>
+                </div>
+                <div>
+                  <div>- {Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalRefundSelectedData ? totalRefundSelectedData : 0)}</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </NestedModal>
     </div>

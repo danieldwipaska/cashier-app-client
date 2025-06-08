@@ -8,8 +8,7 @@ export interface IUser {
 }
 
 export function AuthProvider(props: { children: React.ReactNode }) {
-  const [user, setUser] = useState<IUser>({ username: localStorage.getItem('username'), shopCode: localStorage.getItem('shop') });
-
+  const [user, setUser] = useState<IUser>({ username: localStorage.getItem('username'), shopCode: localStorage.getItem('shopCode') });
   const authContextValue = {
     user,
     signOut: () => {

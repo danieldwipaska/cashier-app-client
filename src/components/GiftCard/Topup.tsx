@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { ChildModal, NestedModal } from 'components/modals/Modal';
-import { CardAction, ErrorMessage } from 'configs/utils';
+import { CardAction, CardStatus, ErrorMessage, METHOD_QUERY_KEY, ReportStatus } from 'configs/utils';
 import { Card } from 'lib/interfaces/cards';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -17,6 +17,7 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
   const [addBalance, setAddBalance] = useState(0);
   const [formattedAddBalance, setFormattedAddBalance] = useState<string>('');
   const [paymentMethod, setPaymentMethod] = useState('');
+  const [paymentMethodName, setPaymentMethodName] = useState('');
   const [note, setNote] = useState('');
   const [code, setCode] = useState('');
   const [error, setError] = useState<any>(null);
@@ -36,6 +37,14 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
   };
   const handleChangePaymentMethod = (event: any) => {
     setPaymentMethod(event.target.value);
+    fetchPaymentMethodName(event.target.value)
+      .then((name) => {
+        setPaymentMethodName(name);
+      })
+      .catch((error) => {
+        console.error('Error fetching payment method name:', error);
+        setPaymentMethodName('');
+      });
   };
   const handleChangeNote = (event: any) => {
     setNote(event.target.value);
@@ -45,7 +54,7 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
   };
 
   const { data: methods } = useQuery({
-    queryKey: ['methods'],
+    queryKey: ['cardMethods'],
     queryFn: () => {
       return axios
         .get(`${process.env.REACT_APP_API_BASE_URL}/methods`, {
@@ -64,8 +73,22 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
     staleTime: 5 * 60 * 1000,
   });
 
+  const fetchPaymentMethodName = async (id: string) => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/methods/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+        },
+      });
+      return response.data.data.name;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  };
+
   const onSubmit = async () => {
-    if (data.status === 'active') {
+    if (data.status === CardStatus.ACTIVE) {
       const formData = {
         addBalance,
         paymentMethod,
@@ -99,12 +122,12 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
           showMessage(ErrorMessage.UNEXPECTED_ERROR, 'error');
         }
       }
-    } else if (data.status === 'inactive') {
+    } else if (data.status === CardStatus.INACTIVE) {
       const formData = {
         customerName,
         customerId,
         addBalance,
-        paymentMethod,
+        paymentMethodId: paymentMethod,
         note,
         crewCode: code,
       };
@@ -146,7 +169,7 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
       <NestedModal open={openTopupModal} handleClose={handleCloseTopupModal}>
         <div className="top-up-wrapper">
           <h1 className="text-lg font-semibold mb-5">Top-up</h1>
-          {data?.status === 'inactive' && (
+          {data?.status === CardStatus.INACTIVE && (
             <div className="grid grid-cols-2 items-center mb-4">
               <label className="" htmlFor="customerName">
                 Name
@@ -156,7 +179,7 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
               {error && <p className="text-red-500 text-xs">{error.customerName}</p>}
             </div>
           )}
-          {data?.status === 'inactive' && (
+          {data?.status === CardStatus.INACTIVE && (
             <div className="grid grid-cols-2 items-center mb-4">
               <label className="" htmlFor="customerId">
                 Phone
@@ -181,7 +204,7 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
             <select value={paymentMethod} onChange={handleChangePaymentMethod} id="paymentMethod" className="border px-3 py-2" required>
               <option value="">------</option>
               {methods?.map((method: any) => {
-                return <option key={method.id} value={method.name}>{method.name}</option>;
+                return <option key={method.id} value={method.id}>{method.name}</option>;
               })}
             </select>
             <div></div>
@@ -204,13 +227,13 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
               <label className="" htmlFor="customerName">
                 Name
               </label>
-              <input type="text" className="border px-3 py-2 bg-gray-300" id="customerName" value={data?.status === 'inactive' ? customerName : data.customerName} placeholder="ex. 100000" required readOnly />
+              <input type="text" className="border px-3 py-2 bg-gray-300" id="customerName" value={data?.status === CardStatus.INACTIVE ? customerName : data.customerName} placeholder="ex. 100000" required readOnly />
             </div>
             <div className="grid grid-cols-2 items-center mb-4">
               <label className="" htmlFor="customerId">
                 Phone
               </label>
-              <input type="text" className="border px-3 py-2 bg-gray-300" id="customerId" value={data?.status === 'inactive' ? customerId : data.customerId} placeholder="ex. 100000" required readOnly />
+              <input type="text" className="border px-3 py-2 bg-gray-300" id="customerId" value={data?.status === CardStatus.INACTIVE ? customerId : data.customerId} placeholder="ex. 100000" required readOnly />
             </div>
             <div className="grid grid-cols-2 items-center mb-4">
               <label className="" htmlFor="addBalance">
@@ -222,14 +245,14 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
               <label className="" htmlFor="amount">
                 Payment Method
               </label>
-              <input type="text" className="border px-3 py-2 bg-gray-300" id="paymentMethod" value={paymentMethod} required readOnly />
+              <input type="text" className="border px-3 py-2 bg-gray-300" id="paymentMethod" value={paymentMethodName} required readOnly />
             </div>
             {note ? (
               <div className="grid grid-cols-2 items-center mb-4">
                 <label className="" htmlFor="note">
                   Note
                 </label>
-                <textarea className="border px-3 py-2 bg-gray-300" id="note" required readOnly />
+                <textarea className="border px-3 py-2 bg-gray-300" value={note} id="note" required readOnly />
               </div>
             ) : null}
             <div className="grid grid-cols-2 items-center mb-4">

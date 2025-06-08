@@ -10,7 +10,7 @@ import Topup from 'components/GiftCard/Topup';
 import { useState } from 'react';
 import Adjust from 'components/GiftCard/Adjust';
 import Checkout from 'components/GiftCard/Checkout';
-import { ReportType } from 'configs/utils';
+import { CardStatus, ReportType } from 'configs/utils';
 import { Backdrop } from '@mui/material';
 import { CheckCircle } from '@mui/icons-material';
 
@@ -55,7 +55,7 @@ const CardDetails = ({ cardData, setCardData, refetchCardData, customerReports }
             </div>
           </div>
           <div className="action-wrapper flex gap-3 mb-10">
-            {cardData?.status === 'active' ? (
+            {cardData?.status === CardStatus.ACTIVE ? (
               <>
                 <button className="px-4 py-1 rounded-full flex items-center justify-center gap-1 hover:scale-105 bg-green-400 duration-200" onClick={handleOpenTopupModal}>
                   <span>Top-up</span>
@@ -130,7 +130,6 @@ const CardDetails = ({ cardData, setCardData, refetchCardData, customerReports }
                     {report.type === ReportType.CHECKOUT && <CheckoutIcon className='w-[40px] text-red-600' />}
                     {report.type === ReportType.PAY && <CartIcon className='w-[40px] text-[#fced77]' />}
                     {report.type === ReportType.TOPUP_AND_ACTIVATE && <AccountPlusIcon className='w-[40px] text-green-600' />}
-                    {report.type === ReportType.REFUND && <ReceiptRefundIcon className='w[40px] text-gray-500' />}
                   </div>
                   <div className="transaction-content w-full">
                     <div className="flex justify-between">

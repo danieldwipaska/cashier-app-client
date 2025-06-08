@@ -1,26 +1,4 @@
 export default interface ICartProps {
-    actionData: {
-        cardId: string;
-        setCardId: React.Dispatch<React.SetStateAction<string>>;
-        cardNumber: string;
-        setCardNumber: React.Dispatch<React.SetStateAction<string>>;
-        customerName: string;
-        setCustomerName: React.Dispatch<React.SetStateAction<string>>;
-        customerId: string;
-        setCustomerId: React.Dispatch<React.SetStateAction<string>>;
-        paymentMethod: string;
-        setPaymentMethod: React.Dispatch<React.SetStateAction<string>>;
-        note: string;
-        setNote: React.Dispatch<React.SetStateAction<string>>;
-        openBill: string;
-        setOpenBill: React.Dispatch<React.SetStateAction<string>>;
-    }
-
-    orderData: {
-        orders: any[];
-        setOrders: React.Dispatch<React.SetStateAction<any[]>>;
-    }
-
     states: {
         openSummary: boolean;
         setOpenSummary: React.Dispatch<React.SetStateAction<boolean>>;
@@ -42,12 +20,5 @@ export default interface ICartProps {
     unpaidReports: {
         reports: any[];
         reportsRefetch: () => void;
-    }
-
-    calculationData: {
-        totalOrder: number;
-        setTotalOrder: React.Dispatch<React.SetStateAction<number>>;
-        totalPaymentAfterTaxService: number,
-        setTotalPaymentAfterTaxService: React.Dispatch<React.SetStateAction<number>>,
     }
 }

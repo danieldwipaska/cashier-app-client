@@ -20,7 +20,7 @@ const EmployeeAwards = () => {
         });
 
         const groupedData = response.data.data.reduce((acc: any, report: any) => {
-          const crewName = report.served_by;
+          const crewName = report.crew.name;
 
           if (!acc[crewName]) {
             acc[crewName] = {
@@ -30,7 +30,7 @@ const EmployeeAwards = () => {
             };
           }
 
-          if (report.type === ReportType.PAY || report.type === ReportType.REFUND) {
+          if (report.type === ReportType.PAY) {
             acc[crewName].totalPayment += report.total_payment_after_tax_service;
 
             if (report.type === ReportType.PAY) {

@@ -6,18 +6,18 @@ export interface ICalculateTaxService {
   taxPercent: number;
 }
 
-export const calculateDiscountedPrice = (orders: any[]) => {
+export const calculateDiscountedPrice = (items: any[]) => {
   let totalDiscountedPrice = 0;
 
-  orders.forEach((order: any) => {
-    if (order.discount_status) {
+  items.forEach((item: any) => {
+    if (item.discount_percent && item.discount_percent > 0) {
       totalDiscountedPrice += orderDiscountedPrice({
-        price: order.price,
-        amount: order.amount,
-        discountPercent: order.discount_percent,
+        price: item.price,
+        amount: item.amount,
+        discountPercent: item.discount_percent,
       });
     } else {
-      totalDiscountedPrice += order.price * order.amount;
+      totalDiscountedPrice += item.price * item.amount;
     }
   });
 

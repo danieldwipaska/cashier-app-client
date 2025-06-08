@@ -30,7 +30,7 @@ const WeeklyEmployeeAwards = () => {
             };
           }
 
-          if (report.type === ReportType.PAY || report.type === ReportType.REFUND) {
+          if (report.type === ReportType.PAY) {
             acc[crewName].totalPayment += report.total_payment_after_tax_service;
             
             if (report.type === ReportType.PAY) {

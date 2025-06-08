@@ -14,7 +14,6 @@ const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCa
 
   const { handleSubmit } = useForm();
   const [paymentMethod, setPaymentMethod] = useState('');
-  const [methods, setMethods] = useState([]);
   const [note, setNote] = useState('');
   const [code, setCode] = useState('');
   const [error, setError] = useState<any>(null);
@@ -29,25 +28,23 @@ const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCa
     setCode(event.target.value);
   };
 
-  useQuery({
-    queryKey: ['methods'],
-    queryFn: () => {
-      return axios
-        .get(`${process.env.REACT_APP_API_BASE_URL}/methods`, {
+  const { data: methods } = useQuery({
+    queryKey: ['cardMethods'],
+    queryFn: async () => {
+      try {
+        const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/methods`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access-token')}`,
           },
-        })
-        .then((res) => {
-          setMethods(res.data.data);
-          return res.data.data;
-        })
-        .catch((err) => {
-          console.log(err);
-          throw err;
         });
+        const method_data = res.data.data.filter((method: any) => method.id !== process.env.REACT_APP_GIFT_CARD_METHOD_ID);
+
+        return method_data; 
+      } catch (err) {
+        console.log(err);
+        throw err;
+      }
     },
-    staleTime: 5 * 60 * 1000,
   });
 
   const onSubmit = async () => {
@@ -103,8 +100,12 @@ const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCa
             </label>
             <select value={paymentMethod} onChange={handleChangePaymentMethod} id="paymentMethod" className="border px-3 py-2" required>
               <option value="">------</option>
-              {methods.map((method: any) => {
-                return <option key={method.id} value={method.name}>{method.name}</option>;
+              {methods?.map((method: any) => {
+                return (
+                  <option key={method.id} value={method.id}>
+                    {method.name}
+                  </option>
+                );
               })}
             </select>
             <div></div>
@@ -150,7 +151,7 @@ const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCa
                 <label className="" htmlFor="note">
                   Note
                 </label>
-                <textarea className="border px-3 py-2 bg-gray-300" id="note" required readOnly />
+                <textarea className="border px-3 py-2 bg-gray-300" value={note} id="note" required readOnly />
               </div>
             ) : null}
             <div className="grid grid-cols-2 items-center mb-4">

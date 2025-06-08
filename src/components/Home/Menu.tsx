@@ -1,12 +1,16 @@
 import { Badge, Box, FormControl, InputLabel, List, ListItem, ListItemButton, ListItemIcon, ListItemText, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import { addOrUpdateItem, Item } from 'context/slices/orderSlice';
 import { useState } from 'react';
+import { useDispatch } from 'react-redux';
 
 const Menu = (props: any): JSX.Element => {
-  const { orders, setOrders, openSummary } = props;
+  const { openSummary } = props;
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchedMenu, setSearchedMenu] = useState('');
+  const dispatch = useDispatch();
+  
 
   const { data: categories } = useQuery({
     queryKey: ['categories'],
@@ -71,30 +75,17 @@ const Menu = (props: any): JSX.Element => {
       });
 
       if (response.data.statusCode === 200) {
-        // check if exist
-        const check: any = [];
+        const fnb = response.data.data;
+        const item: Item = {
+          fnb_id: fnb.id,
+          amount: 1,
+          price: fnb.price,
+          discount_percent: fnb.discount_status ? fnb.discount_percent : 0,
+          fnb_name: fnb.name,
+          fnb_category: fnb.category.name,
+        }
 
-        orders?.forEach((order: any) => {
-          if (order.id === id) {
-            check.push(id);
-            order.amount++;
-            setOrders([...orders]);
-          }
-        });
-
-        if (!check.length)
-          setOrders([
-            ...orders,
-            {
-              id: response.data.data.id,
-              name: response.data.data.name,
-              category: response.data.data.category,
-              price: response.data.data.price,
-              discount_status: response.data.data.discount_status,
-              discount_percent: response.data.data.discount_percent,
-              amount: 1,
-            },
-          ]);
+        dispatch(addOrUpdateItem(item));
       }
     } catch (error) {
       console.log(error);

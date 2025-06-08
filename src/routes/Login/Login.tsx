@@ -15,7 +15,6 @@ const Login = () => {
   const onSubmit = async (data: any) => {
     try {
       const res = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/auth/login`, { username: data.username, password: data.password, shop_code: data.shop_code });
-
       signIn(res.data.data.username, res.data.data.shop_code);
 
       localStorage.setItem('username', res.data.data.username);
