@@ -4,9 +4,11 @@ import { ReactComponent as FoodIcon } from "../../assets/img/icons/food.svg";
 import { useState } from 'react';
 import { CircularProgress } from '@mui/material';
 import CrewAuthAlertDialogSlide from './CrewAuthAlertDialogSlide';
-import { PaymentMethod, ReportStatus, ReportType } from 'configs/utils';
+import { METHOD_QUERY_KEY, ReportStatus, ReportType } from 'configs/utils';
 import ICartProps from 'interfaces/CartProps';
 import { useDispatch, useSelector } from 'react-redux';
+import { useQuery } from '@tanstack/react-query';
+import { clearOrder } from 'context/slices/orderSlice';
 
 const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
   const order = useSelector((state: any) => state.order.order);
@@ -22,6 +24,24 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
     setOpenCrewAuthAlertDialog(true);
   };
 
+  // START QUERY
+    const { data: method } = useQuery({
+      queryKey: METHOD_QUERY_KEY,
+      queryFn: async () => {
+        try {
+          const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/methods/${order.method_id}`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+            },
+          });
+          return res.data.data;
+        } catch (err) {
+          return console.log(err);
+        }
+      },
+    });
+    // END QUERY
+
   const handlePay = async () => {
     if (!crewCredential) return setErrorCrewCredential(true);
 
@@ -34,8 +54,16 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
 
       setOpenConfirmProgressSpinner(true);
 
-      if (order.method_id !== process.env.GIFT_CARD_METHOD_ID) {
+      const items = order.items.map((item: any) => {
+        return {
+          fnb_id: item.fnb_id,
+          amount: item.amount,
+          price: item.price,
+          discount_percent: item.discount_percent,
+        };
+      });
 
+      if (order.method_id === process.env.REACT_APP_GIFT_CARD_METHOD_ID) {
         const payload = {
           type: ReportType.PAY,
           status: ReportStatus.PAID,
@@ -44,7 +72,7 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
           crew_id: crew.data.data.id,
           method_id: order.method_id,
           note: order.note,
-          item: order.items,
+          items: items,
         };
 
         try {
@@ -65,9 +93,7 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
           setOpenBackdrop(true);
 
           // Clear order state
-          dispatch({
-            type: 'clearOrder',
-          });
+          dispatch(clearOrder());
 
           setTimeout(() => {
             setOpenBackdrop(false);
@@ -83,7 +109,7 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
           crew_id: crew.data.data.id,
           method_id: order.method_id,
           note: order.note,
-          item: order.items,
+          items: items,
         };
 
         try {
@@ -104,9 +130,7 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
           setOpenBackdrop(true);
 
           // Clear order state
-          dispatch({
-            type: 'clearOrder',
-          });
+          dispatch(clearOrder());
 
           setTimeout(() => {
             setOpenBackdrop(false);
@@ -139,7 +163,7 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
             Authorization: `Bearer ${localStorage.getItem('access-token')}`,
           },
         });
-        if (!crew.data.data || report.data.data.served_by !== crew.data.data.name) return setErrorUnauthorizedCrew(true);
+        if (!crew.data.data || report.data.data.crew.name !== crew.data.data.name) return setErrorUnauthorizedCrew(true);
 
         setOpenConfirmProgressSpinner(true);
 
@@ -149,7 +173,7 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
           crew_id: crew.data.data.id,
           method_id: order.method_id,
           note: order.note,
-          item: order.items,
+          items: order.items,
         };
 
         try {
@@ -171,9 +195,7 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
           setOpenBackdrop(true);
 
           // Clear order state
-          dispatch({
-            type: 'clearOrder',
-          });
+          dispatch(clearOrder());
 
           setTimeout(() => {
             setOpenBackdrop(false);
@@ -212,7 +234,7 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
           </div>
           <div className="mt-1 grid grid-cols-2 w-2/3 text-gray-400">
             <p className="text-sm font-normal">Payment Method</p>
-            <p className="text-sm font-normal">: {order.method_id}</p>
+            <p className="text-sm font-normal">: {method?.name}</p>
           </div>
           <div className="mt-1 grid grid-cols-2 w-2/3 text-gray-400">
             <p className="text-sm font-normal">Note</p>

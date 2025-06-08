@@ -1,9 +1,9 @@
 import { Badge, Box, FormControl, InputLabel, List, ListItem, ListItemButton, ListItemIcon, ListItemText, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { Item } from 'context/slices/orderSlice';
+import { addOrUpdateItem, Item } from 'context/slices/orderSlice';
 import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 const Menu = (props: any): JSX.Element => {
   const { openSummary } = props;
@@ -81,12 +81,11 @@ const Menu = (props: any): JSX.Element => {
           amount: 1,
           price: fnb.price,
           discount_percent: fnb.discount_status ? fnb.discount_percent : 0,
+          fnb_name: fnb.name,
+          fnb_category: fnb.category.name,
         }
 
-        dispatch({
-          type: 'addOrUpdateItem',
-          payload: item,
-        });
+        dispatch(addOrUpdateItem(item));
       }
     } catch (error) {
       console.log(error);

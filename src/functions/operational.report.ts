@@ -1,14 +1,29 @@
+import { ServiceTax } from "lib/taxes/taxes.calculation";
+
 export const getOperationalHours = () => {
   const today = new Date();
+  let from: Date;
+  let to: Date;
 
-  // Set "from" time to 13:00 today
-  const from = new Date(today);
-  from.setHours(15, 0, 0, 0);
+  if (today.getHours() <= 15) {
+    // Set "from" time to 15:00 yesterday
+    from = new Date(today);
+    from.setDate(from.getDate() - 1);
+    from.setHours(15, 0, 0, 0);
 
-  // Set "to" time to 04:00 tomorrow
-  const to = new Date(today);
-  to.setDate(to.getDate() + 1); // Add 1 day
-  to.setHours(4, 0, 0, 0);
+    // Set "to" time to 04:00 today
+    to = new Date(today);
+    to.setHours(4, 0, 0, 0);
+  } else {
+    // Set "from" time to 15:00 today
+    from = new Date(today);
+    from.setHours(15, 0, 0, 0);
+
+    // Set "to" time to 04:00 tomorrow
+    to = new Date(today);
+    to.setDate(to.getDate() + 1);
+    to.setHours(4, 0, 0, 0);
+  }
 
   return {
     from: from.toISOString(),
@@ -60,9 +75,25 @@ export const getMonthlyOperationalHours = () => {
 
 export const getTotalPayment = (reports: any) => {
   let totalPayment = 0;
+  let totalRefund = 0;
+
   reports?.forEach((report: any) => {
     totalPayment += report.total_payment_after_tax_service;
+
+    for (let item of report.Item) {
+      if (item.refunded_amount && item.discount_percent) {
+        totalRefund += item.price * item.refunded_amount - (item.price * item.refunded_amount * item.discount_percent) / 100;
+      } else if (item.refunded_amount) {
+        totalRefund += item.price * item.refunded_amount;
+      }
+    }
+    
+    let taxService = new ServiceTax(totalRefund, report.service_percent, report.tax_percent);
+    
+    if (!report.included_tax_service) {
+      totalRefund = taxService.calculateTax();
+    }
   });
 
-  return totalPayment;
+  return totalPayment - totalRefund;
 };

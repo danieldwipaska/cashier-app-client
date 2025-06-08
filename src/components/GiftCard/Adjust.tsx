@@ -128,7 +128,7 @@ const Adjust = ({ data, openAdjustModal, handleCloseAdjustModal, refetchCardData
                 <label className="" htmlFor="note">
                   Note
                 </label>
-                <textarea className="border px-3 py-2 bg-gray-300" id="note" required readOnly />
+                <textarea className="border px-3 py-2 bg-gray-300" id="note" value={note} required readOnly />
               </div>
             ) : null}
             <div className="grid grid-cols-2 items-center mb-4">

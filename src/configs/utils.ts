@@ -12,9 +12,12 @@ export const PAYMENT_METHOD_QUERY_KEY = ['paymentMethodId'];
 export const CARDS_METHOD_QUERY_KEY = ['cards'];
 export const CARD_METHOD_QUERY_KEY = ['cardId'];
 export const BACKOFFICE_SETTINGS_QUERY_KEY = ['backofficeSettings'];
+export const SHOPS_QUERY_KEY = ['shops'];
+export const SHOP_QUERY_KEY = ['shopId'];
+export const METHOD_QUERY_KEY = ['methodId'];
 
 // CHOICES
-export const POSITIONS = ['admin', 'server', 'bartender', 'developer'];
+export const POSITIONS = ['ADMIN', 'SERVER', 'BARTENDER', 'DEVELOPER'];
 export const CARD_TYPES = ['Basic', 'Member'];
 
 // ERROR MESSAGES
@@ -34,13 +37,19 @@ export enum CardAction {
   CHECKOUT = 3,
 }
 
+export enum CardStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  BLOCKED = 'BLOCKED',
+  EXPIRED = 'EXPIRED',
+}
+
 export enum ReportType {
   TOPUP_AND_ACTIVATE = 'TOPUP_AND_ACTIVATE',
   TOPUP = 'TOPUP',
   PAY = 'PAY',
   CHECKOUT = 'CHECKOUT',
   ADJUSTMENT = 'ADJUSTMENT',
-  REFUND = 'REFUND',
 }
 
 export enum ReportStatus {

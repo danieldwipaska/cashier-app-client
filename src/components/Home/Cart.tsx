@@ -11,7 +11,7 @@ import { ReportStatus, ReportType } from 'configs/utils';
 import ICartProps from 'interfaces/CartProps';
 import { useQuery } from '@tanstack/react-query';
 import { useDispatch, useSelector } from 'react-redux';
-import { Order } from 'context/slices/orderSlice';
+import { clearOrder, decreaseItemAmount, increaseItemAmount, Order, setOrder, updateOrder } from 'context/slices/orderSlice';
 
 const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
   const order = useSelector((state: any) => state.order.order);
@@ -37,7 +37,7 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
 
   // START QUERY
   const { data: methods } = useQuery({
-    queryKey: ['methods'],
+    queryKey: ['cartMethods'],
     queryFn: async () => {
       try {
         const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/methods`, {
@@ -55,14 +55,14 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
 
   // START FUNCTIONS
   const handleClickNewOrder = () => {
-    dispatch({ type: 'clearOrder' });
+    dispatch(clearOrder());
     setCrewCredential('');
     return;
   };
 
   const handleChangeOpenBill = async (event: any) => {
     if (!event.target.value) {
-      dispatch({ type: 'clearOrder' });
+      dispatch(clearOrder());
       setCrewCredential('');
       return;
     }
@@ -72,6 +72,14 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('access-token')}`,
         },
+      });
+
+      const items = res.data.data.Item.map((item: any) => {
+        return {
+          ...item,
+          fnb_name: item.fnb.name,
+          fnb_category: item.fnb.category,
+        }
       });
 
       const order: Order = {
@@ -85,10 +93,11 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
         note: res.data.data.note,
         total_payment: res.data.data.total_payment,
         total_payment_after_tax_service: res.data.data.total_payment_after_tax_service,
-        items: res.data.data.items,
+        items: items,
+        status: res.data.data.status,
       };
 
-      dispatch({ type: 'setOrder', payload: order });
+      dispatch(setOrder(order));
     } catch (error) {
       console.log(error);
     }
@@ -101,16 +110,16 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
 
   const handleCardNumberChange = (event: any) => {
     setCardNumberIsEmpty(false);
-    dispatch({ type: 'updateOrder', payload: { card_number: event.target.value }});
+    dispatch(updateOrder({ card_number: event.target.value}));
   };
 
-  const increaseAmount = (id: number) => {
-    dispatch({ type: 'increaseItemAmount', payload: { id }});
+  const increaseAmount = (id: string) => {
+    dispatch(increaseItemAmount(id));
   };
 
-  const decreaseAmount = (id: number) => {
+  const decreaseAmount = (id: string) => {
     try {
-      dispatch({ type: 'decreaseItemAmount', payload: { id }});
+      dispatch(decreaseItemAmount(id));
     } catch (error) {
       console.error('Error decreasing amount:', error);
     }
@@ -118,15 +127,15 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
 
   const handleCustomerNameChange = (event: any) => {
     setCustomerNameIsEmpty(false);
-    dispatch({ type: 'updateOrder', payload: { customer_name: event.target.value } });
+    dispatch(updateOrder({ customer_name: event.target.value }));
   };
 
   const handlePaymentMethodChange = (event: SelectChangeEvent) => {
-    dispatch({ type: 'updateOrder', payload: { method_id: event.target.value } });
+    dispatch(updateOrder({ method_id: event.target.value }));
   };
 
   const handleNoteChange = (event: any) => {
-    dispatch({ type: 'updateOrder', payload: { note: event.target.value } });
+    dispatch(updateOrder({ note: event.target.value }));
   };
 
   const handleSave = async () => {
@@ -149,7 +158,7 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
         crew_id: crew.data.data.id,
         method_id: order.method_id,
         note: order.note,
-        item: order.items,
+        items: order.items,
       };
 
       try {
@@ -166,7 +175,7 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
         setOpenCrewAuthAlertDialog(false);
         setOpenSaveProgressSpinner(false);
         reportsRefetch();
-        dispatch({ type: 'clearOrder' });
+        dispatch(clearOrder());
       } catch (error) {
         console.log(error);
       }
@@ -181,14 +190,14 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
       setTimeout(() => {
         setOrderIsEmpty(false);
       }, 3000);
-    } else if (!order.customer_name && order.method_id !== process.env.GIFT_CARD_METHOD_ID) {
+    } else if (!order.customer_name && order.method_id !== process.env.REACT_APP_GIFT_CARD_METHOD_ID) {
       setCustomerNameIsEmpty(true);
-    } else if (!order.card_number && order.method_id === process.env.GIFT_CARD_METHOD_ID) {
+    } else if (!order.card_number && order.method_id === process.env.REACT_APP_GIFT_CARD_METHOD_ID) {
       setCardNumberIsEmpty(true);
     } else if (!order.method_id) {
       setPaymentMethodIsEmpty(true);
     } else {
-      if (order.method_id === process.env.GIFT_CARD_METHOD_ID) {
+      if (order.method_id === process.env.REACT_APP_GIFT_CARD_METHOD_ID) {
         setOpenConfirmProgressSpinner(true);
         try {
           const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/cards/${order.card_number}`, {
@@ -199,15 +208,12 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
           if (response.data.data.balance < order.total_payment_after_tax_service) throw new Error('Balance Not Enough');
 
           // setCardNumber(response.data.data.card_number);
-          dispatch({
-            type: 'updateOrder',
-            payload: {
-              card_id: response.data.data.id,
-              card_number: response.data.data.card_number,
-              customer_name: response.data.data.customer_name,
-              customer_id: response.data.data.customer_id,
-            },
-          });
+          dispatch(updateOrder({
+            card_id: response.data.data.id,
+            card_number: response.data.data.card_number,
+            customer_name: response.data.data.customer_name,
+            customer_id: response.data.data.customer_id,
+          }));
           setOpenSummary(true);
           setOpenConfirmProgressSpinner(false);
         } catch (error: unknown) {
@@ -248,7 +254,7 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
                 </button>
               </div>
               <FormControl sx={{ ml: 2, minWidth: 120 }} size="small">
-                <Select value={order.status === ReportStatus.UNPAID} onChange={handleChangeOpenBill} displayEmpty inputProps={{ 'aria-label': 'Without label' }}>
+                <Select value={order.status === ReportStatus.UNPAID && order.id ? order.id : ''} onChange={handleChangeOpenBill} displayEmpty inputProps={{ 'aria-label': 'Without label' }}>
                   <MenuItem value="">New</MenuItem>
                   {reports?.map((report: any) => (
                     <MenuItem key={report.id} value={report.id}>
@@ -271,16 +277,16 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
 
           <div className="flex flex-col overflow-y-auto thin-scrollbar mt-2 pr-2 h-60 2xl:h-96">
             {order.items?.map((item: any) => (
-              <div className="mt-5 border-b-2 pb-2" key={item.id}>
+              <div className="mt-5 border-b-2 pb-2" key={item.fnb_id}>
                 <div className="flex justify-between items-center">
                   <div className="mr-2">
-                    <p className="text-sm">{item.name}</p>
+                    <p className="text-sm">{item.fnb_name}</p>
                   </div>
                   <div className="flex items-center">
                     <button
                       className=" bg-green-500 hover:opacity-70 duration-500 p-2 rounded-md"
                       onClick={() => {
-                        decreaseAmount(item.id);
+                        decreaseAmount(item.fnb_id);
                       }}
                     >
                       <MinusIcon className="w-[9px]" />
@@ -291,7 +297,7 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
                     <button
                       className=" bg-green-500 hover:opacity-70 duration-500 p-2 rounded-md"
                       onClick={() => {
-                        increaseAmount(item.id);
+                        increaseAmount(item.fnb_id);
                       }}
                     >
                       <PlusIcon className="w-[9px]" />
@@ -326,16 +332,15 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
                 <Select labelId="demo-select-small-label" id="demo-select-small" label="Payment" value={order.method_id} onChange={handlePaymentMethodChange} error={paymentMethodIsEmpty}>
                   {methods?.map((method: any) => {
                     return (
-                      <MenuItem key={method.id} value={method.name}>
+                      <MenuItem key={method.id} value={method.id}>
                         {method.name}
                       </MenuItem>
                     );
                   })}
-                  <MenuItem value="Gift Card">Gift Card</MenuItem>
                 </Select>
               </FormControl>
 
-              {order.method_id === process.env.GIFT_CARD_METHOD_ID ? (
+              {order.method_id === process.env.REACT_APP_GIFT_CARD_METHOD_ID ? (
                 <FormControl size="small" sx={{ m: 0, minWidth: 120 }}>
                   {cardNumberIsEmpty ? (
                     <TextField id="card-number" error label="Card" variant="outlined" size="small" onChange={handleCardNumberChange} value={order.card_number} />
@@ -370,9 +375,9 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
           </div>
           <div className="flex py-2">
             <button
-              className={`text-center my-2 mr-2 py-1 px-3 border border-black/60 duration-500 rounded-lg ${order.method_id === process.env.GIFT_CARD_METHOD_ID || !order.method_id || order.status === ReportStatus.UNPAID ? 'opacity-30' : 'hover:border-green-500 hover:bg-green-500'}`}
+              className={`text-center my-2 mr-2 py-1 px-3 border border-black/60 duration-500 rounded-lg ${order.method_id === process.env.REACT_APP_GIFT_CARD_METHOD_ID || !order.method_id || order.status === ReportStatus.UNPAID ? 'opacity-30' : 'hover:border-green-500 hover:bg-green-500'}`}
               onClick={handleClickOpenCrewAuthAlertDialog}
-              disabled={order.method_id === process.env.GIFT_CARD_METHOD_ID || !order.method_id || order.status === ReportStatus.UNPAID ? true : false}
+              disabled={order.method_id === process.env.REACT_APP_GIFT_CARD_METHOD_ID || !order.method_id || order.status === ReportStatus.UNPAID ? true : false}
             >
               {openSaveProgressSpinner ? <CircularProgress color="secondary" size={15} /> : <SaveIcon className="w-[25px]" />}
             </button>

@@ -1,8 +1,9 @@
 import { useRef } from 'react';
 import jsPDF from 'jspdf';
 import bahariLogo from '../../assets/img/bahari-logo.webp';
-import { ReactComponent as DownloadIcon } from '../../assets/img/icons/download.svg'
+import { ReactComponent as DownloadIcon } from '../../assets/img/icons/download.svg';
 import { ReportType } from 'configs/utils';
+import { Item } from 'context/slices/orderSlice';
 
 const Invoices = ({ selectedPaymentData, totalPaymentSelectedData }: any) => {
   const useReff = useRef<HTMLDivElement>(null);
@@ -61,13 +62,13 @@ const Invoices = ({ selectedPaymentData, totalPaymentSelectedData }: any) => {
           </div>
 
           <div className=" mb-1">
-            {selectedPaymentData?.order_name.map((order: any, i: number) => (
+            {selectedPaymentData?.items?.map((item: Item, i: number) => (
               <div key={i} className="flex justify-between">
                 <div className="flex">
-                  <div>{order}</div>
-                  <div>...x {selectedPaymentData.order_amount[i]}</div>
+                  <div>{item.fnb_name}</div>
+                  <div>...x {selectedPaymentData.items[i].amount}</div>
                 </div>
-                <div>IDR {Intl.NumberFormat('en-us').format(selectedPaymentData.order_price[i] * selectedPaymentData.order_amount[i])}</div>
+                <div>IDR {Intl.NumberFormat('en-us').format(selectedPaymentData.items[i].price * selectedPaymentData.items[i].amount)}</div>
               </div>
             ))}
             {selectedPaymentData?.type !== ReportType.PAY ? (
@@ -82,7 +83,7 @@ const Invoices = ({ selectedPaymentData, totalPaymentSelectedData }: any) => {
             <div className=" mb-1">
               <div className="flex justify-between">
                 <div>Subtotal</div>
-                <div>IDR {Intl.NumberFormat('en-us').format(totalPaymentSelectedData ? totalPaymentSelectedData : 0)}</div>
+                <div>IDR {Intl.NumberFormat('en-us').format(selectedPaymentData?.total_payment)}</div>
               </div>
               <div className="flex justify-between">
                 <div>Service - included</div>
@@ -121,7 +122,7 @@ const Invoices = ({ selectedPaymentData, totalPaymentSelectedData }: any) => {
       </div>
 
       <button onClick={generatePDF}>
-        <DownloadIcon className='w-[30px]' />
+        <DownloadIcon className="w-[30px]" />
       </button>
     </div>
   );
