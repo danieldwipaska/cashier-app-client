@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { ReportStatus, ReportType } from 'configs/utils';
-import { getWeeklyOperationalHours } from 'functions/operational.report';
+import { getTotalPaymentInReport, getWeeklyOperationalHours } from 'functions/operational.report';
 import { useState } from 'react';
 
 const WeeklyEmployeeAwards = () => {
@@ -20,7 +20,7 @@ const WeeklyEmployeeAwards = () => {
         });
 
         const groupedData = response.data.data.reduce((acc: any, report: any) => {
-          const crewName = report.served_by;
+          const crewName = report.crew.name;
 
           if (!acc[crewName]) {
             acc[crewName] = {
@@ -31,12 +31,14 @@ const WeeklyEmployeeAwards = () => {
           }
 
           if (report.type === ReportType.PAY) {
-            acc[crewName].totalPayment += report.total_payment_after_tax_service;
+            acc[crewName].totalPayment += getTotalPaymentInReport(report);
             
             if (report.type === ReportType.PAY) {
               acc[crewName].transactions += 1;
 
-              if (report.refund_status) {
+              const refunded = report.Item.some((item: any) => item.refunded_amount);
+
+              if (refunded) {
                 acc[crewName].refunded += 1;
               }
             }

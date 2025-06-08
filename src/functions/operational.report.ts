@@ -1,4 +1,4 @@
-import { ServiceTax } from "lib/taxes/taxes.calculation";
+import { ServiceTax } from 'lib/taxes/taxes.calculation';
 
 export const getOperationalHours = () => {
   const today = new Date();
@@ -33,23 +33,25 @@ export const getOperationalHours = () => {
 
 export const getWeeklyOperationalHours = () => {
   const today = new Date();
-  
+
   const thisMonday = new Date(today);
-  const diff = today.getDay() - 1; 
-  
-  if (diff < 0) { 
-    thisMonday.setDate(today.getDate() + 1);
+  const diff = today.getDay() - 1;
+
+  if (diff === 0) {
+    thisMonday.setDate(today.getDate());
+  } else if (diff < 0) {
+    thisMonday.setDate(today.getDate() - 6);
   } else {
     thisMonday.setDate(today.getDate() - diff);
   }
-  
+
   const from = new Date(thisMonday);
   from.setHours(15, 0, 0, 0);
-  
+
   const to = new Date(thisMonday);
   to.setDate(to.getDate() + 7);
   to.setHours(3, 0, 0, 0);
-  
+
   return {
     from: from.toISOString(),
     to: to.toISOString(),
@@ -58,15 +60,15 @@ export const getWeeklyOperationalHours = () => {
 
 export const getMonthlyOperationalHours = () => {
   const today = new Date();
-  
+
   // Get first day of current month
   const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
   firstDayOfMonth.setHours(15, 0, 0, 0);
-  
+
   // Get last day of current month
   const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
   lastDayOfMonth.setHours(3, 0, 0, 0);
-  
+
   return {
     from: firstDayOfMonth.toISOString(),
     to: lastDayOfMonth.toISOString(),
@@ -87,13 +89,36 @@ export const getTotalPayment = (reports: any) => {
         reportRefund += item.price * item.refunded_amount;
       }
     }
-    
+
     let taxService = new ServiceTax(reportRefund, report.service_percent, report.tax_percent);
-    
+
     if (!report.included_tax_service) {
       reportRefund = taxService.calculateTax();
     }
   });
+
+  return totalPayment - reportRefund;
+};
+
+export const getTotalPaymentInReport = (report: any) => {
+  let totalPayment = 0;
+  let reportRefund = 0;
+
+  totalPayment += report.total_payment_after_tax_service;
+
+  for (let item of report.Item) {
+    if (item.refunded_amount && item.discount_percent) {
+      reportRefund += item.price * item.refunded_amount - (item.price * item.refunded_amount * item.discount_percent) / 100;
+    } else if (item.refunded_amount) {
+      reportRefund += item.price * item.refunded_amount;
+    }
+  }
+
+  let taxService = new ServiceTax(reportRefund, report.service_percent, report.tax_percent);
+
+  if (!report.included_tax_service) {
+    reportRefund = taxService.calculateTax();
+  }
 
   return totalPayment - reportRefund;
 };
