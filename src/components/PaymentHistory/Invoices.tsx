@@ -21,6 +21,14 @@ const Invoices = ({ selectedPaymentData, totalPaymentSelectedData }: any) => {
     }
   };
 
+  const handleClickButton = async () => {
+    try {
+      await fetch('http://localhost:3003/print');
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   return (
     <div>
       <div className="hidden">
@@ -121,7 +129,7 @@ const Invoices = ({ selectedPaymentData, totalPaymentSelectedData }: any) => {
         </div>
       </div>
 
-      <button onClick={generatePDF}>
+      <button onClick={handleClickButton}>
         <DownloadIcon className="w-[30px]" />
       </button>
     </div>

@@ -2,13 +2,16 @@ import { IUser } from '../context/AuthContext';
 import { useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { isTokenExpired } from 'lib/jwt/jwt-encode';
 
 export const useCheckToken = (user: IUser) => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const token = localStorage.getItem('access-token') ?? '';
+
     // Cek apakah username ada
-    if (!user.username) {
+    if (!user.username || isTokenExpired(token)) {
       navigate('/login');
       return; // Penting: tambahkan return untuk memberhentikan eksekusi
     }
@@ -34,10 +37,5 @@ export const useCheckToken = (user: IUser) => {
 
     // Jalankan verifikasi token
     verifyToken();
-
-    // Optional: Cleanup function
-    return () => {
-      // Pembersihan jika diperlukan
-    };
-  }, [user.username, navigate]);
+  }, [navigate, user.username]);
 };

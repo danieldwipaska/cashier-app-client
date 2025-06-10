@@ -13,7 +13,6 @@ import ModalConfirmation from '../modals/ModalConfirmation';
 import orderDiscountedPrice from 'functions/discount.report';
 import { NestedModal } from 'components/modals/Modal';
 import Invoices from './Invoices';
-import bahariLogo from '../../assets/img/bahari-logo.webp';
 import { CheckCircle } from '@mui/icons-material';
 import { ServiceTax } from 'lib/taxes/taxes.calculation';
 import { useMessages } from 'context/MessageContext';
@@ -51,7 +50,6 @@ interface Data {
   served_by: string;
   total_payment: number;
   total_payment_after_tax_service: number;
-  orders: string;
   dateCreatedAt: string;
   timeCreatedAt: string;
   items: Item[];
@@ -70,7 +68,6 @@ function createData(
   served_by: string,
   total_payment: number,
   total_payment_after_tax_service: number,
-  orders: string,
   dateCreatedAt: string,
   timeCreatedAt: string,
   items: Item[],
@@ -88,7 +85,6 @@ function createData(
     served_by,
     total_payment,
     total_payment_after_tax_service,
-    orders,
     dateCreatedAt,
     timeCreatedAt,
     items,
@@ -384,11 +380,6 @@ const ListOfPayment = () => {
         }
 
         res.data.data.forEach((report: any) => {
-          let ordersString = '';
-          report.items?.forEach((item: Item, i: number) => {
-            ordersString += `${item.fnb_name} (${report.items[i].amount} x ${report.items[i].price}); `;
-          });
-
           const items = report.Item?.map((item: any) => {
             return {
               id: item.id,
@@ -409,10 +400,9 @@ const ListOfPayment = () => {
               report.status,
               report.customer_name,
               report.customer_id,
-              report.served_by,
+              report.crew.name,
               report.total_payment,
               report.total_payment_after_tax_service,
-              ordersString,
               new Date(report.updated_at).toLocaleDateString(),
               new Date(report.updated_at).toLocaleTimeString(),
               items,
@@ -672,14 +662,11 @@ const ListOfPayment = () => {
       <NestedModal open={openDetailModal} handleClose={handleCloseDetailModal} divClass={`overflow-y-auto max-h-screen`}>
         <div className=" relative">
           <div className="flex flex-col items-center">
-            <div>
-              <img src={bahariLogo} alt="bahari" className="rounded-full w-24" />
-            </div>
-            <h1 className="text-base font-bold">Bahari Irish Pub</h1>
+            <h1 className="text-3xl font-bold mt-5">Bahari Irish Pub</h1>
             <p>Jl. Kawi No.8A, Kota Malang</p>
             <p>Indonesia, 65119</p>
             <div className="my-3 w-full border border-b-black border-dashed"></div>
-            <p>{selectedPaymentData?.served_by}</p>
+            <p>{selectedPaymentData?.report_id}</p>
             <div className="my-3 w-full border border-b-black border-dashed"></div>
           </div>
           <div className="flex justify-between">
@@ -687,8 +674,8 @@ const ListOfPayment = () => {
             <p>{selectedPaymentData?.timeCreatedAt}</p>
           </div>
           <div className="flex justify-between">
-            <p>Receipt Number</p>
-            <p>{selectedPaymentData?.report_id}</p>
+            <p>Served by</p>
+            <p>{selectedPaymentData?.served_by}</p>
           </div>
           <div className="flex justify-between">
             <p>Customer Name</p>
@@ -765,9 +752,6 @@ const ListOfPayment = () => {
       <NestedModal open={openRefundDetailModal} handleClose={handleCloseRefundDetailModal} divClass={`overflow-y-auto max-h-screen`}>
         <div className=" relative">
           <div className="flex flex-col items-center">
-            <div>
-              <img src={bahariLogo} alt="bahari" className="rounded-full w-24" />
-            </div>
             <h1 className="text-base font-bold">Bahari Irish Pub</h1>
             <p>Jl. Kawi No.8A, Kota Malang</p>
             <p>Indonesia, 65119</p>

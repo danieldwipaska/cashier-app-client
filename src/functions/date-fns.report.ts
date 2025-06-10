@@ -8,6 +8,7 @@ import {
   getDaysInMonth
 } from 'date-fns';
 import { id } from 'date-fns/locale';
+import { getTotalPaymentInReport } from './operational.report';
 
 export const processMonthlySales = (reports: any) => {
   // Get current date
@@ -47,7 +48,7 @@ export const processMonthlySales = (reports: any) => {
     // Check if the report falls within current month
     if (isWithinInterval(businessDate, { start: firstDay, end: lastDay })) {
       const dayKey = format(businessDate, 'd'); // Get day of month as number
-      result[dayKey] += report.total_payment_after_tax_service;
+      result[dayKey] += getTotalPaymentInReport(report);
     }
   });
 
