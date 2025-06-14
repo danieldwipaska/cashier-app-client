@@ -5,10 +5,12 @@ import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import { useMessages } from 'context/MessageContext';
+import { useState, useEffect } from 'react';
 
 const Settings = () => {
   const { handleSubmit, register } = useForm();
   const { showMessage } = useMessages();
+  const [categories, setCategories] = useState<any>([]);
 
   // START QUERIES
   const { data: backofficeSetting } = useQuery({
@@ -21,7 +23,7 @@ const Settings = () => {
           },
         })
         .then((res) => {
-          return res.data.data[0];
+          return res.data.data;
         })
         .catch((err) => {
           if (err.status === 404) return [];
@@ -30,7 +32,7 @@ const Settings = () => {
     },
   });
 
-  const { data: categories } = useQuery({
+  const { data: categoriesData } = useQuery({
     queryKey: CATEGORIES_QUERY_KEY,
     queryFn: () => {
       return axios
@@ -51,14 +53,63 @@ const Settings = () => {
 
   // END QUERIES
 
+  // Effect to set categories when data is loaded
+  useEffect(() => {
+    if (categoriesData && backofficeSetting) {
+      const categoryData = categoriesData.map((category: any) => {
+        const isChecked = backofficeSetting?.CrewPurchaseCategory?.find((categoryObj: any) => {
+          return categoryObj.category.id === category.id;
+        });
+
+        return {
+          category_id: category.id,
+          category_name: category.name,
+          checked: !!isChecked,
+        };
+      });
+      setCategories(categoryData);
+    } else if (categoriesData && !backofficeSetting) {
+      // If no backoffice settings exist yet, set all categories as unchecked
+      const categoryData = categoriesData.map((category: any) => {
+        return {
+          category_id: category.id,
+          category_name: category.name,
+          checked: false,
+        };
+      });
+      setCategories(categoryData);
+    }
+  }, [categoriesData, backofficeSetting]);
+
   // START FUNCTIONS
-  const onSubmit = async (data: any) => {
+  const updateCategory = (id: any, checked: any) => {
+    const updatedCategories = categories?.map((category: any) => {
+      if (category.category_id === id) {
+        return {
+          ...category,
+          checked,
+        };
+      } else {
+        return category;
+      }
+    });
+
+    if (updatedCategories.length) setCategories(updatedCategories);
+  };
+
+  const onSubmit = async (_: any) => {
     const payload = {
-      categoryIds: data.categories,
+      crewPurchaseCategories: categories
+        .filter((category: any) => category.checked)
+        .map((category: any) => {
+          return {
+            category_id: category.category_id,
+          };
+        }),
     };
 
     try {
-      await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/backoffice-settings/${backofficeSetting?.id}`, payload, {
+      await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/backoffice-settings`, payload, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('access-token')}`,
         },
@@ -86,21 +137,18 @@ const Settings = () => {
             <div className="flex flex-wrap gap-5">
               {categories?.map((category: any, index: number) => {
                 return (
-                  <label key={category.id} htmlFor={`category-${index}`} className="flex gap-1 flex-1 min-w-32">
+                  <label key={category.category_id} htmlFor={`category-${index}`} className="flex gap-1 flex-1 min-w-32">
                     <input
                       type="checkbox"
                       id={`category-${index}`}
                       {...register('categories')}
-                      value={category.id}
-                      defaultChecked={
-                        backofficeSetting?.purchase_categories?.find((categoryObj: any) => {
-                          return categoryObj.id === category.id;
-                        })
-                          ? true
-                          : false
-                      }
+                      value={category.category_name}
+                      onChange={(event) => {
+                        updateCategory(category.category_id, event.target.checked);
+                      }}
+                      checked={category.checked}
                     />
-                    {category.name}
+                    {category.category_name}
                   </label>
                 );
               })}

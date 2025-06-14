@@ -1,8 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { ReportType } from 'configs/utils';
-import { getOperationalHours } from 'functions/operational.report';
-import { ServiceTax } from 'lib/taxes/taxes.calculation';
+import { getOperationalHours, getTotalPaymentInReport } from 'functions/operational.report';
 import { useState } from 'react';
 
 const PaySummary = ({ title, keys }: { title: string; keys: ReportType[] }) => {
@@ -27,7 +26,6 @@ const PaySummary = ({ title, keys }: { title: string; keys: ReportType[] }) => {
 
         const groupedData = response.data.data.reduce((acc: any, report: any) => {
           const paymentMethod = report.method.name;
-          let totalRefund = 0;
 
           if (!acc[paymentMethod]) {
             acc[paymentMethod] = {
@@ -35,23 +33,7 @@ const PaySummary = ({ title, keys }: { title: string; keys: ReportType[] }) => {
             };
           }
 
-          acc[paymentMethod].totalPayment += report.total_payment_after_tax_service;
-
-          for (let item of report.Item) {
-            if (item.refunded_amount && item.discount_percent) {
-              totalRefund += item.price * item.refunded_amount - (item.price * item.refunded_amount * item.discount_percent) / 100;
-            } else if (item.refunded_amount) {
-              totalRefund += item.price * item.refunded_amount;
-            }
-          }
-
-          let taxService = new ServiceTax(totalRefund, report.service_percent, report.tax_percent);
-
-          if (!report.included_tax_service) {
-            totalRefund = taxService.calculateTax();
-          }
-
-          acc[paymentMethod].totalPayment -= totalRefund;
+          acc[paymentMethod].totalPayment += getTotalPaymentInReport(report);
 
           return acc;
         }, {});

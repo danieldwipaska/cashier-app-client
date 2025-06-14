@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { ReportStatus, ReportType } from 'configs/utils';
+import { getCrewTotalPurchases } from 'functions/crew.report';
 import { getOperationalHours } from 'functions/operational.report';
 import { useState } from 'react';
 
@@ -13,11 +14,14 @@ const EmployeeAwards = () => {
       const { from, to } = getOperationalHours();
 
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports?from=${from}&to=${to}&status=${ReportStatus.PAID}`, {
+        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports?from=${from}&to=${to}&status=${ReportStatus.PAID}&type=${ReportType.PAY}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access-token')}`,
           },
         });
+
+        const backofficeSetting = await fetchCrewPurchaseCategory();
+        const categoryIds = backofficeSetting?.CrewPurchaseCategory.map((crewPurchaseCategory: any) => crewPurchaseCategory.category.id);
 
         const groupedData = response.data.data.reduce((acc: any, report: any) => {
           const crewName = report.crew.name;
@@ -30,21 +34,16 @@ const EmployeeAwards = () => {
             };
           }
 
-          if (report.type === ReportType.PAY) {
-            acc[crewName].totalPayment += report.total_payment_after_tax_service;
+          const { totalPurchases, isRefunded } = getCrewTotalPurchases(report, categoryIds);
+          acc[crewName].totalPayment += totalPurchases;
+          acc[crewName].transactions += 1;
 
-            if (report.type === ReportType.PAY) {
-              acc[crewName].transactions += 1;
-
-              if (report.refund_status) {
-                acc[crewName].refunded += 1;
-              }
-            }
+          if (isRefunded) {
+            acc[crewName].refunded += 1;
           }
 
           return acc;
         }, {});
-
         setCrewDailyPurchases(groupedData);
 
         return groupedData;
@@ -54,6 +53,22 @@ const EmployeeAwards = () => {
       }
     },
   });
+
+  const fetchCrewPurchaseCategory = async () => {
+    let url = `${process.env.REACT_APP_API_BASE_URL}/backoffice-settings`;
+    try {
+      const res = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+        },
+      });
+
+      return res.data.data;
+    } catch (error) {
+      console.error('Error fetching crew purchase categories:', error);
+      throw error;
+    }
+  };
 
   return (
     <div className="border border-gray-200 shadow-sm">
