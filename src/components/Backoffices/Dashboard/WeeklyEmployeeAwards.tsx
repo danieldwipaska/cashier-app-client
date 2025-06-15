@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { ReportStatus, ReportType } from 'configs/utils';
-import { getTotalPaymentInReport, getWeeklyOperationalHours } from 'functions/operational.report';
+import { getCrewTotalPurchases } from 'functions/crew.report';
+import { getWeeklyOperationalHours } from 'functions/operational.report';
 import { useState } from 'react';
 
 const WeeklyEmployeeAwards = () => {
-  const [crewWeeklyPurchases, setCrewWeeklyPurchases] = useState<any>(null);
+  const [crewWeeklyPurchases, setCrewWeeklyPurchases] = useState(0);
 
   useQuery({
     queryKey: ['weeklyCrewReports'],
@@ -13,14 +14,21 @@ const WeeklyEmployeeAwards = () => {
       const { from, to } = getWeeklyOperationalHours();
 
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports?from=${from}&to=${to}&status=${ReportStatus.PAID}`, {
+        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports?from=${from}&to=${to}&status=${ReportStatus.PAID}&type=${ReportType.PAY}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access-token')}`,
           },
         });
 
+        const backofficeSetting = await fetchCrewPurchaseCategory();
+        const categoryIds = backofficeSetting?.CrewPurchaseCategory.map((crewPurchaseCategory: any) => crewPurchaseCategory.category.id);
+
         const groupedData = response.data.data.reduce((acc: any, report: any) => {
-          const crewName = report.crew.name;
+          let crewName = report.crew?.name;
+
+          if (!crewName) {
+            crewName = 'No Name';
+          }
 
           if (!acc[crewName]) {
             acc[crewName] = {
@@ -30,26 +38,18 @@ const WeeklyEmployeeAwards = () => {
             };
           }
 
-          if (report.type === ReportType.PAY) {
-            acc[crewName].totalPayment += getTotalPaymentInReport(report);
-            
-            if (report.type === ReportType.PAY) {
-              acc[crewName].transactions += 1;
+          const { totalPurchases, isRefunded } = getCrewTotalPurchases(report, categoryIds);
+          acc[crewName].totalPayment += totalPurchases;
+          acc[crewName].transactions += 1;
 
-              const refunded = report.Item.some((item: any) => item.refunded_amount);
-
-              if (refunded) {
-                acc[crewName].refunded += 1;
-              }
-            }
+          if (isRefunded) {
+            acc[crewName].refunded += 1;
           }
 
           return acc;
         }, {});
-
-        const arrayData = Object.entries(groupedData).sort((a: any, b: any) => b[1].totalPayment - a[1].totalPayment);
-        setCrewWeeklyPurchases(arrayData);
-
+        setCrewWeeklyPurchases(groupedData);
+        console.log(groupedData)
         return groupedData;
       } catch (error) {
         console.error('Error fetching reports:', error);
@@ -58,18 +58,36 @@ const WeeklyEmployeeAwards = () => {
     },
   });
 
+  const fetchCrewPurchaseCategory = async () => {
+    let url = `${process.env.REACT_APP_API_BASE_URL}/backoffice-settings`;
+    try {
+      const res = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+        },
+      });
+
+      return res.data.data;
+    } catch (error) {
+      console.error('Error fetching crew purchase categories:', error);
+      throw error;
+    }
+  };
+
   return (
     <div className="border border-gray-200 shadow-sm">
       <div className="border-b border-gray-200 p-3 bg-green-300">
         <h3 className="text-lg font-semibold">Weekly Top Employees</h3>
       </div>
       <div className="overflow-y-auto h-40">
-        {crewWeeklyPurchases?.map(([crewName, payment]: any) => {
+        {Object.entries(crewWeeklyPurchases)?.map(([crewName, payment]: any) => {
           return (
             <div className="flex items-center justify-between gap-3 border-b border-gray-200 py-2 hover:bg-gray-200 px-3">
               <div className="flex flex-col justify-center">
                 <p className="font-medium">{crewName}</p>
-                <p className="text-xs text-gray-500">{payment.transactions} Transaction(s), {payment.refunded} Refunded</p>
+                <p className="text-xs text-gray-500">
+                  {payment.transactions} Transaction(s), {payment.refunded} Refunded
+                </p>
               </div>
               <div className="flex items-center">
                 <p className="text-sm text-green-900">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(payment.totalPayment)}</p>

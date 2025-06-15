@@ -14,12 +14,21 @@ const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCa
 
   const { handleSubmit } = useForm();
   const [paymentMethod, setPaymentMethod] = useState('');
+  const [paymentMethodName, setPaymentMethodName] = useState('');
   const [note, setNote] = useState('');
   const [code, setCode] = useState('');
   const [error, setError] = useState<any>(null);
 
   const handleChangePaymentMethod = (event: any) => {
     setPaymentMethod(event.target.value);
+    fetchPaymentMethodName(event.target.value)
+      .then((name) => {
+        setPaymentMethodName(name);
+      })
+      .catch((error) => {
+        console.error('Error fetching payment method name:', error);
+        setPaymentMethodName('');
+      });
   };
   const handleChangeNote = (event: any) => {
     setNote(event.target.value);
@@ -79,6 +88,20 @@ const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCa
       } else {
         showMessage(ErrorMessage.UNEXPECTED_ERROR, 'error');
       }
+    }
+  };
+
+  const fetchPaymentMethodName = async (id: string) => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/methods/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+        },
+      });
+      return response.data.data.name;
+    } catch (error) {
+      console.log(error);
+      throw error;
     }
   };
 
@@ -144,7 +167,7 @@ const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCa
               <label className="" htmlFor="paymentMethod">
                 Payment Method
               </label>
-              <input type="text" className="border px-3 py-2 bg-gray-300" id="paymentMethod" value={paymentMethod} required readOnly />
+              <input type="text" className="border px-3 py-2 bg-gray-300" id="paymentMethod" value={paymentMethodName} required readOnly />
             </div>
             {note ? (
               <div className="grid grid-cols-2 items-center mb-4">

@@ -72,8 +72,11 @@ const EmployeeAwards = () => {
 
   return (
     <div className="border border-gray-200 shadow-sm">
-      <div className="border-b border-gray-200 p-3 bg-green-300">
+      <div className="border-b border-gray-200 p-3 bg-green-300 flex justify-between items-center">
         <h3 className="text-lg font-semibold">Daily Top Employees</h3>
+        <a href="/backoffices/settings" className='bg-gray-200 py-3 px-5 rounded-lg text-black font-bold duration-200 hover:bg-gray-300'>
+          Set Categories
+        </a>
       </div>
       <div className="overflow-y-auto h-40">
         {Object.entries(crewDailyPurchases)?.map(([crewName, payment]) => {

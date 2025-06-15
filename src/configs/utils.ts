@@ -52,6 +52,14 @@ export enum ReportType {
   ADJUSTMENT = 'ADJUSTMENT',
 }
 
+export const reportTypeDisplay = {
+  TOPUP_AND_ACTIVATE: 'Topup and Activate',
+  TOPUP: 'Topup',
+  PAY: 'Pay',
+  CHECKOUT: 'Checkout',
+  ADJUSTMENT: 'Adjustment',
+};
+
 export enum ReportStatus {
   PAID = 'PAID',
   UNPAID = 'UNPAID',

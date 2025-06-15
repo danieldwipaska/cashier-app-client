@@ -9,7 +9,7 @@ import { useForm } from 'react-hook-form';
 import PaySummary from 'components/Backoffices/Crews/PaySummary';
 import TopupSummary from 'components/Backoffices/Crews/TopupSummary';
 import CheckoutSummary from 'components/Backoffices/Crews/CheckoutSummary';
-import AdjustmentSummary from 'components/Backoffices/Crews/AdjustmentSummary copy';
+import AdjustmentSummary from 'components/Backoffices/Crews/AdjustmentSummary';
 
 const Crews = () => {
   // START HOOKS

@@ -42,7 +42,7 @@ const Categories = () => {
             Add
           </a>
         </div>
-        <table className="w-2/4">
+        <table className="w-full">
           <tr className="bg-green-200">
             <th className="border-b-4 py-3 px-2 text-left">Category Name</th>
             <th className="border-b-4 py-3 px-2 text-left">Total Product</th>

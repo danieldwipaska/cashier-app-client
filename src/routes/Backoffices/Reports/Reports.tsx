@@ -2,7 +2,7 @@ import Layout from '../Layout/Layout';
 import Header from 'components/Backoffices/Header';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { REPORTS_QUERY_KEY } from 'configs/utils';
+import { REPORTS_QUERY_KEY, ReportType, reportTypeDisplay } from 'configs/utils';
 import { useEffect, useState } from 'react';
 import Pagination from 'components/Pagination';
 
@@ -112,7 +112,7 @@ const Reports = () => {
             return (
               <tr key={report.id} className="border-b-2 hover:bg-gray-100 duration-200">
                 <td className="py-3 text-sm px-2">{report.report_id}</td>
-                <td className="py-3 text-sm px-2">{report.type}</td>
+                <td className="py-3 text-sm px-2">{reportTypeDisplay[report.type as ReportType]}</td>
                 <td className="py-3 text-sm px-2">{report.status}</td>
                 <td className="py-3 text-sm px-2">{report.customer_name}</td>
                 <td className="py-3 text-sm px-2">{report.customer_id ? report.customer_id : '-'}</td>
