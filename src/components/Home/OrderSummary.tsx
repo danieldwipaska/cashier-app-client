@@ -255,7 +255,7 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
                 </div>
                 <div className="mx-3">
                   <div>
-                    <p className="text-sm">{item.name}</p>
+                    <p className="text-sm">{item.fnb_name}</p>
                   </div>
                   <div className="flex items-center mt-2">
                     {item.discount_percent ? (
