@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - development
 
 jobs:
   build-and-deploy:
@@ -25,7 +26,28 @@ jobs:
       - name: Build React app
         run: npm run build
 
+      - name: Deploy to Staging Server
+        if: github.ref == 'refs/heads/development'
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.STAGING_SERVER_IP }}
+          username: ${{ secrets.STAGING_SSH_USERNAME }}
+          key: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
+          source: "build/"
+          target: "/var/www/bcf_client_dev/"
+
+      - name: Reload Nginx on Staging Server
+        if: github.ref == 'refs/heads/development'
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.STAGING_SERVER_IP }}
+          username: ${{ secrets.STAGING_SSH_USERNAME }}
+          key: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
+          script: |
+            sudo systemctl reload nginx
+
       - name: Deploy to Production Server
+        if: github.ref == 'refs/heads/master'
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.PRODUCTION_SERVER_IP }}
@@ -34,7 +56,8 @@ jobs:
           source: "build/"
           target: "/var/www/bcf_client/"
 
-      - name: Reload Nginx on server
+      - name: Reload Nginx on Production Server
+        if: github.ref == 'refs/heads/master'
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.PRODUCTION_SERVER_IP }}
