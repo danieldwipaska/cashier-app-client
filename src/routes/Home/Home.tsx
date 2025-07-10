@@ -47,7 +47,7 @@ const Home = () => {
         })
         .then((res) => {
           const reportData = res.data.data.map((report: any) => {
-            return { ...report, served_by: report.crew.name }
+            return { ...report, served_by: report.crew.name };
           });
 
           return reportData;

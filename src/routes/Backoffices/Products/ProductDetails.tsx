@@ -20,7 +20,7 @@ const ProductDetails = () => {
         .get(`${process.env.REACT_APP_API_BASE_URL}/fnbs/${productId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access-token')}`,
-          }
+          },
         })
         .then((res) => {
           console.log(res.data.data);
@@ -33,11 +33,17 @@ const ProductDetails = () => {
 
   // END QUERIES
 
+  const Buttons = ({ productId }: { productId: string }): JSX.Element => {
+    return (
+      <a href={`/backoffices/products/${productId}/set-modifier`} className="bg-green-300 py-2 px-3 rounded-lg">Set Modifier</a>
+    )
+  }
+
   return (
     <Layout>
       <Header title="PRODUCT DETAILS" />
       <section>
-        <SectionHeader title={product?.name} />
+        <SectionHeader title={product?.name} Buttons={<Buttons productId={`${productId}`} />} />
         <table>
           <tr>
             <th className="text-left">Category</th>
@@ -63,6 +69,11 @@ const ProductDetails = () => {
             <th className="text-left">Discount Percent</th>
             <td>&ensp;&ensp;:&ensp;</td>
             <td>{product?.discount_percent ? product.discount_percent : '-'}</td>
+          </tr>
+          <tr>
+            <th className="text-left">Modifiers</th>
+            <td>&ensp;&ensp;:&ensp;</td>
+            <td>{product?.FnbModifier.length ? product?.FnbModifier.map((fnbModifier: any) => fnbModifier.modifier.name).join(', ') : '-'}</td>
           </tr>
         </table>
       </section>

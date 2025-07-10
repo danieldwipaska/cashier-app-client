@@ -3,6 +3,8 @@ import { ReactComponent as NewCartIcon } from '../../assets/img/icons/new-cart.s
 import { ReactComponent as MinusIcon } from '../../assets/img/icons/minus.svg';
 import { ReactComponent as PlusIcon } from '../../assets/img/icons/plus.svg';
 import { ReactComponent as SaveIcon } from '../../assets/img/icons/save.svg';
+import { ReactComponent as AddIcon } from '../../assets/img/icons/additional-plus.svg';
+import { ReactComponent as NoteIcon } from '../../assets/img/icons/notes.svg';
 import { Alert, CircularProgress, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, TextField } from '@mui/material';
 import axios from 'axios';
 import CrewAuthAlertDialogSlide from './CrewAuthAlertDialogSlide';
@@ -12,6 +14,8 @@ import ICartProps from 'interfaces/CartProps';
 import { useQuery } from '@tanstack/react-query';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearOrder, decreaseItemAmount, increaseItemAmount, Order, setOrder, updateOrder } from 'context/slices/orderSlice';
+import SetModifier from './SetModifier';
+import ItemNote from './ItemNote';
 
 const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
   const order = useSelector((state: any) => state.order.order);
@@ -33,6 +37,11 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
 
+  const [openModifierModal, setOpenModifierModal] = useState(false);
+  const [openNoteModal, setOpenNoteModal] = useState(false);
+  const [modifiers, setModifiers] = useState<any>(null);
+  const [note, setNote] = useState('');
+  const [selectedFnbId, setSelectedFnbId] = useState<any>(null);
   // END STATES
 
   // START QUERY
@@ -79,7 +88,7 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
           ...item,
           fnb_name: item.fnb.name,
           fnb_category: item.fnb.category,
-        }
+        };
       });
 
       const order: Order = {
@@ -110,7 +119,28 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
 
   const handleCardNumberChange = (event: any) => {
     setCardNumberIsEmpty(false);
-    dispatch(updateOrder({ card_number: event.target.value}));
+    dispatch(updateOrder({ card_number: event.target.value }));
+  };
+
+  const fetchModifierOption = async (fnbId: string) => {
+    try {
+      const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/fnbs/${fnbId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+        },
+      });
+
+      const result = res.data.data.FnbModifier.map((fnbModifier: any) => {
+        return {
+          ...fnbModifier.modifier,
+          checked: false,
+        };
+      });
+
+      setModifiers([...result]);
+    } catch (err) {
+      return console.log(err);
+    }
   };
 
   const increaseAmount = (id: string) => {
@@ -143,11 +173,15 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
     if (!crewCredential) return setErrorCrewCredential(true);
 
     try {
-      const crew = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/crews/code`, { code: crewCredential }, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
-        },
-      });
+      const crew = await axios.post(
+        `${process.env.REACT_APP_API_BASE_URL}/crews/code`,
+        { code: crewCredential },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        }
+      );
       if (!crew.data.data) return setErrorUnauthorizedCrew(true);
 
       const payload = {
@@ -208,12 +242,14 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
           if (response.data.data.balance < order.total_payment_after_tax_service) throw new Error('Balance Not Enough');
 
           // setCardNumber(response.data.data.card_number);
-          dispatch(updateOrder({
-            card_id: response.data.data.id,
-            card_number: response.data.data.card_number,
-            customer_name: response.data.data.customer_name,
-            customer_id: response.data.data.customer_id,
-          }));
+          dispatch(
+            updateOrder({
+              card_id: response.data.data.id,
+              card_number: response.data.data.card_number,
+              customer_name: response.data.data.customer_name,
+              customer_id: response.data.data.customer_id,
+            })
+          );
           setOpenSummary(true);
           setOpenConfirmProgressSpinner(false);
         } catch (error: unknown) {
@@ -240,7 +276,7 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
   // END FUNCTIONS
 
   return (
-    <div className="h-screen w-4/12 pt-20 mx-8">
+    <div className="h-screen w-5/12 pt-20 mx-8">
       <div className="grid grid-cols-1 content-between h-full">
         <div className="h-full">
           <div className="flex justify-between items-center">
@@ -275,12 +311,30 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
             </div>
           ) : null}
 
-          <div className="flex flex-col overflow-y-auto thin-scrollbar mt-2 pr-2 h-60 2xl:h-96">
+          <div className="flex flex-col overflow-y-auto thin-scrollbar mt-2 pr-2 h-[calc(100vh-400px)]">
             {order.items?.map((item: any) => (
               <div className="mt-5 border-b-2 pb-2" key={item.fnb_id}>
                 <div className="flex justify-between items-center">
-                  <div className="mr-2">
-                    <p className="text-sm">{item.fnb_name}</p>
+                  <div className="flex gap-2 mr-2">
+                    <button
+                      className="flex gap-2 items-center text-left"
+                      onClick={() => {
+                        setSelectedFnbId(item.fnb_id);
+                        fetchModifierOption(item.fnb_id);
+                        setOpenModifierModal(true);
+                      }}
+                    >
+                      <p className="text-xl font-bold">{item.fnb_name}</p>
+                      <div className={`border border-green-600 rounded-full w-8 h-8 flex items-center justify-center ${item.modifiers && item.modifiers.some((modifier: any) => modifier.checked) ? 'bg-green-600' : null}`}>
+                        <AddIcon className={`w-[28px] ${item.modifiers && item.modifiers.some((modifier: any) => modifier.checked) ? 'fill-gray-700' : 'fill-green-600'}`} />
+                      </div>
+                      <p className=''>
+                        {item.modifiers
+                          .filter((modifier: any) => modifier.checked)
+                          .map((modifier: any) => modifier.name)
+                          .join(', ')}
+                      </p>
+                    </button>
                   </div>
                   <div className="flex items-center">
                     <button
@@ -305,7 +359,15 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
                   </div>
                 </div>
                 <div className="flex justify-between mt-2">
-                  <div></div>
+                  <div className='flex gap-2 items-center'>
+                    <button className="border border-green-600 rounded-lg w-8 h-8 flex items-center justify-center" onClick={() => {
+                        setSelectedFnbId(item.fnb_id);
+                        setOpenNoteModal(true);
+                      }}>
+                      <NoteIcon className="w-[20px] stroke-green-600" />
+                    </button>
+                    <p className='whitespace-nowrap overflow-hidden text-ellipsis max-w-[100px] xl:max-w-[200px]'>{item.note}</p>
+                  </div>
                   {item.discount_percent ? (
                     <div className="flex items-center">
                       <p className="text-sm text-orange-500 mr-1">(-{item.discount_percent}%)</p>
@@ -325,9 +387,9 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
           <div>
             <div className="mb-5 grid grid-cols-2 gap-2">
               <FormControl sx={{ mb: 1, minWidth: 120 }} size="small">
-                  <InputLabel id="demo-select-small-label" error={paymentMethodIsEmpty}>
-                    Payment
-                  </InputLabel>
+                <InputLabel id="demo-select-small-label" error={paymentMethodIsEmpty}>
+                  Payment
+                </InputLabel>
 
                 <Select labelId="demo-select-small-label" id="demo-select-small" label="Payment" value={order.method_id} onChange={handlePaymentMethodChange} error={paymentMethodIsEmpty}>
                   {methods?.map((method: any) => {
@@ -375,7 +437,9 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
           </div>
           <div className="flex py-2">
             <button
-              className={`text-center my-2 mr-2 py-1 px-3 border border-black/60 duration-500 rounded-lg ${order.method_id === process.env.REACT_APP_GIFT_CARD_METHOD_ID || !order.method_id || order.status === ReportStatus.UNPAID ? 'opacity-30' : 'hover:border-green-500 hover:bg-green-500'}`}
+              className={`text-center my-2 mr-2 py-1 px-3 border border-black/60 duration-500 rounded-lg ${
+                order.method_id === process.env.REACT_APP_GIFT_CARD_METHOD_ID || !order.method_id || order.status === ReportStatus.UNPAID ? 'opacity-30' : 'hover:border-green-500 hover:bg-green-500'
+              }`}
               onClick={handleClickOpenCrewAuthAlertDialog}
               disabled={order.method_id === process.env.REACT_APP_GIFT_CARD_METHOD_ID || !order.method_id || order.status === ReportStatus.UNPAID ? true : false}
             >
@@ -399,6 +463,8 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
         errorUnauthorizedCrew={errorUnauthorizedCrew}
         setErrorUnauthorizedCrew={setErrorUnauthorizedCrew}
       />
+      <SetModifier open={openModifierModal} setOpen={setOpenModifierModal} modifiers={modifiers} setModifiers={setModifiers} fnbId={selectedFnbId} />
+      <ItemNote open={openNoteModal} setOpen={setOpenNoteModal} note={note} setNote={setNote} fnbId={selectedFnbId} />
       <SimpleSnackbar open={openSnackbar} setOpen={setOpenSnackbar} message={snackbarMessage} />
     </div>
   );

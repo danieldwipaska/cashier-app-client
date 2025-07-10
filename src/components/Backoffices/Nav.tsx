@@ -13,6 +13,7 @@ const Nav = () => {
   const paymentMethodsClass = cx(style.sidebarLinks, style.link, path.includes('/backoffices/payment-methods') ? style.active : null);
   const cardsClass = cx(style.sidebarLinks, style.link, path.includes('/backoffices/cards') ? style.active : null);
   const settingsClass = cx(style.sidebarLinks, style.link, path.includes('/backoffices/settings') ? style.active : null);
+  const modifiersClass = cx(style.sidebarLinks, style.link, path.includes('/backoffices/modifiers') ? style.active : null);
 
   return (
     <nav className={style.sidebar + ' relative'}>
@@ -29,6 +30,9 @@ const Nav = () => {
         </a>
         <a href="/backoffices/categories" className={categoriesClass} aria-label="Navigate to Categories">
           Categories
+        </a>
+        <a href="/backoffices/modifiers" className={modifiersClass} aria-label="Navigate to Modifiers">
+          Modifiers
         </a>
         <a href="/backoffices/reports" className={reportsClass} aria-label="Navigate to Payments">
           Reports

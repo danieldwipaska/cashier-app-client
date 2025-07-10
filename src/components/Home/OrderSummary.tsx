@@ -1,6 +1,5 @@
 import { ArrowBackIosNew } from '@mui/icons-material';
 import axios, { AxiosError } from 'axios';
-import { ReactComponent as FoodIcon } from "../../assets/img/icons/food.svg";
 import { useState } from 'react';
 import { CircularProgress } from '@mui/material';
 import CrewAuthAlertDialogSlide from './CrewAuthAlertDialogSlide';
@@ -25,32 +24,36 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
   };
 
   // START QUERY
-    const { data: method } = useQuery({
-      queryKey: METHOD_QUERY_KEY,
-      queryFn: async () => {
-        try {
-          const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/methods/${order.method_id}`, {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('access-token')}`,
-            },
-          });
-          return res.data.data;
-        } catch (err) {
-          return console.log(err);
-        }
-      },
-    });
-    // END QUERY
+  const { data: method } = useQuery({
+    queryKey: METHOD_QUERY_KEY,
+    queryFn: async () => {
+      try {
+        const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/methods/${order.method_id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        });
+        return res.data.data;
+      } catch (err) {
+        return console.log(err);
+      }
+    },
+  });
+  // END QUERY
 
   const handlePay = async () => {
     if (!crewCredential) return setErrorCrewCredential(true);
 
     try {
-      const crew = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/crews/code`, { code: crewCredential }, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
-        },
-      });
+      const crew = await axios.post(
+        `${process.env.REACT_APP_API_BASE_URL}/crews/code`,
+        { code: crewCredential },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        }
+      );
 
       setOpenConfirmProgressSpinner(true);
 
@@ -158,11 +161,15 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
       if (!report.data.data) return;
 
       try {
-        const crew = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/crews/code`, { code: crewCredential }, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
-          },
-        });
+        const crew = await axios.post(
+          `${process.env.REACT_APP_API_BASE_URL}/crews/code`,
+          { code: crewCredential },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+            },
+          }
+        );
         if (!crew.data.data || report.data.data.crew.name !== crew.data.data.name) return setErrorUnauthorizedCrew(true);
 
         setOpenConfirmProgressSpinner(true);
@@ -247,17 +254,18 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
 
           <div className="overflow-y-auto h-60 2xl:h-96">
             {order.items.map((item: any) => (
-              <div key={item.id} className="flex items-center mt-2 2xl:mt-5">
+              <div key={item.id} className="flex items-center mt-3 2xl:mt-5 bg-gray-100 p-2 rounded-md">
                 <div>
-                  <div className="bg-slate-800 p-2 rounded-lg">
-                    <FoodIcon className='w-[40px] text-white' />
-                  </div>
-                </div>
-                <div className="mx-3">
                   <div>
-                    <p className="text-sm">{item.fnb_name}</p>
+                    <p className="text-xl">{item.fnb_name}</p>
+                    <p className="text-sm text-black/60">
+                      {item.modifiers
+                        .filter((modifier: any) => modifier.checked)
+                        .map((modifier: any) => modifier.name)
+                        .join(', ')}
+                    </p>
                   </div>
-                  <div className="flex items-center mt-2">
+                  <div className="flex items-center">
                     {item.discount_percent ? (
                       <div className="flex items-center mx-1">
                         <div>
@@ -274,7 +282,7 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
                       </div>
                     ) : (
                       <div className="mx-1">
-                        <input type="text" className="text-xs text-black/60 py-1" readOnly value={`${item.amount} x ${Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.price)}`} />
+                        <input type="text" className="text-xs text-black/60 py-1 bg-transparent" readOnly value={`${item.amount} x ${Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.price)}`} />
                       </div>
                     )}
                   </div>

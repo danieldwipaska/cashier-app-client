@@ -15,6 +15,8 @@ export const BACKOFFICE_SETTINGS_QUERY_KEY = ['backofficeSettings'];
 export const SHOPS_QUERY_KEY = ['shops'];
 export const SHOP_QUERY_KEY = ['shopId'];
 export const METHOD_QUERY_KEY = ['methodId'];
+export const MODIFIERS_QUERY_KEY = ['modifiers'];
+export const MODIFIER_QUERY_KEY = ['modifierId'];
 
 // CHOICES
 export const POSITIONS = ['ADMIN', 'SERVER', 'BARTENDER', 'DEVELOPER'];
