@@ -85,9 +85,22 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
 
       const items = res.data.data.Item.map((item: any) => {
         return {
-          ...item,
+          id: item.id,
           fnb_name: item.fnb.name,
           fnb_category: item.fnb.category,
+          fnb_id: item.fnb.id,
+          amount: item.amount,
+          price: item.price,
+          discount_percent: item.discount_percent,
+          modifiers: item.ModifierItem.map((modifierItem: any) => {
+            return {
+              id: modifierItem.modifier.id,
+              code: modifierItem.modifier.code,
+              name: modifierItem.modifier.name,
+              checked: true,
+            }
+          }),
+          note: item.ModifierItem.note,
         };
       });
 
@@ -184,6 +197,22 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
       );
       if (!crew.data.data) return setErrorUnauthorizedCrew(true);
 
+      const items = order.items.map((item: any) => {
+        return {
+          fnb_id: item.fnb_id,
+          amount: item.amount,
+          price: item.price,
+          discount_percent: item.discount_percent,
+          note: item.note ?? '',
+          modifierItems:
+            item.modifiers
+              .filter((modifier: any) => modifier.checked)
+              .map((modifier: any) => ({
+                modifier_id: modifier.id,
+              })) ?? [],
+        };
+      });
+
       const payload = {
         type: ReportType.PAY,
         status: ReportStatus.UNPAID,
@@ -192,7 +221,7 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
         crew_id: crew.data.data.id,
         method_id: order.method_id,
         note: order.note,
-        items: order.items,
+        items,
       };
 
       try {
@@ -319,6 +348,7 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
                     <button
                       className="flex gap-2 items-center text-left"
                       onClick={() => {
+                        console.log(item);
                         setSelectedFnbId(item.fnb_id);
                         fetchModifierOption(item.fnb_id);
                         setOpenModifierModal(true);

@@ -63,6 +63,13 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
           amount: item.amount,
           price: item.price,
           discount_percent: item.discount_percent,
+          note: item.note ?? '',
+          modifierItems:
+            item.modifiers
+              .filter((modifier: any) => modifier.checked)
+              .map((modifier: any) => ({
+                modifier_id: modifier.id,
+              })) ?? [],
         };
       });
 
@@ -174,13 +181,29 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
 
         setOpenConfirmProgressSpinner(true);
 
+        const items = order.items.map((item: any) => {
+          return {
+            fnb_id: item.fnb_id,
+            amount: item.amount,
+            price: item.price,
+            discount_percent: item.discount_percent,
+            note: item.note ?? '',
+            modifierItems:
+              item.modifiers
+                .filter((modifier: any) => modifier.checked)
+                .map((modifier: any) => ({
+                  modifier_id: modifier.id,
+                })) ?? [],
+          };
+        });
+
         const payload = {
           status: ReportStatus.PAID,
           customer_name: order.customer_name,
           crew_id: crew.data.data.id,
           method_id: order.method_id,
           note: order.note,
-          items: order.items,
+          items: items,
         };
 
         try {
