@@ -27,9 +27,11 @@ const AdjustmentSummary = ({ title, keys }: { title: string; keys: ReportType[] 
 
         let count = 0;
 
-        const groupedData = response.data.data.reduce((acc: any, report: any) => {
+        const filteredReports = response.data.data.filter((report: any) => (report.method ? report.method.is_active : false));
+
+        const groupedData = filteredReports.reduce((acc: any, report: any) => {
           let paymentMethod = report.method?.name;
-          
+
           if (!paymentMethod) {
             count += 1;
             paymentMethod = reportTypeDisplay[ReportType.ADJUSTMENT];
@@ -66,7 +68,9 @@ const AdjustmentSummary = ({ title, keys }: { title: string; keys: ReportType[] 
         {Object.entries(summaryData)?.map(([paymentMethod, payment]) => {
           return (
             <div className="flex items-center justify-between gap-3 border-b border-gray-200 py-2 hover:bg-gray-200 px-3">
-              <p className="font-medium">{paymentMethod} ({adjustmentCount})</p>
+              <p className="font-medium">
+                {paymentMethod} ({adjustmentCount})
+              </p>
               <div className="flex items-center">
                 <p className="text-sm text-green-900">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(payment.totalPayment)}</p>
               </div>

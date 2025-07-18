@@ -24,7 +24,9 @@ const CheckoutSummary = ({ title, keys }: { title: string; keys: ReportType[] })
           },
         });
 
-        const groupedData = response.data.data.reduce((acc: any, report: any) => {
+        const filteredReports = response.data.data.filter((report: any) => (report.method ? report.method.is_active : false));
+
+        const groupedData = filteredReports.reduce((acc: any, report: any) => {
           const paymentMethod = report.method.name;
 
           if (!acc[paymentMethod]) {

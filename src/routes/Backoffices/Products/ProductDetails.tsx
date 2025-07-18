@@ -75,6 +75,11 @@ const ProductDetails = () => {
             <td>&ensp;&ensp;:&ensp;</td>
             <td>{product?.FnbModifier.length ? product?.FnbModifier.map((fnbModifier: any) => fnbModifier.modifier.name).join(', ') : '-'}</td>
           </tr>
+          <tr>
+            <th className="text-left">Status</th>
+            <td>&ensp;&ensp;:&ensp;</td>
+            <td>{product?.is_active ? 'Active' : 'Inactive'}</td>
+          </tr>
         </table>
       </section>
     </Layout>

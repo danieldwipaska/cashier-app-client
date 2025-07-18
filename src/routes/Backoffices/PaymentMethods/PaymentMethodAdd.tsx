@@ -3,11 +3,14 @@ import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../Layout/Layout';
 import Header from 'components/Backoffices/Header';
+import { useMessages } from 'context/MessageContext';
+import { ErrorMessage } from 'configs/utils';
 
 const PaymentMethodAdd = () => {
   // START HOOKS
   const { register, handleSubmit } = useForm();
   const navigate = useNavigate();
+  const { showMessage } = useMessages();
   // END HOOKS
 
   // START FUNCTIONS
@@ -19,10 +22,15 @@ const PaymentMethodAdd = () => {
         },
       })
       .then((res) => {
+        showMessage('Payment method added successfully', 'success');
         return navigate('/backoffices/payment-methods', { replace: true });
       })
-      .catch((err) => {
-        return console.log(err);
+      .catch((error) => {
+        if (error?.response?.data?.statusCode === 404) return showMessage(ErrorMessage.PAYMENT_METHOD_NOT_FOUND, 'error');
+        if (error?.response?.data?.statusCode === 500) return showMessage(ErrorMessage.INTERNAL_SERVER_ERROR, 'error');
+        if (error?.response?.data?.statusCode === 400) return showMessage(ErrorMessage.BAD_REQUEST, 'error');
+        if (error?.response?.data?.statusCode === 401) return showMessage(ErrorMessage.INVALID_CREW_CODE, 'error');
+        return showMessage(ErrorMessage.UNEXPECTED_ERROR, 'error');
       });
   };
   // END FUNCTIONS

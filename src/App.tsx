@@ -31,6 +31,7 @@ import BackofficeSettings from 'routes/Backoffices/Settings/Settings';
 import Modifiers from 'routes/Backoffices/Modifiers/Modifiers';
 import ModifierAdd from 'routes/Backoffices/Modifiers/ModifiersAdd';
 import ProductModifier from 'routes/Backoffices/Products/ProductModifier';
+import ModifierEdit from 'routes/Backoffices/Modifiers/ModifierEdit';
 
 function App() {
   const client = new QueryClient({
@@ -72,6 +73,7 @@ function App() {
                 <Route path="/backoffices/cards/add" element={<CardAdd />} />
                 <Route path="/backoffices/modifiers" element={<Modifiers />} />
                 <Route path="/backoffices/modifiers/add" element={<ModifierAdd />} />
+                <Route path="/backoffices/modifiers/:modifierId/edit" element={<ModifierEdit />} />
                 <Route path="/backoffices/settings" element={<BackofficeSettings />} />
               </Routes>
             </Router>

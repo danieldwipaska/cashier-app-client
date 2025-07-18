@@ -26,6 +26,13 @@ export const CARD_TYPES = ['Basic', 'Member'];
 export enum ErrorMessage {
   CARD_NOT_FOUND = 'Card Not Found',
   CARD_NOT_ACTIVE = 'Card Not Active',
+  PRODUCT_NOT_FOUND = 'Product Not Found',
+  CATEGORY_NOT_FOUND = 'Category Not Found',
+  MODIFIER_NOT_FOUND = 'Modifier Not Found',
+  CREW_NOT_FOUND = 'Crew Not Found',
+  PAYMENT_METHOD_NOT_FOUND = 'Payment Method Not Found',
+  SHOP_NOT_FOUND = 'Shop Not Found',
+  SETTING_NOT_FOUND = 'Setting Not Found',
   INTERNAL_SERVER_ERROR = 'Internal Server Error',
   INVALID_CREW_CODE = 'Wrong crew code',
   UNEXPECTED_ERROR = 'An unexpected or connection error occurred',

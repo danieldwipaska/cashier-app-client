@@ -9,8 +9,14 @@ import EmployeeAwards from 'components/Backoffices/Dashboard/EmployeeAwards';
 import WeeklyEmployeeAwards from 'components/Backoffices/Dashboard/WeeklyEmployeeAwards';
 import RecentReportTable from 'components/Backoffices/Dashboard/RecentReportTable';
 import DailyPurchaseLineChart from 'components/Backoffices/Dashboard/Charts/DailyPurchaseLineChart';
+import { useCheckToken } from 'hooks/useCheckToken';
+import { useAuth } from 'context/AuthContext';
 
 const Backoffices = () => {
+  const { user } = useAuth();
+
+  useCheckToken(user);
+
   return (
     <Layout>
       <Header title="BACKOFFICES" />

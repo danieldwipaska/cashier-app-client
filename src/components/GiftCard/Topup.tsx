@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { ChildModal, NestedModal } from 'components/modals/Modal';
-import { CardAction, CardStatus, ErrorMessage, METHOD_QUERY_KEY, ReportStatus } from 'configs/utils';
+import { CardAction, CardStatus, ErrorMessage } from 'configs/utils';
 import { Card } from 'lib/interfaces/cards';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -54,7 +54,7 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
   };
 
   const { data: methods } = useQuery({
-    queryKey: ['cardMethods'],
+    queryKey: ['cardMethodsForCards'],
     queryFn: () => {
       return axios
         .get(`${process.env.REACT_APP_API_BASE_URL}/methods`, {
@@ -63,7 +63,7 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
           },
         })
         .then((res) => {
-          return res.data.data;
+          return res.data.data.filter((method: any) => method.is_active);
         })
         .catch((err) => {
           console.log(err);

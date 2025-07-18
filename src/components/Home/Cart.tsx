@@ -54,7 +54,7 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
             Authorization: `Bearer ${localStorage.getItem('access-token')}`,
           },
         });
-        return res.data.data;
+        return res.data.data.filter((method: any) => method.is_active);
       } catch (err) {
         return console.log(err);
       }
@@ -98,7 +98,7 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
               code: modifierItem.modifier.code,
               name: modifierItem.modifier.name,
               checked: true,
-            }
+            };
           }),
           note: item.ModifierItem.note,
         };
@@ -143,7 +143,7 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
         },
       });
 
-      const result = res.data.data.FnbModifier.map((fnbModifier: any) => {
+      const result = res.data.data.FnbModifier.filter((fnbModifier: any) => fnbModifier.modifier.is_active).map((fnbModifier: any) => {
         return {
           ...fnbModifier.modifier,
           checked: false,
@@ -270,7 +270,6 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
           });
           if (response.data.data.balance < order.total_payment_after_tax_service) throw new Error('Balance Not Enough');
 
-          // setCardNumber(response.data.data.card_number);
           dispatch(
             updateOrder({
               card_id: response.data.data.id,
@@ -358,7 +357,7 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
                       <div className={`border border-green-600 rounded-full w-8 h-8 flex items-center justify-center ${item.modifiers && item.modifiers.some((modifier: any) => modifier.checked) ? 'bg-green-600' : null}`}>
                         <AddIcon className={`w-[28px] ${item.modifiers && item.modifiers.some((modifier: any) => modifier.checked) ? 'fill-gray-700' : 'fill-green-600'}`} />
                       </div>
-                      <p className=''>
+                      <p className="">
                         {item.modifiers
                           .filter((modifier: any) => modifier.checked)
                           .map((modifier: any) => modifier.name)
@@ -389,14 +388,17 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
                   </div>
                 </div>
                 <div className="flex justify-between mt-2">
-                  <div className='flex gap-2 items-center'>
-                    <button className="border border-green-600 rounded-lg w-8 h-8 flex items-center justify-center" onClick={() => {
+                  <div className="flex gap-2 items-center">
+                    <button
+                      className="border border-green-600 rounded-lg w-8 h-8 flex items-center justify-center"
+                      onClick={() => {
                         setSelectedFnbId(item.fnb_id);
                         setOpenNoteModal(true);
-                      }}>
+                      }}
+                    >
                       <NoteIcon className="w-[20px] stroke-green-600" />
                     </button>
-                    <p className='whitespace-nowrap overflow-hidden text-ellipsis max-w-[100px] xl:max-w-[200px]'>{item.note}</p>
+                    <p className="whitespace-nowrap overflow-hidden text-ellipsis max-w-[100px] xl:max-w-[200px]">{item.note}</p>
                   </div>
                   {item.discount_percent ? (
                     <div className="flex items-center">

@@ -2,14 +2,16 @@ import Layout from '../Layout/Layout';
 import Header from 'components/Backoffices/Header';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { CATEGORIES_QUERY_KEY } from 'configs/utils';
+import { CATEGORIES_QUERY_KEY, ErrorMessage } from 'configs/utils';
 import deleteIcon from '../../../assets/img/icons/icon-delete.svg';
 import editIcon from '../../../assets/img/icons/icon-edit.svg';
 import { useForm } from 'react-hook-form';
+import { useMessages } from 'context/MessageContext';
 
 const Categories = () => {
   // START HOOKS
   const { register, handleSubmit } = useForm();
+  const { showMessage } = useMessages();
   // END HOOKS
 
   // START QUERIES
@@ -20,7 +22,7 @@ const Categories = () => {
         .get(`${process.env.REACT_APP_API_BASE_URL}/categories`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access-token')}`,
-          }
+          },
         })
         .then((res) => {
           return res.data.data;
@@ -54,7 +56,7 @@ const Categories = () => {
                 <td className="py-3 px-2">{category.name}</td>
                 <td className="py-3 px-2">{category.fnbs.length}</td>
                 <td className="py-3 px-2">
-                  <div className='flex items-center gap-2'>
+                  <div className="flex items-center gap-2">
                     <a href={`/backoffices/categories/${category.id}/edit`}>
                       <img src={editIcon} alt="editIcon" width={20} />
                     </a>
@@ -70,10 +72,15 @@ const Categories = () => {
                             .then((res) => {
                               return categoriesRefetch();
                             })
-                            .catch((err) => {
-                              return console.log(err);
+                            .catch((error) => {
+                              if (error?.response?.data?.statusCode === 404) return showMessage(ErrorMessage.CATEGORY_NOT_FOUND, 'error');
+                              if (error?.response?.data?.statusCode === 500) return showMessage(ErrorMessage.INTERNAL_SERVER_ERROR, 'error');
+                              if (error?.response?.data?.statusCode === 400) return showMessage(ErrorMessage.BAD_REQUEST, 'error');
+                              if (error?.response?.data?.statusCode === 401) return showMessage(error.response?.data?.message, 'error');
+                              return showMessage(ErrorMessage.UNEXPECTED_ERROR, 'error');
                             });
-                        })} className='flex items-center'
+                        })}
+                        className="flex items-center"
                       >
                         <input type="hidden" {...register('id')} value={category.id} readOnly />
                         <button type="submit">

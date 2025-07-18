@@ -60,7 +60,7 @@ const SetModifier = ({ open, setOpen, modifiers, fnbId, setModifiers }: { open: 
           <h4 className="mb-3">Modifier Options</h4>
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-1">
             <div className="flex flex-col gap-3 overflow-auto max-h-40">
-              {modifiers?.map((modifier: any) => (
+              {modifiers?.length ? modifiers.map((modifier: any) => (
                 <label key={modifier.id} htmlFor={`modifier-${modifier.id}`} className="flex gap-1 flex-1 min-w-32">
                   <input
                     type="checkbox"
@@ -85,7 +85,7 @@ const SetModifier = ({ open, setOpen, modifiers, fnbId, setModifiers }: { open: 
                   />
                   {modifier.name}
                 </label>
-              ))}
+              )) : (<span className=' text-gray-400'>No Modifier Available</span>)}
             </div>
             <br />
             <div>

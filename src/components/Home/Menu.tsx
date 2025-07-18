@@ -39,7 +39,7 @@ const Menu = (props: any): JSX.Element => {
         });
 
         const availableFnbs = res.data.data.filter((fnb: any) => {
-          return fnb.availability === true;
+          return fnb.availability === true && fnb.is_active;
         });
 
         if (selectedCategory === 'All' && !searchedMenu) {

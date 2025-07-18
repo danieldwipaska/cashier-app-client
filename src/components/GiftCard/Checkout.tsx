@@ -38,7 +38,7 @@ const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCa
   };
 
   const { data: methods } = useQuery({
-    queryKey: ['cardMethods'],
+    queryKey: ['cardMethodsForCards'],
     queryFn: async () => {
       try {
         const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/methods`, {
@@ -46,9 +46,8 @@ const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCa
             Authorization: `Bearer ${localStorage.getItem('access-token')}`,
           },
         });
-        const method_data = res.data.data.filter((method: any) => method.id !== process.env.REACT_APP_GIFT_CARD_METHOD_ID);
 
-        return method_data; 
+        return res.data.data.filter((method: any) => method.is_active); 
       } catch (err) {
         console.log(err);
         throw err;

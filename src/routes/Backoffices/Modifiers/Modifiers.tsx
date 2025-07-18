@@ -3,6 +3,7 @@ import Header from 'components/Backoffices/Header';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { MODIFIERS_QUERY_KEY } from 'configs/utils';
+import editIcon from '../../../assets/img/icons/icon-edit.svg';
 
 const Modifiers = () => {
   // START QUERIES
@@ -25,7 +26,6 @@ const Modifiers = () => {
   });
 
   // END QUERIES
-  console.log(modifiers);
 
   return (
     <Layout>
@@ -41,6 +41,7 @@ const Modifiers = () => {
             <th className="border-b-4 py-3 px-2 text-left">Code</th>
             <th className="border-b-4 py-3 px-2 text-left">Name</th>
             <th className="border-b-4 py-3 px-2 text-left">Status</th>
+            <th className="border-b-4 py-3 px-2 text-left">Action</th>
           </tr>
           {modifiers?.map((modifier: any) => {
             return (
@@ -48,6 +49,13 @@ const Modifiers = () => {
                 <td className="py-3 px-2">{modifier.code}</td>
                 <td className="py-3 px-2">{modifier.name}</td>
                 <td className="py-3 px-2">{modifier.is_active ? 'Active' : 'Inactive'}</td>
+                <td className="py-3 px-2">
+                  <div className="flex items-center gap-2">
+                    <a href={`/backoffices/modifiers/${modifier.id}/edit`}>
+                      <img src={editIcon} alt="editIcon" width={20} />
+                    </a>
+                  </div>
+                </td>
               </tr>
             );
           })}

@@ -1,5 +1,5 @@
 import { ArrowBackIosNew } from '@mui/icons-material';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { useState } from 'react';
 import { CircularProgress } from '@mui/material';
 import CrewAuthAlertDialogSlide from './CrewAuthAlertDialogSlide';
@@ -54,6 +54,8 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
           },
         }
       );
+
+      if (!crew.data.data.is_active) return setErrorUnauthorizedCrew(true);
 
       setOpenConfirmProgressSpinner(true);
 
@@ -150,9 +152,7 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
         }
       }
     } catch (error: unknown) {
-      if (error instanceof AxiosError && error?.response?.data?.statusCode === 404) return setErrorUnauthorizedCrew(true);
-
-      console.log(error);
+      return setErrorUnauthorizedCrew(true);
     }
   };
 
@@ -275,13 +275,16 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
             <p className="">Menu Detail</p>
           </div>
 
-          <div className="overflow-y-auto h-60 2xl:h-96">
+          <div className="overflow-y-auto thin-scrollbar h-[calc(100vh-400px)]">
             {order.items.map((item: any) => (
-              <div key={item.id} className="flex items-center mt-3 2xl:mt-5 bg-gray-100 p-2 rounded-md">
-                <div>
+              <div key={item.id} className="mt-3 2xl:mt-5 border border-green-600 p-2 rounded-md">
+                <div className="flex justify-between">
                   <div>
-                    <p className="text-xl">{item.fnb_name}</p>
-                    <p className="text-sm text-black/60">
+                    <div className="flex items-center gap-3">
+                      <p className="text-xl">{item.fnb_name}</p>
+                      {item.discount_percent ? <p className="text-xs text-orange-500">(-{item.discount_percent}%)</p> : null}
+                    </div>
+                    <p className="text-sm text-black/60 mt-2">
                       {item.modifiers
                         .filter((modifier: any) => modifier.checked)
                         .map((modifier: any) => modifier.name)
@@ -291,25 +294,21 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
                   <div className="flex items-center">
                     {item.discount_percent ? (
                       <div className="flex items-center mx-1">
-                        <div>
-                          <input
-                            type="text"
-                            className="text-xs text-black/60 py-1 w-28"
-                            readOnly
-                            value={`${item.amount} x ${Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.price - item.price * (item.discount_percent / 100))}`}
-                          />
-                        </div>
-                        <div>
-                          <p className="text-xs text-orange-500">(-{item.discount_percent}%)</p>
-                        </div>
+                        <input
+                          type="text"
+                          className="text-sm text-black/60 py-1 bg-transparent"
+                          readOnly
+                          value={`${item.amount} x ${Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.price - item.price * (item.discount_percent / 100))}`}
+                        />
                       </div>
                     ) : (
                       <div className="mx-1">
-                        <input type="text" className="text-xs text-black/60 py-1 bg-transparent" readOnly value={`${item.amount} x ${Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.price)}`} />
+                        <input type="text" className="text-sm text-black/60 py-1 bg-transparent" readOnly value={`${item.amount} x ${Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.price)}`} />
                       </div>
                     )}
                   </div>
                 </div>
+                <p className="text-xs text-black/60">Note: {item.note}</p>
               </div>
             ))}
           </div>

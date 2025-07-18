@@ -1,15 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { CATEGORY_QUERY_KEY } from 'configs/utils';
+import { CATEGORY_QUERY_KEY, ErrorMessage } from 'configs/utils';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Layout from '../Layout/Layout';
 import Header from 'components/Backoffices/Header';
+import { useMessages } from 'context/MessageContext';
 
 const CategoryEdit = () => {
   // START HOOKS
   const navigate = useNavigate();
   const { categoryId } = useParams();
+  const { showMessage } = useMessages();
   // START HOOKS
 
   // START HOOKS
@@ -58,10 +60,15 @@ const CategoryEdit = () => {
         }
       )
       .then((res) => {
+        showMessage('Category updated successfully', 'success');
         return navigate('/backoffices/categories', { replace: true });
       })
-      .catch((err) => {
-        return console.log(err);
+      .catch((error) => {
+        if (error?.response?.data?.statusCode === 404) return showMessage(ErrorMessage.CATEGORY_NOT_FOUND, 'error');
+        if (error?.response?.data?.statusCode === 500) return showMessage(ErrorMessage.INTERNAL_SERVER_ERROR, 'error');
+        if (error?.response?.data?.statusCode === 400) return showMessage(ErrorMessage.BAD_REQUEST, 'error');
+        if (error?.response?.data?.statusCode === 401) return showMessage(error.response?.data?.message, 'error');
+        return showMessage(ErrorMessage.UNEXPECTED_ERROR, 'error');
       });
   };
 
@@ -70,7 +77,7 @@ const CategoryEdit = () => {
       <Header title="EDIT CATEGORY" />
       <section>
         <div className="">
-          <div className="grid grid-cols-2 max-w-[200px] py-3 items-center">
+          <div className="grid grid-cols-2 max-w-[380px] py-3 items-center">
             <label className="" htmlFor="name">
               Name
             </label>

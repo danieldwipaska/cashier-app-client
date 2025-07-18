@@ -4,7 +4,6 @@ import { ReactComponent as ArrowUpRightIcon } from '../../assets/img/icons/arrow
 import { ReactComponent as ArrowRightLeftIcon } from '../../assets/img/icons/arrow-right-left.svg';
 import { ReactComponent as CheckoutIcon } from '../../assets/img/icons/checkout.svg';
 import { ReactComponent as CartIcon } from '../../assets/img/icons/cart.svg';
-import { ReactComponent as ReceiptRefundIcon } from '../../assets/img/icons/receipt-refund.svg';
 import { Card } from 'lib/interfaces/cards';
 import Topup from 'components/GiftCard/Topup';
 import { useState } from 'react';

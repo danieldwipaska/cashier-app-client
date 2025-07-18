@@ -1,23 +1,24 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { CREW_QUERY_KEY, POSITIONS } from 'configs/utils';
+import { CREW_QUERY_KEY, ErrorMessage } from 'configs/utils';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Layout from '../Layout/Layout';
 import Header from 'components/Backoffices/Header';
 import { useForm } from 'react-hook-form';
+import { useMessages } from 'context/MessageContext';
 
 const CrewEdit = () => {
   // START HOOKS
   const navigate = useNavigate();
   const { crewId } = useParams();
-  const { register, handleSubmit } = useForm();
+  const { handleSubmit } = useForm();
+  const { showMessage } = useMessages();
   // START HOOKS
 
   // START STATES
   const [name, setName] = useState('');
-  const [position, setPosition] = useState('');
-  const [code, setCode] = useState('');
+  const [activeStatus, setActiveStatus] = useState(false);
   // END STATES
 
   // START CHANGE
@@ -25,12 +26,8 @@ const CrewEdit = () => {
     setName(event.target.value);
   };
 
-  const handlePositionChange = (event: any) => {
-    setPosition(event.target.value);
-  };
-
-  const handleCodeChange = (event: any) => {
-    setCode(event.target.value);
+  const handleActiveStatusChange = (event: any) => {
+    setActiveStatus(event.target.checked);
   };
   // END CHANGE
 
@@ -46,8 +43,7 @@ const CrewEdit = () => {
         })
         .then((res) => {
           setName(res.data.data.name);
-          setPosition(res.data.data.position);
-          setCode(res.data.data.code);
+          setActiveStatus(res.data.data.is_active);
 
           return res.data.data;
         })
@@ -59,17 +55,30 @@ const CrewEdit = () => {
   // END QUERIES
 
   const onSubmit = (data: any) => {
+    console.log(data);
     axios
-      .patch(`${process.env.REACT_APP_API_BASE_URL}/crews/${crewId}`, data, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+      .patch(
+        `${process.env.REACT_APP_API_BASE_URL}/crews/${crewId}`,
+        {
+          name: name,
+          is_active: activeStatus,
         },
-      })
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        }
+      )
       .then((res) => {
+        showMessage('Crew updated successfully', 'success');
         return navigate('/backoffices/crews', { replace: true });
       })
-      .catch((err) => {
-        return console.log(err);
+      .catch((error) => {
+        if (error?.response?.data?.statusCode === 404) return showMessage(ErrorMessage.CREW_NOT_FOUND, 'error');
+        if (error?.response?.data?.statusCode === 500) return showMessage(ErrorMessage.INTERNAL_SERVER_ERROR, 'error');
+        if (error?.response?.data?.statusCode === 400) return showMessage(ErrorMessage.BAD_REQUEST, 'error');
+        if (error?.response?.data?.statusCode === 401) return showMessage(error.response?.data?.message, 'error');
+        return showMessage(ErrorMessage.UNEXPECTED_ERROR, 'error');
       });
   };
 
@@ -83,24 +92,13 @@ const CrewEdit = () => {
               <label className="" htmlFor="name">
                 Name
               </label>
-              <input {...register('name')} type="text" className="border px-3 py-2 rounded-lg" id="name" placeholder="ex. Appetizer" value={name} onChange={handleNameChange} required />
+              <input type="text" className="border px-3 py-2 rounded-lg" id="name" placeholder="ex. Appetizer" value={name} onChange={handleNameChange} required />
             </div>
-            <div className="grid grid-cols-2 max-w-[300px] items-center">
-              <label className="" htmlFor="position">
-                Position
+            <div className="grid grid-cols-2 max-w-[300px] py-3 items-center justify-items-start">
+              <label className="" htmlFor="activeStatus">
+                Active
               </label>
-              <select {...register('position')} id="position" className="border px-3 py-2 rounded-lg" value={position} onChange={handlePositionChange} required>
-                <option value="">----</option>
-                {POSITIONS?.map((position: any) => {
-                  return <option value={position}>{position}</option>;
-                })}
-              </select>
-            </div>
-            <div className="grid grid-cols-2 max-w-[300px] items-center">
-              <label className="" htmlFor="code">
-                Code
-              </label>
-              <input {...register('code')} type="text" className="border px-3 py-2 rounded-lg" id="code" placeholder="ex. 123456" value={code} onChange={handleCodeChange} required />
+              <input type="checkbox" className=" w-6 h-6" id="activeStatus" checked={activeStatus} onChange={handleActiveStatusChange} />
             </div>
             <br />
             <br />

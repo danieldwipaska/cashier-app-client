@@ -23,7 +23,9 @@ const WeeklyEmployeeAwards = () => {
         const backofficeSetting = await fetchCrewPurchaseCategory();
         const categoryIds = backofficeSetting?.CrewPurchaseCategory.map((crewPurchaseCategory: any) => crewPurchaseCategory.category.id);
 
-        const groupedData = response.data.data.reduce((acc: any, report: any) => {
+        const filteredReports = response.data.data.filter((report: any) => report.crew ? report.crew.is_active : false);
+
+        const groupedData = filteredReports.reduce((acc: any, report: any) => {
           let crewName = report.crew?.name;
 
           if (!crewName) {

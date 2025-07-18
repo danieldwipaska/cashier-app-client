@@ -118,7 +118,11 @@ const Settings = () => {
       showMessage('Backoffice Setting has been updated', 'success');
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        if (error?.response?.data?.statusCode === 500) showMessage(ErrorMessage.INTERNAL_SERVER_ERROR, 'error');
+        if (error?.response?.data?.statusCode === 404) return showMessage(ErrorMessage.SETTING_NOT_FOUND, 'error');
+        if (error?.response?.data?.statusCode === 500) return showMessage(ErrorMessage.INTERNAL_SERVER_ERROR, 'error');
+        if (error?.response?.data?.statusCode === 400) return showMessage(ErrorMessage.BAD_REQUEST, 'error');
+        if (error?.response?.data?.statusCode === 401) return showMessage(error.response?.data?.message, 'error');
+        return showMessage(ErrorMessage.UNEXPECTED_ERROR, 'error');
       } else {
         showMessage(ErrorMessage.UNEXPECTED_ERROR, 'error');
       }

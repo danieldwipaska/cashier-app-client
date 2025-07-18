@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useMessages } from 'context/MessageContext';
+import { ErrorMessage } from 'configs/utils';
 
 const ModifierAdd = () => {
   const { showMessage } = useMessages();
@@ -16,14 +17,18 @@ const ModifierAdd = () => {
       .post(`${process.env.REACT_APP_API_BASE_URL}/modifiers`, data, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('access-token')}`,
-        }
+        },
       })
       .then((res) => {
         showMessage('Modifier added successfully', 'success');
         return navigate('/backoffices/modifiers', { replace: true });
       })
-      .catch((err) => {
-        return console.log(err);
+      .catch((error) => {
+        if (error?.response?.data?.statusCode === 404) return showMessage(ErrorMessage.MODIFIER_NOT_FOUND, 'error');
+        if (error?.response?.data?.statusCode === 500) return showMessage(ErrorMessage.INTERNAL_SERVER_ERROR, 'error');
+        if (error?.response?.data?.statusCode === 400) return showMessage(ErrorMessage.BAD_REQUEST, 'error');
+        if (error?.response?.data?.statusCode === 401) return showMessage(ErrorMessage.INVALID_CREW_CODE, 'error');
+        return showMessage(ErrorMessage.UNEXPECTED_ERROR, 'error');
       });
   };
 
