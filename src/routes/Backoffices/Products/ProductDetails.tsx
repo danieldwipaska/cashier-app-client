@@ -23,7 +23,6 @@ const ProductDetails = () => {
           },
         })
         .then((res) => {
-          console.log(res.data.data);
           return res.data.data;
         })
         .catch((err) => {

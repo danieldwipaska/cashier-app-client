@@ -32,6 +32,7 @@ import Modifiers from 'routes/Backoffices/Modifiers/Modifiers';
 import ModifierAdd from 'routes/Backoffices/Modifiers/ModifiersAdd';
 import ProductModifier from 'routes/Backoffices/Products/ProductModifier';
 import ModifierEdit from 'routes/Backoffices/Modifiers/ModifierEdit';
+import ReportDetails from 'routes/Backoffices/Reports/ReportDetails';
 
 function App() {
   const client = new QueryClient({
@@ -63,6 +64,7 @@ function App() {
                 <Route path="/backoffices/categories/add" element={<CategoryAdd />} />
                 <Route path="/backoffices/categories/:categoryId/edit" element={<CategoryEdit />} />
                 <Route path="/backoffices/reports" element={<Reports />} />
+                <Route path="/backoffices/reports/:reportId" element={<ReportDetails />} />
                 <Route path="/backoffices/crews" element={<Crews />} />
                 <Route path="/backoffices/crews/add" element={<CrewsAdd />} />
                 <Route path="/backoffices/crews/:crewId/edit" element={<CrewEdit />} />
