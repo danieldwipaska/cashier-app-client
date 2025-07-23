@@ -28,6 +28,8 @@ const Products = () => {
           },
         })
         .then((res) => {
+          res.data.data = res.data.data.filter((product: any) => product.name !== process.env.REACT_APP_CUSTOM_FNB_NAME);
+
           return res.data;
         })
         .catch((err) => {

@@ -14,10 +14,19 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
   const dispatch = useDispatch();
 
   const { setOpenSummary, setOpenBackdrop } = states;
-  const { crewCredential, setCrewCredential, openCrewAuthAlertDialog, setOpenCrewAuthAlertDialog, errorCrewCredential, setErrorCrewCredential, errorUnauthorizedCrew, setErrorUnauthorizedCrew } = crewData;
+  const {
+    crewCredential,
+    setCrewCredential,
+    openCrewAuthAlertDialog,
+    setOpenCrewAuthAlertDialog,
+    errorCrewCredential,
+    setErrorCrewCredential,
+    errorUnauthorizedCrew,
+    setErrorUnauthorizedCrew,
+    isLoadingSubmitCrewCredential,
+    setIsLoadingSubmitCrewCredential,
+  } = crewData;
   const { reportsRefetch } = unpaidReports;
-
-  const [openConfirmProgressSpinner, setOpenConfirmProgressSpinner] = useState(false);
 
   const handleClickOpenCrewAuthAlertDialog = () => {
     setOpenCrewAuthAlertDialog(true);
@@ -44,6 +53,7 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
   const handlePay = async () => {
     if (!crewCredential) return setErrorCrewCredential(true);
 
+    setIsLoadingSubmitCrewCredential(true);
     try {
       const crew = await axios.post(
         `${process.env.REACT_APP_API_BASE_URL}/crews/code`,
@@ -56,8 +66,6 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
       );
 
       if (!crew.data.data.is_active) return setErrorUnauthorizedCrew(true);
-
-      setOpenConfirmProgressSpinner(true);
 
       const items = order.items.map((item: any) => {
         return {
@@ -101,7 +109,6 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
           setOpenSummary(false);
 
           setOpenCrewAuthAlertDialog(false);
-          setOpenConfirmProgressSpinner(false);
           setOpenBackdrop(true);
 
           // Clear order state
@@ -112,6 +119,8 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
           }, 3000);
         } catch (error) {
           console.log(error);
+        } finally {
+          setIsLoadingSubmitCrewCredential(false);
         }
       } else {
         const payload = {
@@ -138,7 +147,6 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
           setOpenSummary(false);
 
           setOpenCrewAuthAlertDialog(false);
-          setOpenConfirmProgressSpinner(false);
           setOpenBackdrop(true);
 
           // Clear order state
@@ -149,15 +157,21 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
           }, 3000);
         } catch (error) {
           console.log(error);
+        } finally {
+          setIsLoadingSubmitCrewCredential(false);
         }
       }
     } catch (error: unknown) {
       return setErrorUnauthorizedCrew(true);
+    } finally {
+      setIsLoadingSubmitCrewCredential(false);
     }
   };
 
   const handlePayUpdate = async () => {
     if (!crewCredential) return setErrorCrewCredential(true);
+
+    setIsLoadingSubmitCrewCredential(true);
 
     try {
       const report = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports/${order.id}`, {
@@ -178,8 +192,6 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
           }
         );
         if (!crew.data.data || report.data.data.crew.name !== crew.data.data.name) return setErrorUnauthorizedCrew(true);
-
-        setOpenConfirmProgressSpinner(true);
 
         const items = order.items.map((item: any) => {
           return {
@@ -220,8 +232,6 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
           setOpenSummary(false);
 
           setOpenCrewAuthAlertDialog(false);
-
-          setOpenConfirmProgressSpinner(false);
           setOpenBackdrop(true);
 
           // Clear order state
@@ -236,9 +246,13 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
         }
       } catch (error) {
         console.log(error);
+      } finally {
+        setIsLoadingSubmitCrewCredential(false);
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsLoadingSubmitCrewCredential(false);
     }
   };
 
@@ -328,7 +342,7 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
           </div>
           <div>
             <button className="text-center w-full my-6 py-2 bg-green-500 hover:opacity-70 duration-500 rounded-lg" onClick={handleClickOpenCrewAuthAlertDialog}>
-              {openConfirmProgressSpinner ? <CircularProgress color="secondary" size={15} /> : 'Pay'}
+              Pay
             </button>
           </div>
         </div>
@@ -342,6 +356,8 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
           setErrorCrewCredential={setErrorCrewCredential}
           errorUnauthorizedCrew={errorUnauthorizedCrew}
           setErrorUnauthorizedCrew={setErrorUnauthorizedCrew}
+          isLoadingSubmitCrewCredential={isLoadingSubmitCrewCredential}
+          setIsLoadingSubmitCrewCredential={setIsLoadingSubmitCrewCredential}
         />
       </div>
     </div>

@@ -4,11 +4,13 @@ import axios from 'axios';
 import { addOrUpdateItem, Item } from 'context/slices/orderSlice';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
+import CustomPrice from './CustomPrice';
 
 const Menu = (props: any): JSX.Element => {
   const { openSummary } = props;
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchedMenu, setSearchedMenu] = useState('');
+  const [openCustomPrice, setOpenCustomPrice] = useState(false);
   const dispatch = useDispatch();
 
   const { data: categories } = useQuery({
@@ -142,6 +144,11 @@ const Menu = (props: any): JSX.Element => {
                       <ListItemButton
                         sx={{ p: 2 }}
                         onClick={() => {
+                          if (fnb.name === process.env.REACT_APP_CUSTOM_FNB_NAME) {
+                            setOpenCustomPrice(true);
+                            return;
+                          }
+
                           addFnbToOrder(fnb);
                         }}
                       >
@@ -166,6 +173,7 @@ const Menu = (props: any): JSX.Element => {
           </Box>
         </div>
       </div>
+      <CustomPrice open={openCustomPrice} setOpen={setOpenCustomPrice} />
     </div>
   );
 };

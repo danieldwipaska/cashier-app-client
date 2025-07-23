@@ -32,6 +32,7 @@ const Home = () => {
   const [openCrewAuthAlertDialog, setOpenCrewAuthAlertDialog] = useState(false);
   const [errorCrewCredential, setErrorCrewCredential] = useState(false);
   const [errorUnauthorizedCrew, setErrorUnauthorizedCrew] = useState(false);
+  const [isLoadingSubmitCrewCredential, setIsLoadingSubmitCrewCredential] = useState<boolean>(false);
 
   // END STATES
 
@@ -126,6 +127,8 @@ const Home = () => {
               setErrorCrewCredential,
               errorUnauthorizedCrew,
               setErrorUnauthorizedCrew,
+              isLoadingSubmitCrewCredential,
+              setIsLoadingSubmitCrewCredential,
             }}
             unpaidReports={{
               reports,
@@ -149,6 +152,8 @@ const Home = () => {
               setErrorCrewCredential,
               errorUnauthorizedCrew,
               setErrorUnauthorizedCrew,
+              isLoadingSubmitCrewCredential,
+              setIsLoadingSubmitCrewCredential,
             }}
             unpaidReports={{
               reports,

@@ -23,7 +23,7 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
 
   // START STATES
   const { setOpenSummary } = states;
-  const { crewCredential, setCrewCredential, openCrewAuthAlertDialog, setOpenCrewAuthAlertDialog, errorCrewCredential, setErrorCrewCredential, errorUnauthorizedCrew, setErrorUnauthorizedCrew } = crewData;
+  const { crewCredential, setCrewCredential, openCrewAuthAlertDialog, setOpenCrewAuthAlertDialog, errorCrewCredential, setErrorCrewCredential, errorUnauthorizedCrew, setErrorUnauthorizedCrew, isLoadingSubmitCrewCredential, setIsLoadingSubmitCrewCredential } = crewData;
   const { reports, reportsRefetch } = unpaidReports;
 
   const [customerNameIsEmpty, setCustomerNameIsEmpty] = useState(false);
@@ -347,7 +347,6 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
                     <button
                       className="flex gap-2 items-center text-left"
                       onClick={() => {
-                        console.log(item);
                         setSelectedFnbId(item.fnb_id);
                         fetchModifierOption(item.fnb_id);
                         setOpenModifierModal(true);
@@ -494,6 +493,8 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
         setErrorCrewCredential={setErrorCrewCredential}
         errorUnauthorizedCrew={errorUnauthorizedCrew}
         setErrorUnauthorizedCrew={setErrorUnauthorizedCrew}
+        isLoadingSubmitCrewCredential={isLoadingSubmitCrewCredential}
+        setIsLoadingSubmitCrewCredential={setIsLoadingSubmitCrewCredential}
       />
       <SetModifier open={openModifierModal} setOpen={setOpenModifierModal} modifiers={modifiers} setModifiers={setModifiers} fnbId={selectedFnbId} />
       <ItemNote open={openNoteModal} setOpen={setOpenNoteModal} note={note} setNote={setNote} fnbId={selectedFnbId} />

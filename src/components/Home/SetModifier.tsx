@@ -89,7 +89,7 @@ const SetModifier = ({ open, setOpen, modifiers, fnbId, setModifiers }: { open: 
             </div>
             <br />
             <div>
-              <button type="submit" className="bg-green-400 py-2 px-3 rounded-lg">
+              <button type="submit" className={`bg-green-400 py-2 px-3 rounded-lg ${modifiers?.length ? 'opacity-100' : 'opacity-50'}`} disabled={!modifiers?.length}>
                 Confirm
               </button>
             </div>

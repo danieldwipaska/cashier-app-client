@@ -15,6 +15,8 @@ export default interface ICartProps {
     setErrorCrewCredential: React.Dispatch<React.SetStateAction<boolean>>;
     errorUnauthorizedCrew: boolean;
     setErrorUnauthorizedCrew: React.Dispatch<React.SetStateAction<boolean>>;
+    isLoadingSubmitCrewCredential: boolean;
+    setIsLoadingSubmitCrewCredential: React.Dispatch<React.SetStateAction<boolean>>;
   };
 
   unpaidReports: {

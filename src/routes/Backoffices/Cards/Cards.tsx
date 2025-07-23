@@ -62,7 +62,7 @@ const Cards = () => {
                 <td className="py-3 px-2">{card.card_number}</td>
                 <td className="py-3 px-2">{card.customer_id}</td>
                 <td className="py-3 px-2">{card.customer_name}</td>
-                <td className="py-3 px-2">{card.balance}</td>
+                <td className="py-3 px-2">{Intl.NumberFormat('id-ID').format(card.balance)}</td>
                 <td className="py-3 px-2">{card.status}</td>
                 <td className="py-3 px-2">{card.is_member ? 'yes' : 'no'}</td>
                 <td className="py-3 px-2">{new Date(card.updated_at).toLocaleDateString('id-ID')}</td>
