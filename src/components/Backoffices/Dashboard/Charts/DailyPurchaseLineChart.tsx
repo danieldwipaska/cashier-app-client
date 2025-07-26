@@ -6,6 +6,7 @@ import { processMonthlySales } from 'functions/date-fns.report';
 import { getMonthlyOperationalHours } from 'functions/operational.report';
 import { useState } from 'react';
 import { Line } from 'react-chartjs-2';
+import CircularProgress from '@mui/material/CircularProgress';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -16,10 +17,12 @@ const options = {
 
 const DailyPurchaseLineChart = () => {
   const [reports, setReports] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useQuery({
     queryKey: ['monthlyPaidReports'],
     queryFn: () => {
+      setIsLoading(true);
       const { from, to } = getMonthlyOperationalHours();
 
       axios
@@ -30,7 +33,7 @@ const DailyPurchaseLineChart = () => {
         })
         .then((res) => {
           setReports(res.data.data);
-
+          setIsLoading(false);
           return res.data.data;
         })
         .catch((err) => {
@@ -52,8 +55,13 @@ const DailyPurchaseLineChart = () => {
       },
     ],
   };
-
-  return <Line options={options} data={data} width={100} height={200} />;
+  return isLoading ? (
+    <div className="flex justify-center w-full">
+      <CircularProgress color="success" size={30} />
+    </div>
+  ) : (
+    <Line options={options} data={data} width={100} height={200} />
+  );
 };
 
 export default DailyPurchaseLineChart;

@@ -51,7 +51,6 @@ const WeeklyEmployeeAwards = () => {
           return acc;
         }, {});
         setCrewWeeklyPurchases(groupedData);
-        console.log(groupedData)
         return groupedData;
       } catch (error) {
         console.error('Error fetching reports:', error);

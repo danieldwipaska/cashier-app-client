@@ -16,6 +16,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { clearOrder, decreaseItemAmount, increaseItemAmount, Order, setOrder, updateOrder } from 'context/slices/orderSlice';
 import SetModifier from './SetModifier';
 import ItemNote from './ItemNote';
+import SetCustomerName from './SetCustomerName';
+import SetNote from './SetNote';
 
 const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
   const order = useSelector((state: any) => state.order.order);
@@ -23,7 +25,18 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
 
   // START STATES
   const { setOpenSummary } = states;
-  const { crewCredential, setCrewCredential, openCrewAuthAlertDialog, setOpenCrewAuthAlertDialog, errorCrewCredential, setErrorCrewCredential, errorUnauthorizedCrew, setErrorUnauthorizedCrew, isLoadingSubmitCrewCredential, setIsLoadingSubmitCrewCredential } = crewData;
+  const {
+    crewCredential,
+    setCrewCredential,
+    openCrewAuthAlertDialog,
+    setOpenCrewAuthAlertDialog,
+    errorCrewCredential,
+    setErrorCrewCredential,
+    errorUnauthorizedCrew,
+    setErrorUnauthorizedCrew,
+    isLoadingSubmitCrewCredential,
+    setIsLoadingSubmitCrewCredential,
+  } = crewData;
   const { reports, reportsRefetch } = unpaidReports;
 
   const [customerNameIsEmpty, setCustomerNameIsEmpty] = useState(false);
@@ -39,6 +52,8 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
 
   const [openModifierModal, setOpenModifierModal] = useState(false);
   const [openNoteModal, setOpenNoteModal] = useState(false);
+  const [openOrderCustomerNameModal, setOpenOrderCustomerNameModal] = useState(false);
+  const [openOrderNoteModal, setOpenOrderNoteModal] = useState(false);
   const [modifiers, setModifiers] = useState<any>(null);
   const [note, setNote] = useState('');
   const [selectedFnbId, setSelectedFnbId] = useState<any>(null);
@@ -168,17 +183,8 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
     }
   };
 
-  const handleCustomerNameChange = (event: any) => {
-    setCustomerNameIsEmpty(false);
-    dispatch(updateOrder({ customer_name: event.target.value }));
-  };
-
   const handlePaymentMethodChange = (event: SelectChangeEvent) => {
     dispatch(updateOrder({ method_id: event.target.value }));
-  };
-
-  const handleNoteChange = (event: any) => {
-    dispatch(updateOrder({ note: event.target.value }));
   };
 
   const handleSave = async () => {
@@ -444,15 +450,58 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
               ) : (
                 <FormControl size="small" sx={{ m: 0, minWidth: 120 }}>
                   {customerNameIsEmpty ? (
-                    <TextField id="customer-name" error label="Customer Name" variant="outlined" size="small" onChange={handleCustomerNameChange} value={order.customer_name} />
+                    <TextField
+                      id="customer-name"
+                      error
+                      label="Customer Name"
+                      variant="outlined"
+                      size="small"
+                      value={order.customer_name}
+                      slotProps={{
+                        input: {
+                          readOnly: true,
+                        },
+                      }}
+                      onClick={() => {
+                        setOpenOrderCustomerNameModal(true);
+                      }}
+                    />
                   ) : (
-                    <TextField id="customer-name" label="Customer Name" variant="outlined" size="small" onChange={handleCustomerNameChange} value={order.customer_name} />
+                    <TextField
+                      id="customer-name"
+                      label="Customer Name"
+                      variant="outlined"
+                      size="small"
+                      value={order.customer_name}
+                      slotProps={{
+                        input: {
+                          readOnly: true,
+                        },
+                      }}
+                      onClick={() => {
+                        setOpenOrderCustomerNameModal(true);
+                      }}
+                    />
                   )}
                 </FormControl>
               )}
 
               <FormControl size="small" sx={{ mt: 0, minWidth: 120 }}>
-                <TextField id="note" label="Note" variant="outlined" size="small" onChange={handleNoteChange} value={order.note} />
+                <TextField
+                  id="note"
+                  label="Note"
+                  variant="outlined"
+                  size="small"
+                  value={order.note}
+                  slotProps={{
+                    input: {
+                      readOnly: true,
+                    },
+                  }}
+                  onClick={() => {
+                    setOpenOrderNoteModal(true);
+                  }}
+                />
               </FormControl>
             </div>
             <div className="flex justify-between">
@@ -498,6 +547,8 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
       />
       <SetModifier open={openModifierModal} setOpen={setOpenModifierModal} modifiers={modifiers} setModifiers={setModifiers} fnbId={selectedFnbId} />
       <ItemNote open={openNoteModal} setOpen={setOpenNoteModal} note={note} setNote={setNote} fnbId={selectedFnbId} />
+      <SetCustomerName open={openOrderCustomerNameModal} setOpen={setOpenOrderCustomerNameModal} />
+      <SetNote open={openOrderNoteModal} setOpen={setOpenOrderNoteModal} />
       <SimpleSnackbar open={openSnackbar} setOpen={setOpenSnackbar} message={snackbarMessage} />
     </div>
   );

@@ -5,6 +5,8 @@ import axios from 'axios';
 import { REPORTS_QUERY_KEY, ReportType, reportTypeDisplay } from 'configs/utils';
 import { useEffect, useState } from 'react';
 import Pagination from 'components/Pagination';
+import { ReactComponent as IconCSV } from '../../../assets/img/icons/icon-csv.svg';
+import ExportModalForm from 'components/Backoffices/Reports/ExportModalForm';
 
 const Reports = () => {
   // START STATES
@@ -12,6 +14,7 @@ const Reports = () => {
   const [customerName, setCustomerName] = useState('');
   const [server, setServer] = useState('');
   const [page, setPage] = useState(1);
+  const [openExportModal, setOpenExportModal] = useState(false);
   // END STATES
 
   // START QUERIES
@@ -44,11 +47,15 @@ const Reports = () => {
     return reportsRefetch();
   };
 
-  const handleChangeCustomerName = async (event: any) => {
+  const handleClickExport = (event: any) => {
+    setOpenExportModal(true);
+  };
+
+  const handleChangeCustomerName = (event: any) => {
     setCustomerName(event.target.value);
   };
 
-  const handleChangeServer = async (event: any) => {
+  const handleChangeServer = (event: any) => {
     setServer(event.target.value);
   };
 
@@ -58,7 +65,13 @@ const Reports = () => {
     <Layout>
       <Header title="REPORTS" />
       <section>
-        <div className="flex justify-end w-full">
+        <div className="flex items-end justify-between w-full">
+          <div className="mb-5">
+            <button className="bg-green-300 py-2 px-5 rounded-lg flex items-center gap-2 hover:opacity-70 duration-200" onClick={handleClickExport}>
+              Export CSV
+              <IconCSV className="w-[25px]" />
+            </button>
+          </div>
           <div className="search-wrapper">
             <div className="mb-2 flex gap-2">
               <button
@@ -112,7 +125,9 @@ const Reports = () => {
             return (
               <tr key={report.id} className="border-b-2 hover:bg-gray-100 duration-200">
                 <td className="py-3 text-sm px-2">
-                  <a href={`/backoffices/reports/${report.id}`} className='font-semibold hover:opacity-70 duration-100'>{report.report_id}</a>
+                  <a href={`/backoffices/reports/${report.id}`} className="font-semibold hover:opacity-70 duration-100">
+                    {report.report_id}
+                  </a>
                 </td>
                 <td className="py-3 text-sm px-2">{reportTypeDisplay[report.type as ReportType]}</td>
                 <td className="py-3 text-sm px-2">{report.status}</td>
@@ -128,6 +143,9 @@ const Reports = () => {
         </table>
         <Pagination setPage={setPage} pageMetaData={reports?.pageMetaData} />
       </section>
+      {openExportModal && (
+        <ExportModalForm open={openExportModal} setOpen={setOpenExportModal} />
+      )}
     </Layout>
   );
 };

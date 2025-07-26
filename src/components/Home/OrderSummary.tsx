@@ -1,7 +1,5 @@
 import { ArrowBackIosNew } from '@mui/icons-material';
 import axios from 'axios';
-import { useState } from 'react';
-import { CircularProgress } from '@mui/material';
 import CrewAuthAlertDialogSlide from './CrewAuthAlertDialogSlide';
 import { METHOD_QUERY_KEY, ReportStatus, ReportType } from 'configs/utils';
 import ICartProps from 'interfaces/CartProps';

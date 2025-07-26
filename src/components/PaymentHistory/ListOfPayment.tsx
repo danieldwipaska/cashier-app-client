@@ -2,9 +2,6 @@ import { Box, Button, CircularProgress, Modal, Paper, Table, TableBody, TableCel
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { CSVLink } from 'react-csv';
-import { ReactComponent as DownloadIcon } from '../../assets/img/icons/download.svg';
-import { ReactComponent as ArrowRightDoubleIcon } from '../../assets/img/icons/arrow-right-double.svg';
 import { ReactComponent as MinusIcon } from '../../assets/img/icons/minus.svg';
 import { ReactComponent as PlusIcon } from '../../assets/img/icons/plus.svg';
 import { ReactComponent as OptionIcon } from '../../assets/img/icons/option.svg';
@@ -301,10 +298,7 @@ const ListOfPayment = () => {
   const { showMessage } = useMessages();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(25);
-  const [DTPickerFrom, setDTPickerFrom] = React.useState('');
-  const [DTPickerTo, setDTPickerTo] = React.useState('');
   const [loading, setLoading] = React.useState(false);
-  const [reportDataCSV, setReportDataCSV] = React.useState<any>([]);
 
   const [searchedReport, setSearchedReport] = React.useState('');
 
@@ -366,7 +360,7 @@ const ListOfPayment = () => {
       const rows: Data[] = [];
 
       try {
-        let res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports?from=${DTPickerFrom}&to=${DTPickerTo}`, {
+        let res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports?per_page=100`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access-token')}`,
           },
@@ -413,17 +407,6 @@ const ListOfPayment = () => {
           );
         });
 
-        const reportCSVData = res.data.data.map((report: any) => {
-          return {
-            ...report,
-            served_by: report.crew.name,
-            payment_method: report.method.name,
-          }
-        });
-
-
-        setReportDataCSV(reportCSVData);
-
         setLoading(false);
         return rows;
       } catch (error) {
@@ -441,24 +424,6 @@ const ListOfPayment = () => {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
-
-  const headers = [
-    { label: 'ID', key: 'id' },
-    { label: 'Type', key: 'type' },
-    { label: 'Status', key: 'status' },
-    { label: 'Customer Name', key: 'customer_name' },
-    { label: 'Customer ID', key: 'customer_id' },
-    { label: 'Served By', key: 'served_by' },
-    { label: 'Total Payment After Tax and Service', key: 'total_payment_after_tax_service' },
-    { label: 'Tax Amount', key: 'tax_percent' },
-    { label: 'Service Amount', key: 'service_percent' },
-    { label: 'Initial Balance', key: 'initial_balance' },
-    { label: 'Final Balance', key: 'final_balance' },
-    { label: 'Payment Method', key: 'payment_method' },
-    { label: 'Created At', key: 'created_at' },
-    { label: 'Updated At', key: 'updated_at' },
-    { label: 'Note', key: 'note' },
-  ];
 
   const cancelOpenBill = async (id: string) => {
     try {
@@ -481,40 +446,6 @@ const ListOfPayment = () => {
         <div className="flex items-center">
           <input type="text" className="px-3 py-1 border border-black/40 rounded-md" placeholder="Search..." onChange={handleSearchReportChange} />
           {loading ? <CircularProgress size={18} color="success" /> : null}
-        </div>
-        <div className="flex items-center">
-          <input
-            type="datetime-local"
-            id="DTPickerFrom"
-            className="px-3 py-1 rounded-md border"
-            value={DTPickerFrom}
-            onChange={(event: any) => {
-              setDTPickerFrom(event.target.value);
-              setLoading(true);
-              setTimeout(() => {
-                reportsRefetch();
-              }, 1000);
-            }}
-          />
-          <ArrowRightDoubleIcon className="w-[25px] mx-2" />
-          <input
-            type="datetime-local"
-            id="DTPickerTo"
-            className="px-3 py-1 rounded-md border"
-            value={DTPickerTo}
-            onChange={(event: any) => {
-              setDTPickerTo(event.target.value);
-              setLoading(true);
-              setTimeout(() => {
-                reportsRefetch();
-              }, 1000);
-            }}
-          />
-          {reports ? (
-            <CSVLink data={reportDataCSV} headers={headers}>
-              <DownloadIcon className="w-[25px] ml-2" />
-            </CSVLink>
-          ) : null}
         </div>
       </div>
       <div className="bg-white">
