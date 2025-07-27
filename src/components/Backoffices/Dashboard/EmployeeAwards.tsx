@@ -1,3 +1,4 @@
+import { CircularProgress } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { ReportStatus, ReportType } from 'configs/utils';
@@ -7,10 +8,12 @@ import { useState } from 'react';
 
 const EmployeeAwards = () => {
   const [crewDailyPurchases, setCrewDailyPurchases] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   useQuery({
     queryKey: ['dailyCrewReports'],
     queryFn: async () => {
+      setIsLoading(true);
       const { from, to } = getOperationalHours();
 
       try {
@@ -48,6 +51,8 @@ const EmployeeAwards = () => {
         }, {});
         setCrewDailyPurchases(groupedData);
 
+        setIsLoading(false);
+
         return groupedData;
       } catch (error) {
         console.error('Error fetching reports:', error);
@@ -81,7 +86,9 @@ const EmployeeAwards = () => {
         </a>
       </div>
       <div className="overflow-y-auto h-40">
-        {Object.entries(crewDailyPurchases)?.map(([crewName, payment]) => {
+        {isLoading ? <div className="text-center text-gray-400 pt-7">
+          <CircularProgress color="success" size={30} />
+        </div> : Object.entries(crewDailyPurchases)?.length ? Object.entries(crewDailyPurchases)?.map(([crewName, payment]) => {
           return (
             <div className="flex items-center justify-between gap-3 border-b border-gray-200 py-2 hover:bg-gray-200 px-3">
               <div className="flex flex-col justify-center">
@@ -95,7 +102,7 @@ const EmployeeAwards = () => {
               </div>
             </div>
           );
-        })}
+        }) : <div className="text-center text-gray-400 pt-7">Employee Purchases Yet for Today</div> }
       </div>
     </div>
   );

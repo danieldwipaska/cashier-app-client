@@ -5,13 +5,16 @@ import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { getOperationalHours, getTotalPayment } from 'functions/operational.report';
 import { ReportStatus, ReportType } from 'configs/utils';
+import { CircularProgress } from '@mui/material';
 
 const TopupCard = () => {
   const [totalTopup, setTotalTopup] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   useQuery({
     queryKey: ['todayTopupPaidReports'],
     queryFn: () => {
+      setIsLoading(true);
       const { from, to } = getOperationalHours();
 
       axios
@@ -23,6 +26,8 @@ const TopupCard = () => {
         .then((res) => {
           setTotalTopup(getTotalPayment(res.data.data));
 
+          setIsLoading(false);
+
           return res.data.data;
         })
         .catch((err) => {
@@ -32,7 +37,11 @@ const TopupCard = () => {
   });
   return (
     <div>
-      <Card icon={<CardIcon className="w-[15px]" />} bgClass={'bg-green-400'} title={`Today's Top-up`} value={Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalTopup)} />
+      {isLoading ? (
+        <CircularProgress color="success" size={30} />
+      ) : (
+        <Card icon={<CardIcon className="w-[15px]" />} bgClass={'bg-green-400'} title={`Today's Top-up`} value={Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalTopup)} />
+      )}
     </div>
   );
 };

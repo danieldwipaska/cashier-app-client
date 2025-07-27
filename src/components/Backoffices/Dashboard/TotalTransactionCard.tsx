@@ -5,13 +5,16 @@ import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { getOperationalHours } from 'functions/operational.report';
 import { ReportStatus, ReportType } from 'configs/utils';
+import { CircularProgress } from '@mui/material';
 
 const TotalTransactionCard = () => {
   const [totalTransaction, setTotalTransaction] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   useQuery({
     queryKey: ['todayPaidReports'],
     queryFn: () => {
+      setIsLoading(true);
       const { from, to } = getOperationalHours();
 
       axios
@@ -22,6 +25,7 @@ const TotalTransactionCard = () => {
         })
         .then((res) => {
           setTotalTransaction(res.data.data.length);
+          setIsLoading(false);
 
           return res.data.data;
         })
@@ -32,9 +36,7 @@ const TotalTransactionCard = () => {
   });
 
   return (
-    <div>
-      <Card icon={<ReceiptIcon className="w-[15px]" />} bgClass={'bg-yellow-200'} title={`Today's Transaction`} value={totalTransaction.toString()} borderLeft={true} />
-    </div>
+    <div>{isLoading ? <CircularProgress color="success" size={30} /> : <Card icon={<ReceiptIcon className="w-[15px]" />} bgClass={'bg-yellow-200'} title={`Today's Transaction`} value={totalTransaction.toString()} borderLeft={true} />}</div>
   );
 };
 

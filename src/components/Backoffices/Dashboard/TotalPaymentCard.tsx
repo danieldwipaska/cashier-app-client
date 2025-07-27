@@ -1,3 +1,4 @@
+import { CircularProgress } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { ReportStatus, ReportType } from 'configs/utils';
@@ -6,10 +7,12 @@ import { useState } from 'react';
 
 const TotalPaymentCard = () => {
   const [totalPayment, setTotalPayment] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   useQuery({
     queryKey: ['todaySumPaidReports'],
     queryFn: () => {
+      setIsLoading(true);
       const { from, to } = getOperationalHours();
 
       axios
@@ -20,6 +23,8 @@ const TotalPaymentCard = () => {
         })
         .then((res) => {
           setTotalPayment(getTotalPayment(res.data.data));
+
+          setIsLoading(false);
 
           return res.data.data;
         })
@@ -32,7 +37,7 @@ const TotalPaymentCard = () => {
   return (
     <div className="px-5 py-3">
       <h5 className="mb-2 text-sm text-gray-500">Today's Successful Payments</h5>
-      <p className="text-3xl font-bold">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalPayment)}</p>
+      {isLoading ? <CircularProgress color="success" size={30} /> : <p className="text-3xl font-bold">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalPayment)}</p>}
     </div>
   );
 };

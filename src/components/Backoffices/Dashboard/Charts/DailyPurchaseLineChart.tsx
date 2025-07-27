@@ -49,7 +49,7 @@ const DailyPurchaseLineChart = () => {
     labels,
     datasets: [
       {
-        label: 'Daily Purchase',
+        label: `Daily Purchases (${Intl.DateTimeFormat('en-US', { month: 'long' }).format(new Date())})`,
         data: values,
         backgroundColor: 'rgba(255, 99, 132, 0.5)',
       },
