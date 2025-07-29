@@ -60,7 +60,7 @@ const AdjustmentSummary = ({ title, keys }: { title: string; keys: ReportType[] 
   });
 
   return (
-    <div className="border border-gray-200 shadow-sm min-w-80">
+    <div className="border border-gray-200 shadow-sm min-w-80 max-h-72">
       <div className="border-b border-gray-200 p-3 bg-green-300">
         <h3 className="text-lg font-semibold">{title}</h3>
       </div>

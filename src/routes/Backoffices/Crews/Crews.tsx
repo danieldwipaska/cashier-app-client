@@ -102,7 +102,7 @@ const Crews = () => {
               })}
             </table>
           </div>
-          <div className="flex gap-3 flex-wrap">
+          <div className="flex flex-col gap-3">
             <TopupSummary keys={[ReportType.TOPUP, ReportType.TOPUP_AND_ACTIVATE]} title="Daily Top-up" />
             <CheckoutSummary keys={[ReportType.CHECKOUT]} title="Daily Checkout" />
             <AdjustmentSummary keys={[ReportType.ADJUSTMENT]} title="Daily Adjustment" />

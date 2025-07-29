@@ -44,6 +44,8 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
   const [cardNumberIsEmpty, setCardNumberIsEmpty] = useState(false);
   const [orderIsEmpty, setOrderIsEmpty] = useState(false);
 
+  const [cardNumber, setCardNumber] = useState('');
+
   const [openConfirmProgressSpinner, setOpenConfirmProgressSpinner] = useState(false);
   const [openSaveProgressSpinner, setOpenSaveProgressSpinner] = useState(false);
 
@@ -147,7 +149,7 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
 
   const handleCardNumberChange = (event: any) => {
     setCardNumberIsEmpty(false);
-    dispatch(updateOrder({ card_number: event.target.value }));
+    setCardNumber(event.target.value);
   };
 
   const fetchModifierOption = async (fnbId: string) => {
@@ -261,7 +263,7 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
       }, 3000);
     } else if (!order.customer_name && order.method_id !== process.env.REACT_APP_GIFT_CARD_METHOD_ID) {
       setCustomerNameIsEmpty(true);
-    } else if (!order.card_number && order.method_id === process.env.REACT_APP_GIFT_CARD_METHOD_ID) {
+    } else if (!cardNumber && order.method_id === process.env.REACT_APP_GIFT_CARD_METHOD_ID) {
       setCardNumberIsEmpty(true);
     } else if (!order.method_id) {
       setPaymentMethodIsEmpty(true);
@@ -269,7 +271,7 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
       if (order.method_id === process.env.REACT_APP_GIFT_CARD_METHOD_ID) {
         setOpenConfirmProgressSpinner(true);
         try {
-          const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/cards/${order.card_number}`, {
+          const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/cards/${cardNumber}`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('access-token')}`,
             },
@@ -312,7 +314,7 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
   return (
     <div className="h-screen w-5/12 pt-20 mx-8">
       <div className="grid grid-cols-1 content-between h-full">
-        <div className="h-full">
+        <div className="h-full relative">
           <div className="flex justify-between items-center">
             <div>
               <p className="text-lg font-semibold ">Your Order</p>
@@ -340,7 +342,7 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
           </div>
 
           {orderIsEmpty ? (
-            <div className="mt-4">
+            <div className="mt-4 absolute top-20 left-0">
               <Alert severity="error">Your Order cannot be empty.</Alert>
             </div>
           ) : null}
@@ -442,9 +444,9 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
               {order.method_id === process.env.REACT_APP_GIFT_CARD_METHOD_ID ? (
                 <FormControl size="small" sx={{ m: 0, minWidth: 120 }}>
                   {cardNumberIsEmpty ? (
-                    <TextField id="card-number" error label="Card" variant="outlined" size="small" onChange={handleCardNumberChange} value={order.card_number} />
+                    <TextField id="card-number" error label="Card" variant="outlined" size="small" onChange={handleCardNumberChange} value={cardNumber} />
                   ) : (
-                    <TextField id="card-number" label="Card" variant="outlined" size="small" onChange={handleCardNumberChange} value={order.card_number} />
+                    <TextField id="card-number" label="Card" variant="outlined" size="small" onChange={handleCardNumberChange} value={cardNumber} />
                   )}
                 </FormControl>
               ) : (
