@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import Pagination from 'components/Pagination';
 import { ReactComponent as IconCSV } from '../../../assets/img/icons/icon-csv.svg';
 import ExportModalForm from 'components/Backoffices/Reports/ExportModalForm';
+import { Link } from 'react-router-dom';
 
 const Reports = () => {
   // START STATES
@@ -125,9 +126,9 @@ const Reports = () => {
             return (
               <tr key={report.id} className="border-b-2 hover:bg-gray-100 duration-200">
                 <td className="py-3 text-sm px-2">
-                  <a href={`/backoffices/reports/${report.id}`} className="font-semibold hover:opacity-70 duration-100">
+                  <Link to={`/backoffices/reports/${report.id}`} className="font-semibold hover:opacity-70 duration-100">
                     {report.report_id}
-                  </a>
+                  </Link>
                 </td>
                 <td className="py-3 text-sm px-2">{reportTypeDisplay[report.type as ReportType]}</td>
                 <td className="py-3 text-sm px-2">{report.status}</td>

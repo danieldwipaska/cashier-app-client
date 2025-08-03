@@ -13,25 +13,24 @@ const CheckoutCard = () => {
 
   useQuery({
     queryKey: ['todayCheckoutPaidReports'],
-    queryFn: () => {
+    queryFn: async () => {
       setIsLoading(true);
       const { from, to } = getOperationalHours();
 
-      axios
-        .get(`${process.env.REACT_APP_API_BASE_URL}/reports?from=${from}&to=${to}&status=${ReportStatus.PAID}&type=${ReportType.CHECKOUT}`, {
+      try {
+        const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports?from=${from}&to=${to}&status=${ReportStatus.PAID}&type=${ReportType.CHECKOUT}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access-token')}`,
           },
-        })
-        .then((res) => {
-          setTotalCheckout(getTotalPayment(res.data.data));
-          setIsLoading(false);
-
-          return res.data.data;
-        })
-        .catch((err) => {
-          return console.log(err);
         });
+
+        setTotalCheckout(getTotalPayment(res.data.data));
+        setIsLoading(false);
+
+        return res.data.data;
+      } catch (err) {
+        return [];
+      }
     },
   });
 

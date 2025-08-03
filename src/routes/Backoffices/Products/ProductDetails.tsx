@@ -4,7 +4,7 @@ import Header from 'components/Backoffices/Header';
 import SectionHeader from 'components/Backoffices/SectionHeader';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 const ProductDetails = () => {
   // START HOOKS
@@ -34,7 +34,7 @@ const ProductDetails = () => {
 
   const Buttons = ({ productId }: { productId: string }): JSX.Element => {
     return (
-      <a href={`/backoffices/products/${productId}/set-modifier`} className="bg-green-300 py-2 px-3 rounded-lg">Set Modifier</a>
+      <Link to={`/backoffices/products/${productId}/set-modifier`} className="bg-green-300 py-2 px-3 rounded-lg">Set Modifier</Link>
     )
   }
 

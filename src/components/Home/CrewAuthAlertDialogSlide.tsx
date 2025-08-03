@@ -55,7 +55,7 @@ export default function CrewAuthAlertDialogSlide({
           <Button onClick={handleClose} color="inherit">
             Cancel
           </Button>
-          <Button onClick={handleConfirm} variant="contained" color="success">
+          <Button onClick={handleConfirm} variant="contained" color="success" disabled={isLoadingSubmitCrewCredential}>
             {isLoadingSubmitCrewCredential ? (
               <span className='flex gap-2 items-center'>
                 Loading

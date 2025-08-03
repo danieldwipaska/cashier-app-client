@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useMessages } from 'context/MessageContext';
 import { useQuery } from '@tanstack/react-query';
+import { CircularProgress } from '@mui/material';
 
 const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCardData, setOpenBackdrop }: { data: Card; openCheckoutModal: any; handleCloseCheckoutModal: any; refetchCardData: any; setOpenBackdrop: any }) => {
   // START HOOKS
@@ -18,6 +19,7 @@ const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCa
   const [note, setNote] = useState('');
   const [code, setCode] = useState('');
   const [error, setError] = useState<any>(null);
+  const [submitLoading, setSubmitLoading] = useState<boolean>(false);
 
   const handleChangePaymentMethod = (event: any) => {
     setPaymentMethod(event.target.value);
@@ -47,7 +49,7 @@ const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCa
           },
         });
 
-        return res.data.data.filter((method: any) => method.is_active); 
+        return res.data.data.filter((method: any) => method.is_active);
       } catch (err) {
         console.log(err);
         throw err;
@@ -63,6 +65,7 @@ const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCa
     };
 
     try {
+      setSubmitLoading(true);
       const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/cards/${data?.id}/checkout`, formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('access-token')}`,
@@ -87,6 +90,8 @@ const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCa
       } else {
         showMessage(ErrorMessage.UNEXPECTED_ERROR, 'error');
       }
+    } finally {
+      setSubmitLoading(false);
     }
   };
 
@@ -182,8 +187,15 @@ const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCa
               </label>
               <input type="password" className="border px-3 py-2" id="code" value={code} onChange={handleChangeCode} required />
             </div>
-            <button type="submit" className="mt-5 px-4 py-2 bg-green-500 hover:bg-green-600">
-              Submit
+            <button type="submit" className="mt-5 px-4 py-2 bg-green-500 hover:bg-green-600" disabled={submitLoading}>
+              {submitLoading ? (
+                <span className="flex gap-2 items-center">
+                  Loading
+                  <CircularProgress color="warning" size={15} />
+                </span>
+              ) : (
+                'Submit'
+              )}
             </button>
           </form>
         </ChildModal>

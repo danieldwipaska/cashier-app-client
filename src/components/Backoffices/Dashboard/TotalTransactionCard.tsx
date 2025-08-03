@@ -13,25 +13,24 @@ const TotalTransactionCard = () => {
 
   useQuery({
     queryKey: ['todayPaidReports'],
-    queryFn: () => {
+    queryFn: async () => {
       setIsLoading(true);
       const { from, to } = getOperationalHours();
 
-      axios
-        .get(`${process.env.REACT_APP_API_BASE_URL}/reports?from=${from}&to=${to}&status=${ReportStatus.PAID}&type=${ReportType.PAY}`, {
+      try {
+        const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports?from=${from}&to=${to}&status=${ReportStatus.PAID}&type=${ReportType.PAY}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access-token')}`,
           },
-        })
-        .then((res) => {
-          setTotalTransaction(res.data.data.length);
-          setIsLoading(false);
-
-          return res.data.data;
-        })
-        .catch((err) => {
-          return console.log(err);
         });
+
+        setTotalTransaction(res.data.data.length);
+        setIsLoading(false);
+
+        return res.data.data;
+      } catch (err) {
+        return [];
+      }
     },
   });
 

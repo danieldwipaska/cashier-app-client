@@ -13,26 +13,25 @@ const TopupCard = () => {
 
   useQuery({
     queryKey: ['todayTopupPaidReports'],
-    queryFn: () => {
+    queryFn: async () => {
       setIsLoading(true);
       const { from, to } = getOperationalHours();
 
-      axios
-        .get(`${process.env.REACT_APP_API_BASE_URL}/reports?from=${from}&to=${to}&status=${ReportStatus.PAID}&type=${ReportType.TOPUP}&type=${ReportType.TOPUP_AND_ACTIVATE}&type=${ReportType.ADJUSTMENT}`, {
+      try {
+        const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports?from=${from}&to=${to}&status=${ReportStatus.PAID}&type=${ReportType.TOPUP}&type=${ReportType.TOPUP_AND_ACTIVATE}&type=${ReportType.ADJUSTMENT}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access-token')}`,
           },
-        })
-        .then((res) => {
-          setTotalTopup(getTotalPayment(res.data.data));
-
-          setIsLoading(false);
-
-          return res.data.data;
-        })
-        .catch((err) => {
-          return console.log(err);
         });
+
+        setTotalTopup(getTotalPayment(res.data.data));
+
+        setIsLoading(false);
+
+        return res.data.data;
+      } catch (err) {
+        return [];
+      }
     },
   });
   return (

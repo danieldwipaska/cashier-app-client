@@ -7,6 +7,7 @@ import deleteIcon from '../../../assets/img/icons/icon-delete.svg';
 import editIcon from '../../../assets/img/icons/icon-edit.svg';
 import { useForm } from 'react-hook-form';
 import { useMessages } from 'context/MessageContext';
+import { Link } from 'react-router-dom';
 
 const Categories = () => {
   // START HOOKS
@@ -40,9 +41,9 @@ const Categories = () => {
       <Header title="CATEGORIES" />
       <section>
         <div className="mb-5">
-          <a href={'/backoffices/categories/add'} className="bg-green-300 py-3 px-5 rounded-lg">
+          <Link to='/backoffices/categories/add' className="bg-green-300 py-3 px-5 rounded-lg">
             Add
-          </a>
+          </Link>
         </div>
         <table className="w-full">
           <tr className="bg-green-200">
@@ -57,9 +58,9 @@ const Categories = () => {
                 <td className="py-3 px-2">{category.fnbs.length}</td>
                 <td className="py-3 px-2">
                   <div className="flex items-center gap-2">
-                    <a href={`/backoffices/categories/${category.id}/edit`}>
+                    <Link to={`/backoffices/categories/${category.id}/edit`}>
                       <img src={editIcon} alt="editIcon" width={20} />
-                    </a>
+                    </Link>
                     {!category.fnbs.length ? (
                       <form
                         onSubmit={handleSubmit(() => {

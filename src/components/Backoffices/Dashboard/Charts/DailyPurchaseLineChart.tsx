@@ -21,24 +21,24 @@ const DailyPurchaseLineChart = () => {
 
   useQuery({
     queryKey: ['monthlyPaidReports'],
-    queryFn: () => {
+    queryFn: async () => {
       setIsLoading(true);
       const { from, to } = getMonthlyOperationalHours();
 
-      axios
-        .get(`${process.env.REACT_APP_API_BASE_URL}/reports?from=${from}&to=${to}&status=${ReportStatus.PAID}&type=${ReportType.PAY}&pagination=false`, {
+      try {
+        const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports?from=${from}&to=${to}&status=${ReportStatus.PAID}&type=${ReportType.PAY}&pagination=false`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access-token')}`,
           },
-        })
-        .then((res) => {
-          setReports(res.data.data);
-          setIsLoading(false);
-          return res.data.data;
-        })
-        .catch((err) => {
-          return console.log(err);
         });
+
+        setReports(res.data.data);
+        setIsLoading(false);
+
+        return res.data.data;
+      } catch (err) {
+        return [];
+      }
     },
   });
 

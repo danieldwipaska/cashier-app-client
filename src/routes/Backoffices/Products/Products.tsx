@@ -7,6 +7,7 @@ import editIcon from '../../../assets/img/icons/icon-edit.svg';
 import { useEffect, useState } from 'react';
 import Pagination from 'components/Pagination';
 import { useMessages } from 'context/MessageContext';
+import { Link } from 'react-router-dom';
 
 const Products = () => {
   // START CONTEXTS
@@ -75,9 +76,9 @@ const Products = () => {
       <Header title="PRODUCTS" />
       <section>
         <div className="mb-5">
-          <a href={'/backoffices/products/add'} className="bg-green-300 py-3 px-5 rounded-lg">
+          <Link to='/backoffices/products/add' className="bg-green-300 py-3 px-5 rounded-lg">
             Add
-          </a>
+          </Link>
         </div>
         <table className="w-full">
           <tr className="bg-green-200">
@@ -94,9 +95,9 @@ const Products = () => {
             return (
               <tr key={product.id} className="border-b-2 hover:bg-gray-100 duration-200">
                 <td className="py-3 px-2">
-                  <a href={`/backoffices/products/${product.id}`} className="font-semibold hover:opacity-70 duration-100">
+                  <Link to={`/backoffices/products/${product.id}`}  className="font-semibold hover:opacity-70 duration-100">
                     {product.name}
-                  </a>
+                  </Link>
                 </td>
                 <td className="py-3 px-2">{product.is_active ? 'active' : 'inactive'}</td>
                 <td className="py-3 px-2">
@@ -118,9 +119,9 @@ const Products = () => {
                 <td className="py-3 px-2">{product.discount_percent ? Intl.NumberFormat('id-ID').format(product.discount_percent) : '-'}</td>
                 <td className="py-3 px-2">
                   <div className="flex items-center gap-2 justify-center">
-                    <a href={`/backoffices/products/${product.id}/edit`} className="">
+                    <Link to={`/backoffices/products/${product.id}/edit`} className="">
                       <img src={editIcon} alt="editIcon" width={20} />
-                    </a>
+                    </Link>
                   </div>
                 </td>
               </tr>

@@ -7,6 +7,7 @@ import deleteIcon from '../../../assets/img/icons/icon-delete.svg';
 import editIcon from '../../../assets/img/icons/icon-edit.svg';
 import { useForm } from 'react-hook-form';
 import { useMessages } from 'context/MessageContext';
+import { Link } from 'react-router-dom';
 
 const PaymentMethods = () => {
   // START HOOKS
@@ -40,9 +41,9 @@ const PaymentMethods = () => {
       <Header title="PAYMENT METHODS" />
       <section>
         <div className="mb-5">
-          <a href={'/backoffices/payment-methods/add'} className="bg-green-300 py-3 px-5 rounded-lg">
+          <Link to={`/backoffices/payment-methods/add`} className="bg-green-300 py-3 px-5 rounded-lg">
             Add
-          </a>
+          </Link>
         </div>
         <table className="w-2/4">
           <tr className="bg-green-200">
@@ -57,9 +58,9 @@ const PaymentMethods = () => {
                 <td className="py-3 px-2">{method.is_active ? 'active' : 'inactive'}</td>
                 <td className="py-3 px-2">
                   <div className="flex items-center gap-2">
-                    <a href={`/backoffices/payment-methods/${method.id}/edit`}>
+                    <Link to={`/backoffices/payment-methods/${method.id}/edit`}>
                       <img src={editIcon} alt="editIcon" width={20} />
-                    </a>
+                    </Link>
                     <form
                       onSubmit={handleSubmit(() => {
                         axios

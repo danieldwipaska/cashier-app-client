@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import formatNumber from 'functions/format.number';
 import { useMessages } from 'context/MessageContext';
 import { useQuery } from '@tanstack/react-query';
+import { CircularProgress } from '@mui/material';
 
 const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, setOpenBackdrop }: { data: Card; openTopupModal: any; handleCloseTopupModal: any; refetchCardData: any; setOpenBackdrop: any }) => {
   const { showMessage } = useMessages();
@@ -21,6 +22,7 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
   const [note, setNote] = useState('');
   const [code, setCode] = useState('');
   const [error, setError] = useState<any>(null);
+  const [submitLoading, setSubmitLoading] = useState<boolean>(false);
 
   const handleChangeCustomerName = (event: any) => {
     setCustomerName(event.target.value);
@@ -97,6 +99,8 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
       };
 
       try {
+        setSubmitLoading(true);
+
         const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/cards/${data?.id}/topup`, formData, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access-token')}`,
@@ -121,6 +125,8 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
         } else {
           showMessage(ErrorMessage.UNEXPECTED_ERROR, 'error');
         }
+      } finally {
+        setSubmitLoading(false);
       }
     } else if (data.status === CardStatus.INACTIVE) {
       const formData = {
@@ -133,6 +139,8 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
       };
 
       try {
+        setSubmitLoading(true);
+
         const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/cards/${data?.id}/topup/activate`, formData, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access-token')}`,
@@ -142,7 +150,7 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
         handleCloseTopupModal();
         refetchCardData(response.data.data.card_number);
         resetTopupData();
-        
+
         setOpenBackdrop(true);
         setTimeout(() => {
           setOpenBackdrop(false);
@@ -150,6 +158,8 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
       } catch (error) {
         console.log(error);
         showMessage(ErrorMessage.INTERNAL_SERVER_ERROR, 'error');
+      } finally {
+        setSubmitLoading(false);
       }
     }
   };
@@ -204,7 +214,11 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
             <select value={paymentMethod} onChange={handleChangePaymentMethod} id="paymentMethod" className="border px-3 py-2" required>
               <option value="">------</option>
               {methods?.map((method: any) => {
-                return <option key={method.id} value={method.id}>{method.name}</option>;
+                return (
+                  <option key={method.id} value={method.id}>
+                    {method.name}
+                  </option>
+                );
               })}
             </select>
             <div></div>
@@ -261,8 +275,15 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
               </label>
               <input type="password" className="border px-3 py-2" id="code" value={code} onChange={handleChangeCode} required />
             </div>
-            <button type="submit" className="mt-5 px-4 py-2 bg-green-500 hover:bg-green-600">
-              Submit
+            <button type="submit" className="mt-5 px-4 py-2 bg-green-500 hover:bg-green-600" disabled={submitLoading}>
+              {submitLoading ? (
+                <span className="flex gap-2 items-center">
+                  Loading
+                  <CircularProgress color="warning" size={15} />
+                </span>
+              ) : (
+                'Submit'
+              )}
             </button>
           </form>
         </ChildModal>

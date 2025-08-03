@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import formatNumber from 'functions/format.number';
 import { useMessages } from 'context/MessageContext';
+import { CircularProgress } from '@mui/material';
 
 const Adjust = ({ data, openAdjustModal, handleCloseAdjustModal, refetchCardData, setOpenBackdrop }: { data: Card; openAdjustModal: any; handleCloseAdjustModal: any; refetchCardData: any; setOpenBackdrop: any }) => {
   // START HOOKS
@@ -17,6 +18,7 @@ const Adjust = ({ data, openAdjustModal, handleCloseAdjustModal, refetchCardData
   const [note, setNote] = useState('');
   const [code, setCode] = useState('');
   const [error, setError] = useState<any>(null);
+  const [submitLoading, setSubmitLoading] = useState<boolean>(false);
 
   const handleChangeAdjustedBalance = (event: any) => {
     const input = event.target.value;
@@ -40,6 +42,7 @@ const Adjust = ({ data, openAdjustModal, handleCloseAdjustModal, refetchCardData
     };
 
     try {
+      setSubmitLoading(true);
       const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/cards/${data?.id}/adjust`, formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('access-token')}`,
@@ -65,6 +68,8 @@ const Adjust = ({ data, openAdjustModal, handleCloseAdjustModal, refetchCardData
         showMessage(ErrorMessage.UNEXPECTED_ERROR, 'error');
         console.error(error);
       }
+    } finally {
+      setSubmitLoading(false);
     }
   };
 
@@ -137,8 +142,15 @@ const Adjust = ({ data, openAdjustModal, handleCloseAdjustModal, refetchCardData
               </label>
               <input type="password" className="border px-3 py-2" id="code" value={code} onChange={handleChangeCode} required />
             </div>
-            <button type="submit" className="mt-5 px-4 py-2 bg-green-500 hover:bg-green-600">
-              Submit
+            <button type="submit" className="mt-5 px-4 py-2 bg-green-500 hover:bg-green-600" disabled={submitLoading}>
+              {submitLoading ? (
+                <span className="flex gap-2 items-center">
+                  Loading
+                  <CircularProgress color="warning" size={15} />
+                </span>
+              ) : (
+                'Submit'
+              )}
             </button>
           </form>
         </ChildModal>

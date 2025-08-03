@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { MODIFIERS_QUERY_KEY } from 'configs/utils';
 import editIcon from '../../../assets/img/icons/icon-edit.svg';
+import { Link } from 'react-router-dom';
 
 const Modifiers = () => {
   // START QUERIES
@@ -32,9 +33,9 @@ const Modifiers = () => {
       <Header title="MODIFIERS" />
       <section>
         <div className="mb-5">
-          <a href={'/backoffices/modifiers/add'} className="bg-green-300 py-3 px-5 rounded-lg">
+          <Link to='/backoffices/modifiers/add' className="bg-green-300 py-3 px-5 rounded-lg">
             Add
-          </a>
+          </Link>
         </div>
         <table className="w-full">
           <tr className="bg-green-300">
@@ -51,9 +52,9 @@ const Modifiers = () => {
                 <td className="py-3 px-2">{modifier.is_active ? 'Active' : 'Inactive'}</td>
                 <td className="py-3 px-2">
                   <div className="flex items-center gap-2">
-                    <a href={`/backoffices/modifiers/${modifier.id}/edit`}>
+                    <Link to={`/backoffices/modifiers/${modifier.id}/edit`}>
                       <img src={editIcon} alt="editIcon" width={20} />
-                    </a>
+                    </Link>
                   </div>
                 </td>
               </tr>

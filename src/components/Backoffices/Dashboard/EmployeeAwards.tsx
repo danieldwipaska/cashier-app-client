@@ -5,6 +5,7 @@ import { ReportStatus, ReportType } from 'configs/utils';
 import { getCrewTotalPurchases } from 'functions/crew.report';
 import { getOperationalHours } from 'functions/operational.report';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const EmployeeAwards = () => {
   const [crewDailyPurchases, setCrewDailyPurchases] = useState(0);
@@ -81,9 +82,9 @@ const EmployeeAwards = () => {
     <div className="border border-gray-200 shadow-sm">
       <div className="border-b border-gray-200 p-3 bg-green-300 flex justify-between items-center">
         <h3 className="text-lg font-semibold">Daily Top Employees</h3>
-        <a href="/backoffices/settings" className='bg-gray-200 py-3 px-5 rounded-lg text-black font-bold duration-200 hover:bg-gray-300'>
+        <Link to='/backoffices/settings' className='bg-gray-200 py-3 px-5 rounded-lg text-black font-bold duration-200 hover:bg-gray-300'>
           Set Categories
-        </a>
+        </Link>
       </div>
       <div className="overflow-y-auto h-40">
         {isLoading ? <div className="text-center text-gray-400 pt-7">
