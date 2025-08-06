@@ -58,7 +58,6 @@ const Adjust = ({ data, openAdjustModal, handleCloseAdjustModal, refetchCardData
         setOpenBackdrop(false);
       }, 3000);
     } catch (error) {
-      console.log(error);
       if (axios.isAxiosError(error)) {
         if (error?.response?.data?.statusCode === 404) showMessage(ErrorMessage.CARD_NOT_FOUND, 'error');
         if (error?.response?.data?.statusCode === 500) showMessage(ErrorMessage.INTERNAL_SERVER_ERROR, 'error');

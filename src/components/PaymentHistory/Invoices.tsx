@@ -1,8 +1,11 @@
-import { ReportType } from 'configs/utils';
+import { ErrorMessage, ReportType } from 'configs/utils';
 import { ReactComponent as PrintIcon } from '../../assets/img/icons/print.svg';
 import axios from 'axios';
+import { useMessages } from 'context/MessageContext';
 
 const Invoices = ({ selectedPaymentData }: any) => {
+  const { showMessage } = useMessages();
+
   const handlePrintReceipt = async () => {
     try {
       await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports/${selectedPaymentData.id}/print`, {
@@ -10,8 +13,10 @@ const Invoices = ({ selectedPaymentData }: any) => {
           Authorization: `Bearer ${localStorage.getItem('access-token')}`,
         },
       });
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      if (error?.response?.data?.statusCode === 500) return showMessage(ErrorMessage.INTERNAL_SERVER_ERROR, 'error');
+      if (error?.response?.data?.statusCode === 400) return showMessage(ErrorMessage.BAD_REQUEST, 'error');
+      return showMessage(ErrorMessage.UNEXPECTED_ERROR, 'error');
     }
   };
 
@@ -22,8 +27,10 @@ const Invoices = ({ selectedPaymentData }: any) => {
           Authorization: `Bearer ${localStorage.getItem('access-token')}`,
         },
       });
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      if (error?.response?.data?.statusCode === 500) return showMessage(ErrorMessage.INTERNAL_SERVER_ERROR, 'error');
+      if (error?.response?.data?.statusCode === 400) return showMessage(ErrorMessage.BAD_REQUEST, 'error');
+      return showMessage(ErrorMessage.UNEXPECTED_ERROR, 'error');
     }
   };
 
