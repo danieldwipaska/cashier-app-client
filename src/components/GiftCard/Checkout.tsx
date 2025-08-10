@@ -8,7 +8,23 @@ import { useMessages } from 'context/MessageContext';
 import { useQuery } from '@tanstack/react-query';
 import { CircularProgress } from '@mui/material';
 
-const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCardData, setOpenBackdrop }: { data: Card; openCheckoutModal: any; handleCloseCheckoutModal: any; refetchCardData: any; setOpenBackdrop: any }) => {
+const Checkout = ({
+  data,
+  openCheckoutModal,
+  handleCloseCheckoutModal,
+  refetchCardData,
+  setOpenBackdrop,
+  setReceiptModal,
+  setPaymentData,
+}: {
+  data: Card;
+  openCheckoutModal: any;
+  handleCloseCheckoutModal: any;
+  refetchCardData: any;
+  setOpenBackdrop: any;
+  setReceiptModal: any;
+  setPaymentData: any;
+}) => {
   // START HOOKS
   const { showMessage } = useMessages();
   // END HOOKS
@@ -72,6 +88,8 @@ const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCa
         },
       });
 
+      setPaymentData(response.data.data);
+
       handleCloseCheckoutModal();
       refetchCardData(response.data.data.card_number);
       resetCheckoutData();
@@ -79,6 +97,7 @@ const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCa
       setOpenBackdrop(true);
       setTimeout(() => {
         setOpenBackdrop(false);
+        setReceiptModal(true);
       }, 3000);
     } catch (error) {
       console.log(error);

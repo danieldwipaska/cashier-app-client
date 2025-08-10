@@ -19,7 +19,7 @@ import ItemNote from './ItemNote';
 import SetCustomerName from './SetCustomerName';
 import SetNote from './SetNote';
 
-const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
+const Cart = ({ states, crewData, unpaidReports, receiptData }: ICartProps) => {
   const order = useSelector((state: any) => state.order.order);
   const dispatch = useDispatch();
 
@@ -374,23 +374,23 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
                   </div>
                   <div className="flex items-center">
                     <button
-                      className=" bg-green-500 hover:opacity-70 duration-500 p-2 rounded-md"
+                      className=" bg-green-500 hover:opacity-70 duration-300 p-2 rounded-md active:scale-75"
                       onClick={() => {
                         decreaseAmount(item.fnb_id);
                       }}
                     >
-                      <MinusIcon className="w-[9px]" />
+                      <MinusIcon className="w-[20px]" />
                     </button>
                     <div className="mx-1">
-                      <input type="text" className="text-xs text-center text-black/60 py-1 px-2 rounded-md border border-black/25 max-w-8" readOnly value={item.amount} />
+                      <input type="text" className="text-base text-center text-black/60 py-1 px-3 rounded-md border border-black/25 max-w-10" readOnly value={item.amount} />
                     </div>
                     <button
-                      className=" bg-green-500 hover:opacity-70 duration-500 p-2 rounded-md"
+                      className=" bg-green-500 hover:opacity-70 duration-300 p-2 rounded-md active:scale-75"
                       onClick={() => {
                         increaseAmount(item.fnb_id);
                       }}
                     >
-                      <PlusIcon className="w-[9px]" />
+                      <PlusIcon className="w-[20px]" />
                     </button>
                   </div>
                 </div>

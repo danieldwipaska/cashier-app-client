@@ -23,4 +23,11 @@ export default interface ICartProps {
     reports: any[];
     reportsRefetch: () => void;
   };
+
+  receiptData: {
+    openReceiptModal: boolean;
+    setReceiptModal: React.Dispatch<React.SetStateAction<boolean>>;
+    paymentData: any;
+    setPaymentData: React.Dispatch<React.SetStateAction<any>>;
+  };
 }

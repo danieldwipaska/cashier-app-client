@@ -9,15 +9,21 @@ import Topup from 'components/GiftCard/Topup';
 import { useState } from 'react';
 import Adjust from 'components/GiftCard/Adjust';
 import Checkout from 'components/GiftCard/Checkout';
-import { CardStatus, ReportType } from 'configs/utils';
+import { CardStatus, ReportStatus, ReportType } from 'configs/utils';
 import { Backdrop } from '@mui/material';
 import { CheckCircle } from '@mui/icons-material';
+import { NestedModal } from 'components/modals/Modal';
+import Invoices from 'components/PaymentHistory/Invoices';
 
 const CardDetails = ({ cardData, setCardData, refetchCardData, customerReports }: { cardData: Card; setCardData: any; refetchCardData: any; customerReports: any }) => {
   const [openTopupModal, setOpenTopupModal] = useState(false);
   const [openAdjustModal, setOpenAdjustModal] = useState(false);
   const [openCheckoutModal, setOpenCheckoutModal] = useState(false);
   const [openBackdrop, setOpenBackdrop] = useState(false);
+
+  // Receipt
+  const [openReceiptModal, setReceiptModal] = useState(false);
+  const [paymentData, setPaymentData] = useState<any>(null);
 
   const handleOpenTopupModal = () => {
     setOpenTopupModal(true);
@@ -37,6 +43,10 @@ const CardDetails = ({ cardData, setCardData, refetchCardData, customerReports }
   const handleCloseCheckoutModal = () => {
     setOpenCheckoutModal(false);
   };
+  const handleCloseDetailModal = () => {
+    setReceiptModal(false);
+    setPaymentData(null);
+  };
 
   return (
     <div className="w-full bg-white h-full p-10 grid grid-cols-2 gap-4">
@@ -47,7 +57,7 @@ const CardDetails = ({ cardData, setCardData, refetchCardData, customerReports }
           </div>
           <div className="flex gap-8 mb-4">
             <div>
-              <AccountIcon className='w-20 text-gray-500' />
+              <AccountIcon className="w-20 text-gray-500" />
             </div>
             <div className="flex flex-col gap-1">
               <h1 className="text-3xl text-gray-600">Rp. {Intl.NumberFormat('id-ID').format(cardData?.balance)},-</h1>
@@ -58,27 +68,27 @@ const CardDetails = ({ cardData, setCardData, refetchCardData, customerReports }
               <>
                 <button className="px-4 py-1 rounded-full flex items-center justify-center gap-1 hover:scale-105 bg-green-400 duration-200" onClick={handleOpenTopupModal}>
                   <span>Top-up</span>
-                  <ArrowUpRightIcon className='w-[15px]' />
+                  <ArrowUpRightIcon className="w-[15px]" />
                 </button>
                 <button className="px-4 py-1 rounded-full flex items-center justify-center gap-1 hover:scale-105 hover:bg-gray-400 border border-gray-400 duration-200" onClick={handleOpenAdjustModal}>
                   <span>Adjust</span>
-                  <ArrowRightLeftIcon className='w-[15px]' />
+                  <ArrowRightLeftIcon className="w-[15px]" />
                 </button>
                 <button className="px-4 py-1 rounded-full flex items-center justify-center gap-1 hover:scale-105 bg-red-200 duration-200" onClick={handleOpenCheckoutModal}>
                   <span>Checkout</span>
-                  <CheckoutIcon className='w-[15px]' />
+                  <CheckoutIcon className="w-[15px]" />
                 </button>
               </>
             ) : (
               <button className="px-4 py-1 rounded-full flex items-center justify-center gap-1 hover:scale-105 bg-green-200 hover:bg-green-400 duration-200" onClick={handleOpenTopupModal}>
                 <span>Activate</span>
-                <AccountPlusIcon className='w-[20px]' />
+                <AccountPlusIcon className="w-[20px]" />
               </button>
             )}
           </div>
-          <Topup data={cardData} openTopupModal={openTopupModal} handleCloseTopupModal={handleCloseTopupModal} refetchCardData={refetchCardData} setOpenBackdrop={setOpenBackdrop} />
+          <Topup data={cardData} openTopupModal={openTopupModal} handleCloseTopupModal={handleCloseTopupModal} refetchCardData={refetchCardData} setOpenBackdrop={setOpenBackdrop} setPaymentData={setPaymentData} setReceiptModal={setReceiptModal} />
           <Adjust data={cardData} openAdjustModal={openAdjustModal} handleCloseAdjustModal={handleCloseAdjustModal} refetchCardData={refetchCardData} setOpenBackdrop={setOpenBackdrop} />
-          <Checkout data={cardData} openCheckoutModal={openCheckoutModal} handleCloseCheckoutModal={handleCloseCheckoutModal} refetchCardData={refetchCardData} setOpenBackdrop={setOpenBackdrop} />
+          <Checkout data={cardData} openCheckoutModal={openCheckoutModal} handleCloseCheckoutModal={handleCloseCheckoutModal} refetchCardData={refetchCardData} setOpenBackdrop={setOpenBackdrop} setPaymentData={setPaymentData} setReceiptModal={setReceiptModal} />
           <table className="mb-10">
             <tbody>
               <tr>
@@ -124,11 +134,11 @@ const CardDetails = ({ cardData, setCardData, refetchCardData, customerReports }
               return (
                 <div key={report.id} className="transaction p-3 w-full flex items-center gap-4 border-b-2">
                   <div className="transaction-image">
-                    {report.type === ReportType.TOPUP && <ArrowUpRightIcon className='w-[40px] text-green-600' />}
-                    {report.type === ReportType.ADJUSTMENT && <ArrowRightLeftIcon className='w-[40px] text-gray-600' />}
-                    {report.type === ReportType.CHECKOUT && <CheckoutIcon className='w-[40px] text-red-600' />}
-                    {report.type === ReportType.PAY && <CartIcon className='w-[40px] text-[#fced77]' />}
-                    {report.type === ReportType.TOPUP_AND_ACTIVATE && <AccountPlusIcon className='w-[40px] text-green-600' />}
+                    {report.type === ReportType.TOPUP && <ArrowUpRightIcon className="w-[40px] text-green-600" />}
+                    {report.type === ReportType.ADJUSTMENT && <ArrowRightLeftIcon className="w-[40px] text-gray-600" />}
+                    {report.type === ReportType.CHECKOUT && <CheckoutIcon className="w-[40px] text-red-600" />}
+                    {report.type === ReportType.PAY && <CartIcon className="w-[40px] text-[#fced77]" />}
+                    {report.type === ReportType.TOPUP_AND_ACTIVATE && <AccountPlusIcon className="w-[40px] text-green-600" />}
                   </div>
                   <div className="transaction-content w-full">
                     <div className="flex justify-between">
@@ -149,6 +159,89 @@ const CardDetails = ({ cardData, setCardData, refetchCardData, customerReports }
             })}
         </div>
       </div>
+
+      <NestedModal open={openReceiptModal} handleClose={handleCloseDetailModal} divClass={`overflow-y-auto max-h-screen`}>
+              <div className=" relative">
+                <div className="flex flex-col items-center">
+                  <h1 className="text-3xl font-bold mt-5">Bahari Irish Pub</h1>
+                  <p>Jl. Kawi No.8A, Kota Malang</p>
+                  <p>Indonesia, 65119</p>
+                  <div className="my-3 w-full border border-b-black border-dashed"></div>
+                  <p>{paymentData?.report_id}</p>
+                  <div className="my-3 w-full border border-b-black border-dashed"></div>
+                </div>
+                <div className="flex justify-between">
+                  <p>{new Date(paymentData?.updated_at).toLocaleDateString()}</p>
+                  <p>{new Date(paymentData?.updated_at).toLocaleTimeString()}</p>
+                </div>
+                <div className="flex justify-between">
+                  <p>Served by</p>
+                  <p>{paymentData?.crew?.name}</p>
+                </div>
+                <div className="flex justify-between">
+                  <p>Customer Name</p>
+                  <p>{paymentData?.customer_name}</p>
+                </div>
+                <div className="my-3 w-full border border-b-black border-dashed"></div>
+                <div>
+                  {paymentData?.type !== ReportType.PAY ? (
+                    <div className="flex justify-between">
+                      <div>{paymentData?.type}</div>
+                      <div>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(paymentData?.total_payment_after_tax_service)}</div>
+                    </div>
+                  ) : null}
+      
+                  <div className="my-3 w-full border border-b-black border-dashed"></div>
+      
+                  {paymentData?.type !== ReportType.PAY ? null : (
+                    <div className=" mb-1">
+                      <div className="flex justify-between">
+                        <div>Subtotal</div>
+                        <div>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(paymentData?.total_payment)}</div>
+                      </div>
+                      <div className="flex justify-between">
+                        <div>Service {paymentData?.included_tax_service ? '- included' : ''}</div>
+                        <div></div>
+                      </div>
+                      <div className="flex justify-between">
+                        <div>Tax (PB1) {paymentData?.included_tax_service ? '- included' : ''}</div>
+                        <div></div>
+                      </div>
+                    </div>
+                  )}
+      
+                  <div className=" font-bold mt-3">
+                    <div className="flex justify-between">
+                      <div>
+                        <div>Total</div>
+                      </div>
+                      <div>
+                        <div>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(paymentData?.total_payment_after_tax_service)}</div>
+                      </div>
+                    </div>
+                  </div>
+      
+                  <div className="my-3 w-full border border-b-black border-dashed"></div>
+      
+                  <div>
+                    <div>Note:</div>
+                    <div>{paymentData ? paymentData.note : null}</div>
+                  </div>
+                </div>
+                <div className="flex justify-end">
+                  <Invoices selectedPaymentData={paymentData} />
+                </div>
+      
+                {paymentData?.status === ReportStatus.PAID ? (
+                  <div className="absolute top-4 right-0">
+                    <CheckCircle sx={{ fontSize: 40 }} color="success" />
+                  </div>
+                ) : (
+                  <div className="absolute top-2 right-0 p-2 font-semibold text-sm text-red-500">{paymentData?.status}</div>
+                )}
+              </div>
+            </NestedModal>
+
       <Backdrop sx={{ color: '#fff', bgcolor: 'rgb(59,164,112,0.7)', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={openBackdrop} transitionDuration={300}>
         <CheckCircle color="inherit" fontSize="large" />
       </Backdrop>

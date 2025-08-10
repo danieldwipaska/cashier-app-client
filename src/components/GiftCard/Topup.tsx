@@ -9,7 +9,24 @@ import { useMessages } from 'context/MessageContext';
 import { useQuery } from '@tanstack/react-query';
 import { CircularProgress } from '@mui/material';
 
-const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, setOpenBackdrop }: { data: Card; openTopupModal: any; handleCloseTopupModal: any; refetchCardData: any; setOpenBackdrop: any }) => {
+const Topup = ({
+  data,
+  openTopupModal,
+  handleCloseTopupModal,
+  refetchCardData,
+  setOpenBackdrop,
+  setReceiptModal,
+  setPaymentData,
+}: {
+  data: Card;
+  openTopupModal: any;
+  handleCloseTopupModal: any;
+  refetchCardData: any;
+  setOpenBackdrop: any;
+  setReceiptModal: any;
+  setPaymentData: any;
+
+}) => {
   const { showMessage } = useMessages();
 
   const { handleSubmit } = useForm();
@@ -107,6 +124,8 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
           },
         });
 
+        setPaymentData(response.data.data);
+
         handleCloseTopupModal();
         refetchCardData(response.data.data.card_number);
         resetTopupData();
@@ -114,6 +133,7 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
         setOpenBackdrop(true);
         setTimeout(() => {
           setOpenBackdrop(false);
+          setReceiptModal(true);
         }, 3000);
       } catch (error: any) {
         console.log(error);
@@ -147,6 +167,8 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
           },
         });
 
+        setPaymentData(response.data.data);
+
         handleCloseTopupModal();
         refetchCardData(response.data.data.card_number);
         resetTopupData();
@@ -154,6 +176,7 @@ const Topup = ({ data, openTopupModal, handleCloseTopupModal, refetchCardData, s
         setOpenBackdrop(true);
         setTimeout(() => {
           setOpenBackdrop(false);
+          setReceiptModal(true);
         }, 3000);
       } catch (error) {
         console.log(error);

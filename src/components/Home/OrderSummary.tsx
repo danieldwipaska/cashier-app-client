@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useQuery } from '@tanstack/react-query';
 import { clearOrder } from 'context/slices/orderSlice';
 
-const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
+const OrderSummary = ({ states, crewData, unpaidReports, receiptData }: ICartProps) => {
   const order = useSelector((state: any) => state.order.order);
   const dispatch = useDispatch();
 
@@ -25,6 +25,7 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
     setIsLoadingSubmitCrewCredential,
   } = crewData;
   const { reportsRefetch } = unpaidReports;
+  const { setReceiptModal, setPaymentData } = receiptData;
 
   const handleClickOpenCrewAuthAlertDialog = () => {
     setOpenCrewAuthAlertDialog(true);
@@ -94,11 +95,13 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
         };
 
         try {
-          await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/cards/${order.card_id}/pay`, payload, {
+          const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/cards/${order.card_id}/pay`, payload, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('access-token')}`,
             },
           });
+
+          setPaymentData(response.data.data);
 
           setCrewCredential('');
           setErrorCrewCredential(false);
@@ -114,6 +117,7 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
 
           setTimeout(() => {
             setOpenBackdrop(false);
+            setReceiptModal(true);
           }, 3000);
         } catch (error) {
           console.log(error);
@@ -132,11 +136,13 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
         };
 
         try {
-          await axios.post(`${process.env.REACT_APP_API_BASE_URL}/reports`, payload, {
+          const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/reports`, payload, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('access-token')}`,
             },
           });
+
+          setPaymentData(response.data.data);
 
           setCrewCredential('');
           setErrorCrewCredential(false);
@@ -152,6 +158,7 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
 
           setTimeout(() => {
             setOpenBackdrop(false);
+            setReceiptModal(true);
           }, 3000);
         } catch (error) {
           console.log(error);
@@ -217,11 +224,13 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
         };
 
         try {
-          await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/reports/${order.id}`, payload, {
+          const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/reports/${order.id}`, payload, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('access-token')}`,
             },
           });
+
+          setPaymentData(response.data.data);
 
           setCrewCredential('');
           setErrorCrewCredential(false);
@@ -238,6 +247,7 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
           setTimeout(() => {
             setOpenBackdrop(false);
             reportsRefetch();
+            setReceiptModal(true);
           }, 3000);
         } catch (error) {
           console.log(error);
