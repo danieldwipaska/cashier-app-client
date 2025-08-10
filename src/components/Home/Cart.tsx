@@ -3,6 +3,8 @@ import { ReactComponent as NewCartIcon } from '../../assets/img/icons/new-cart.s
 import { ReactComponent as MinusIcon } from '../../assets/img/icons/minus.svg';
 import { ReactComponent as PlusIcon } from '../../assets/img/icons/plus.svg';
 import { ReactComponent as SaveIcon } from '../../assets/img/icons/save.svg';
+import { ReactComponent as AddIcon } from '../../assets/img/icons/additional-plus.svg';
+import { ReactComponent as NoteIcon } from '../../assets/img/icons/notes.svg';
 import { Alert, CircularProgress, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, TextField } from '@mui/material';
 import axios from 'axios';
 import CrewAuthAlertDialogSlide from './CrewAuthAlertDialogSlide';
@@ -12,14 +14,29 @@ import ICartProps from 'interfaces/CartProps';
 import { useQuery } from '@tanstack/react-query';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearOrder, decreaseItemAmount, increaseItemAmount, Order, setOrder, updateOrder } from 'context/slices/orderSlice';
+import SetModifier from './SetModifier';
+import ItemNote from './ItemNote';
+import SetCustomerName from './SetCustomerName';
+import SetNote from './SetNote';
 
-const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
+const Cart = ({ states, crewData, unpaidReports, receiptData }: ICartProps) => {
   const order = useSelector((state: any) => state.order.order);
   const dispatch = useDispatch();
 
   // START STATES
   const { setOpenSummary } = states;
-  const { crewCredential, setCrewCredential, openCrewAuthAlertDialog, setOpenCrewAuthAlertDialog, errorCrewCredential, setErrorCrewCredential, errorUnauthorizedCrew, setErrorUnauthorizedCrew } = crewData;
+  const {
+    crewCredential,
+    setCrewCredential,
+    openCrewAuthAlertDialog,
+    setOpenCrewAuthAlertDialog,
+    errorCrewCredential,
+    setErrorCrewCredential,
+    errorUnauthorizedCrew,
+    setErrorUnauthorizedCrew,
+    isLoadingSubmitCrewCredential,
+    setIsLoadingSubmitCrewCredential,
+  } = crewData;
   const { reports, reportsRefetch } = unpaidReports;
 
   const [customerNameIsEmpty, setCustomerNameIsEmpty] = useState(false);
@@ -27,12 +44,21 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
   const [cardNumberIsEmpty, setCardNumberIsEmpty] = useState(false);
   const [orderIsEmpty, setOrderIsEmpty] = useState(false);
 
+  const [cardNumber, setCardNumber] = useState('');
+
   const [openConfirmProgressSpinner, setOpenConfirmProgressSpinner] = useState(false);
   const [openSaveProgressSpinner, setOpenSaveProgressSpinner] = useState(false);
 
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
 
+  const [openModifierModal, setOpenModifierModal] = useState(false);
+  const [openNoteModal, setOpenNoteModal] = useState(false);
+  const [openOrderCustomerNameModal, setOpenOrderCustomerNameModal] = useState(false);
+  const [openOrderNoteModal, setOpenOrderNoteModal] = useState(false);
+  const [modifiers, setModifiers] = useState<any>(null);
+  const [note, setNote] = useState('');
+  const [selectedFnbId, setSelectedFnbId] = useState<any>(null);
   // END STATES
 
   // START QUERY
@@ -45,7 +71,7 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
             Authorization: `Bearer ${localStorage.getItem('access-token')}`,
           },
         });
-        return res.data.data;
+        return res.data.data.filter((method: any) => method.is_active);
       } catch (err) {
         return console.log(err);
       }
@@ -76,10 +102,23 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
 
       const items = res.data.data.Item.map((item: any) => {
         return {
-          ...item,
+          id: item.id,
           fnb_name: item.fnb.name,
           fnb_category: item.fnb.category,
-        }
+          fnb_id: item.fnb.id,
+          amount: item.amount,
+          price: item.price,
+          discount_percent: item.discount_percent,
+          modifiers: item.ModifierItem.map((modifierItem: any) => {
+            return {
+              id: modifierItem.modifier.id,
+              code: modifierItem.modifier.code,
+              name: modifierItem.modifier.name,
+              checked: true,
+            };
+          }),
+          note: item.ModifierItem.note,
+        };
       });
 
       const order: Order = {
@@ -110,7 +149,28 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
 
   const handleCardNumberChange = (event: any) => {
     setCardNumberIsEmpty(false);
-    dispatch(updateOrder({ card_number: event.target.value}));
+    setCardNumber(event.target.value);
+  };
+
+  const fetchModifierOption = async (fnbId: string) => {
+    try {
+      const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/fnbs/${fnbId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+        },
+      });
+
+      const result = res.data.data.FnbModifier.filter((fnbModifier: any) => fnbModifier.modifier.is_active).map((fnbModifier: any) => {
+        return {
+          ...fnbModifier.modifier,
+          checked: false,
+        };
+      });
+
+      setModifiers([...result]);
+    } catch (err) {
+      return console.log(err);
+    }
   };
 
   const increaseAmount = (id: string) => {
@@ -125,17 +185,8 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
     }
   };
 
-  const handleCustomerNameChange = (event: any) => {
-    setCustomerNameIsEmpty(false);
-    dispatch(updateOrder({ customer_name: event.target.value }));
-  };
-
   const handlePaymentMethodChange = (event: SelectChangeEvent) => {
     dispatch(updateOrder({ method_id: event.target.value }));
-  };
-
-  const handleNoteChange = (event: any) => {
-    dispatch(updateOrder({ note: event.target.value }));
   };
 
   const handleSave = async () => {
@@ -143,12 +194,32 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
     if (!crewCredential) return setErrorCrewCredential(true);
 
     try {
-      const crew = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/crews/code`, { code: crewCredential }, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
-        },
-      });
+      const crew = await axios.post(
+        `${process.env.REACT_APP_API_BASE_URL}/crews/code`,
+        { code: crewCredential },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        }
+      );
       if (!crew.data.data) return setErrorUnauthorizedCrew(true);
+
+      const items = order.items.map((item: any) => {
+        return {
+          fnb_id: item.fnb_id,
+          amount: item.amount,
+          price: item.price,
+          discount_percent: item.discount_percent,
+          note: item.note ?? '',
+          modifierItems:
+            item.modifiers
+              .filter((modifier: any) => modifier.checked)
+              .map((modifier: any) => ({
+                modifier_id: modifier.id,
+              })) ?? [],
+        };
+      });
 
       const payload = {
         type: ReportType.PAY,
@@ -158,7 +229,7 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
         crew_id: crew.data.data.id,
         method_id: order.method_id,
         note: order.note,
-        items: order.items,
+        items,
       };
 
       try {
@@ -192,7 +263,7 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
       }, 3000);
     } else if (!order.customer_name && order.method_id !== process.env.REACT_APP_GIFT_CARD_METHOD_ID) {
       setCustomerNameIsEmpty(true);
-    } else if (!order.card_number && order.method_id === process.env.REACT_APP_GIFT_CARD_METHOD_ID) {
+    } else if (!cardNumber && order.method_id === process.env.REACT_APP_GIFT_CARD_METHOD_ID) {
       setCardNumberIsEmpty(true);
     } else if (!order.method_id) {
       setPaymentMethodIsEmpty(true);
@@ -200,20 +271,21 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
       if (order.method_id === process.env.REACT_APP_GIFT_CARD_METHOD_ID) {
         setOpenConfirmProgressSpinner(true);
         try {
-          const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/cards/${order.card_number}`, {
+          const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/cards/${cardNumber}`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('access-token')}`,
             },
           });
           if (response.data.data.balance < order.total_payment_after_tax_service) throw new Error('Balance Not Enough');
 
-          // setCardNumber(response.data.data.card_number);
-          dispatch(updateOrder({
-            card_id: response.data.data.id,
-            card_number: response.data.data.card_number,
-            customer_name: response.data.data.customer_name,
-            customer_id: response.data.data.customer_id,
-          }));
+          dispatch(
+            updateOrder({
+              card_id: response.data.data.id,
+              card_number: response.data.data.card_number,
+              customer_name: response.data.data.customer_name,
+              customer_id: response.data.data.customer_id,
+            })
+          );
           setOpenSummary(true);
           setOpenConfirmProgressSpinner(false);
         } catch (error: unknown) {
@@ -240,9 +312,9 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
   // END FUNCTIONS
 
   return (
-    <div className="h-screen w-4/12 pt-20 mx-8">
+    <div className="h-screen w-5/12 pt-20 mx-8">
       <div className="grid grid-cols-1 content-between h-full">
-        <div className="h-full">
+        <div className="h-full relative">
           <div className="flex justify-between items-center">
             <div>
               <p className="text-lg font-semibold ">Your Order</p>
@@ -270,42 +342,71 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
           </div>
 
           {orderIsEmpty ? (
-            <div className="mt-4">
+            <div className="mt-4 absolute top-20 left-0">
               <Alert severity="error">Your Order cannot be empty.</Alert>
             </div>
           ) : null}
 
-          <div className="flex flex-col overflow-y-auto thin-scrollbar mt-2 pr-2 h-60 2xl:h-96">
+          <div className="flex flex-col overflow-y-auto thin-scrollbar mt-2 pr-2 h-[calc(100vh-400px)]">
             {order.items?.map((item: any) => (
               <div className="mt-5 border-b-2 pb-2" key={item.fnb_id}>
                 <div className="flex justify-between items-center">
-                  <div className="mr-2">
-                    <p className="text-sm">{item.fnb_name}</p>
+                  <div className="flex gap-2 mr-2">
+                    <button
+                      className="flex gap-2 items-center text-left"
+                      onClick={() => {
+                        setSelectedFnbId(item.fnb_id);
+                        fetchModifierOption(item.fnb_id);
+                        setOpenModifierModal(true);
+                      }}
+                    >
+                      <p className="text-xl font-bold">{item.fnb_name}</p>
+                      <div className={`border border-green-600 rounded-full w-8 h-8 flex items-center justify-center ${item.modifiers && item.modifiers.some((modifier: any) => modifier.checked) ? 'bg-green-600' : null}`}>
+                        <AddIcon className={`w-[28px] ${item.modifiers && item.modifiers.some((modifier: any) => modifier.checked) ? 'fill-gray-700' : 'fill-green-600'}`} />
+                      </div>
+                      <p className="">
+                        {item.modifiers
+                          .filter((modifier: any) => modifier.checked)
+                          .map((modifier: any) => modifier.name)
+                          .join(', ')}
+                      </p>
+                    </button>
                   </div>
                   <div className="flex items-center">
                     <button
-                      className=" bg-green-500 hover:opacity-70 duration-500 p-2 rounded-md"
+                      className=" bg-green-500 hover:opacity-70 duration-300 p-2 rounded-md active:scale-75"
                       onClick={() => {
                         decreaseAmount(item.fnb_id);
                       }}
                     >
-                      <MinusIcon className="w-[9px]" />
+                      <MinusIcon className="w-[20px]" />
                     </button>
                     <div className="mx-1">
-                      <input type="text" className="text-xs text-center text-black/60 py-1 px-2 rounded-md border border-black/25 max-w-8" readOnly value={item.amount} />
+                      <input type="text" className="text-base text-center text-black/60 py-1 px-3 rounded-md border border-black/25 max-w-10" readOnly value={item.amount} />
                     </div>
                     <button
-                      className=" bg-green-500 hover:opacity-70 duration-500 p-2 rounded-md"
+                      className=" bg-green-500 hover:opacity-70 duration-300 p-2 rounded-md active:scale-75"
                       onClick={() => {
                         increaseAmount(item.fnb_id);
                       }}
                     >
-                      <PlusIcon className="w-[9px]" />
+                      <PlusIcon className="w-[20px]" />
                     </button>
                   </div>
                 </div>
                 <div className="flex justify-between mt-2">
-                  <div></div>
+                  <div className="flex gap-2 items-center">
+                    <button
+                      className="border border-green-600 rounded-lg w-8 h-8 flex items-center justify-center"
+                      onClick={() => {
+                        setSelectedFnbId(item.fnb_id);
+                        setOpenNoteModal(true);
+                      }}
+                    >
+                      <NoteIcon className="w-[20px] stroke-green-600" />
+                    </button>
+                    <p className="whitespace-nowrap overflow-hidden text-ellipsis max-w-[100px] xl:max-w-[200px]">{item.note}</p>
+                  </div>
                   {item.discount_percent ? (
                     <div className="flex items-center">
                       <p className="text-sm text-orange-500 mr-1">(-{item.discount_percent}%)</p>
@@ -325,9 +426,9 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
           <div>
             <div className="mb-5 grid grid-cols-2 gap-2">
               <FormControl sx={{ mb: 1, minWidth: 120 }} size="small">
-                  <InputLabel id="demo-select-small-label" error={paymentMethodIsEmpty}>
-                    Payment
-                  </InputLabel>
+                <InputLabel id="demo-select-small-label" error={paymentMethodIsEmpty}>
+                  Payment
+                </InputLabel>
 
                 <Select labelId="demo-select-small-label" id="demo-select-small" label="Payment" value={order.method_id} onChange={handlePaymentMethodChange} error={paymentMethodIsEmpty}>
                   {methods?.map((method: any) => {
@@ -343,23 +444,66 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
               {order.method_id === process.env.REACT_APP_GIFT_CARD_METHOD_ID ? (
                 <FormControl size="small" sx={{ m: 0, minWidth: 120 }}>
                   {cardNumberIsEmpty ? (
-                    <TextField id="card-number" error label="Card" variant="outlined" size="small" onChange={handleCardNumberChange} value={order.card_number} />
+                    <TextField id="card-number" error label="Card" variant="outlined" size="small" onChange={handleCardNumberChange} value={cardNumber} />
                   ) : (
-                    <TextField id="card-number" label="Card" variant="outlined" size="small" onChange={handleCardNumberChange} value={order.card_number} />
+                    <TextField id="card-number" label="Card" variant="outlined" size="small" onChange={handleCardNumberChange} value={cardNumber} />
                   )}
                 </FormControl>
               ) : (
                 <FormControl size="small" sx={{ m: 0, minWidth: 120 }}>
                   {customerNameIsEmpty ? (
-                    <TextField id="customer-name" error label="Customer Name" variant="outlined" size="small" onChange={handleCustomerNameChange} value={order.customer_name} />
+                    <TextField
+                      id="customer-name"
+                      error
+                      label="Customer Name"
+                      variant="outlined"
+                      size="small"
+                      value={order.customer_name}
+                      slotProps={{
+                        input: {
+                          readOnly: true,
+                        },
+                      }}
+                      onClick={() => {
+                        setOpenOrderCustomerNameModal(true);
+                      }}
+                    />
                   ) : (
-                    <TextField id="customer-name" label="Customer Name" variant="outlined" size="small" onChange={handleCustomerNameChange} value={order.customer_name} />
+                    <TextField
+                      id="customer-name"
+                      label="Customer Name"
+                      variant="outlined"
+                      size="small"
+                      value={order.customer_name}
+                      slotProps={{
+                        input: {
+                          readOnly: true,
+                        },
+                      }}
+                      onClick={() => {
+                        setOpenOrderCustomerNameModal(true);
+                      }}
+                    />
                   )}
                 </FormControl>
               )}
 
               <FormControl size="small" sx={{ mt: 0, minWidth: 120 }}>
-                <TextField id="note" label="Note" variant="outlined" size="small" onChange={handleNoteChange} value={order.note} />
+                <TextField
+                  id="note"
+                  label="Note"
+                  variant="outlined"
+                  size="small"
+                  value={order.note}
+                  slotProps={{
+                    input: {
+                      readOnly: true,
+                    },
+                  }}
+                  onClick={() => {
+                    setOpenOrderNoteModal(true);
+                  }}
+                />
               </FormControl>
             </div>
             <div className="flex justify-between">
@@ -375,7 +519,9 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
           </div>
           <div className="flex py-2">
             <button
-              className={`text-center my-2 mr-2 py-1 px-3 border border-black/60 duration-500 rounded-lg ${order.method_id === process.env.REACT_APP_GIFT_CARD_METHOD_ID || !order.method_id || order.status === ReportStatus.UNPAID ? 'opacity-30' : 'hover:border-green-500 hover:bg-green-500'}`}
+              className={`text-center my-2 mr-2 py-1 px-3 border border-black/60 duration-500 rounded-lg ${
+                order.method_id === process.env.REACT_APP_GIFT_CARD_METHOD_ID || !order.method_id || order.status === ReportStatus.UNPAID ? 'opacity-30' : 'hover:border-green-500 hover:bg-green-500'
+              }`}
               onClick={handleClickOpenCrewAuthAlertDialog}
               disabled={order.method_id === process.env.REACT_APP_GIFT_CARD_METHOD_ID || !order.method_id || order.status === ReportStatus.UNPAID ? true : false}
             >
@@ -398,7 +544,13 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
         setErrorCrewCredential={setErrorCrewCredential}
         errorUnauthorizedCrew={errorUnauthorizedCrew}
         setErrorUnauthorizedCrew={setErrorUnauthorizedCrew}
+        isLoadingSubmitCrewCredential={isLoadingSubmitCrewCredential}
+        setIsLoadingSubmitCrewCredential={setIsLoadingSubmitCrewCredential}
       />
+      <SetModifier open={openModifierModal} setOpen={setOpenModifierModal} modifiers={modifiers} setModifiers={setModifiers} fnbId={selectedFnbId} />
+      <ItemNote open={openNoteModal} setOpen={setOpenNoteModal} note={note} setNote={setNote} fnbId={selectedFnbId} />
+      <SetCustomerName open={openOrderCustomerNameModal} setOpen={setOpenOrderCustomerNameModal} />
+      <SetNote open={openOrderNoteModal} setOpen={setOpenOrderNoteModal} />
       <SimpleSnackbar open={openSnackbar} setOpen={setOpenSnackbar} message={snackbarMessage} />
     </div>
   );

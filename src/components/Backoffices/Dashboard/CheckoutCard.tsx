@@ -5,35 +5,42 @@ import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { getOperationalHours, getTotalPayment } from 'functions/operational.report';
 import { ReportStatus, ReportType } from 'configs/utils';
+import { CircularProgress } from '@mui/material';
 
 const CheckoutCard = () => {
   const [totalCheckout, setTotalCheckout] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   useQuery({
     queryKey: ['todayCheckoutPaidReports'],
-    queryFn: () => {
+    queryFn: async () => {
+      setIsLoading(true);
       const { from, to } = getOperationalHours();
 
-      axios
-        .get(`${process.env.REACT_APP_API_BASE_URL}/reports?from=${from}&to=${to}&status=${ReportStatus.PAID}&type=${ReportType.CHECKOUT}`, {
+      try {
+        const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports?from=${from}&to=${to}&status=${ReportStatus.PAID}&type=${ReportType.CHECKOUT}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access-token')}`,
           },
-        })
-        .then((res) => {
-          setTotalCheckout(getTotalPayment(res.data.data));
-
-          return res.data.data;
-        })
-        .catch((err) => {
-          return console.log(err);
         });
+
+        setTotalCheckout(getTotalPayment(res.data.data));
+        setIsLoading(false);
+
+        return res.data.data;
+      } catch (err) {
+        return [];
+      }
     },
   });
 
   return (
     <div>
-      <Card icon={<CheckoutIcon className="w-[15px]" />} bgClass={'bg-red-300'} title={`Today's Checkout`} value={Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalCheckout)} borderLeft={true} />
+      {isLoading ? (
+        <CircularProgress color="success" size={30} />
+      ) : (
+        <Card icon={<CheckoutIcon className="w-[15px]" />} bgClass={'bg-red-300'} title={`Today's Checkout`} value={Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalCheckout)} borderLeft={true} />
+      )}
     </div>
   );
 };

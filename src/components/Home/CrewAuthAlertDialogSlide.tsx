@@ -7,7 +7,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Slide from '@mui/material/Slide';
 import { TransitionProps } from '@mui/material/transitions';
-import { TextField } from '@mui/material';
+import { CircularProgress, TextField } from '@mui/material';
 import SimpleSnackbar from '../snackbars/SimpleSnackbar';
 
 const Transition = React.forwardRef(function Transition(
@@ -29,6 +29,8 @@ export default function CrewAuthAlertDialogSlide({
   setErrorCrewCredential,
   errorUnauthorizedCrew,
   setErrorUnauthorizedCrew,
+  isLoadingSubmitCrewCredential,
+  setIsLoadingSubmitCrewCredential,
 }: any) {
   const handleChangeCrewCredential = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCrewCredential(event.target.value);
@@ -38,6 +40,7 @@ export default function CrewAuthAlertDialogSlide({
     setErrorCrewCredential(false);
     setErrorUnauthorizedCrew(false);
     setOpenCrewAuthAlertDialog(false);
+    setIsLoadingSubmitCrewCredential(false);
   };
 
   return (
@@ -52,8 +55,15 @@ export default function CrewAuthAlertDialogSlide({
           <Button onClick={handleClose} color="inherit">
             Cancel
           </Button>
-          <Button onClick={handleConfirm} variant="contained" color="success">
-            Confirm
+          <Button onClick={handleConfirm} variant="contained" color="success" disabled={isLoadingSubmitCrewCredential}>
+            {isLoadingSubmitCrewCredential ? (
+              <span className='flex gap-2 items-center'>
+                Loading
+                <CircularProgress color="warning" size={15} />
+              </span>
+            ) : (
+              'Confirm'
+            )}
           </Button>
         </DialogActions>
       </Dialog>

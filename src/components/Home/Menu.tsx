@@ -4,13 +4,14 @@ import axios from 'axios';
 import { addOrUpdateItem, Item } from 'context/slices/orderSlice';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
+import CustomPrice from './CustomPrice';
 
 const Menu = (props: any): JSX.Element => {
   const { openSummary } = props;
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchedMenu, setSearchedMenu] = useState('');
+  const [openCustomPrice, setOpenCustomPrice] = useState(false);
   const dispatch = useDispatch();
-  
 
   const { data: categories } = useQuery({
     queryKey: ['categories'],
@@ -40,7 +41,7 @@ const Menu = (props: any): JSX.Element => {
         });
 
         const availableFnbs = res.data.data.filter((fnb: any) => {
-          return fnb.availability === true;
+          return fnb.availability === true && fnb.is_active;
         });
 
         if (selectedCategory === 'All' && !searchedMenu) {
@@ -66,30 +67,23 @@ const Menu = (props: any): JSX.Element => {
     },
   });
 
-  const addFnbToOrder = async (id: string) => {
-    try {
-      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/fnbs/${id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
-        },
-      });
+  const addFnbToOrder = async (fnb: any) => {
+    const item: Item = {
+      fnb_id: fnb.id,
+      amount: 1,
+      price: fnb.price,
+      discount_percent: fnb.discount_status ? fnb.discount_percent : 0,
+      fnb_name: fnb.name,
+      fnb_category: fnb.category.name,
+      modifiers: fnb.FnbModifier.map((fnbModifier: any) => {
+        return {
+          ...fnbModifier.modifier,
+          checked: false,
+        };
+      }),
+    };
 
-      if (response.data.statusCode === 200) {
-        const fnb = response.data.data;
-        const item: Item = {
-          fnb_id: fnb.id,
-          amount: 1,
-          price: fnb.price,
-          discount_percent: fnb.discount_status ? fnb.discount_percent : 0,
-          fnb_name: fnb.name,
-          fnb_category: fnb.category.name,
-        }
-
-        dispatch(addOrUpdateItem(item));
-      }
-    } catch (error) {
-      console.log(error);
-    }
+    dispatch(addOrUpdateItem(item));
   };
 
   const handleSelectCategoryChange = (event: SelectChangeEvent) => {
@@ -108,15 +102,19 @@ const Menu = (props: any): JSX.Element => {
   };
 
   return (
-    <div className="bg-gray-200 max-h-screen pt-20 px-8 w-7/12">
+    <div className="bg-gray-200 max-h-screen pt-20 px-8 w-6/12">
       <div className="flex flex-row mt-3 justify-between">
         <Box sx={{ minWidth: 200, backgroundColor: 'whitesmoke' }}>
           <FormControl fullWidth size="small">
             <InputLabel id="demo-simple-select-label">Category</InputLabel>
             <Select labelId="demo-simple-select-label" id="demo-simple-select" value={selectedCategory} label="Category" onChange={handleSelectCategoryChange}>
-              <MenuItem value={'All'} key={-1}>All</MenuItem>
+              <MenuItem value={'All'} key={-1}>
+                All
+              </MenuItem>
               {categories?.map((category: any) => (
-                <MenuItem value={category.id} key={category.id}>{category.name}</MenuItem>
+                <MenuItem value={category.id} key={category.id}>
+                  {category.name}
+                </MenuItem>
               ))}
             </Select>
           </FormControl>
@@ -143,7 +141,17 @@ const Menu = (props: any): JSX.Element => {
                         <ListItemText primary={fnb.name} sx={{ mx: 2 }} />
                       </ListItemButton>
                     ) : (
-                      <ListItemButton sx={{ p: 2 }} onClick={() => addFnbToOrder(fnb.id)}>
+                      <ListItemButton
+                        sx={{ p: 2 }}
+                        onClick={() => {
+                          if (fnb.name === process.env.REACT_APP_CUSTOM_FNB_NAME) {
+                            setOpenCustomPrice(true);
+                            return;
+                          }
+
+                          addFnbToOrder(fnb);
+                        }}
+                      >
                         <ListItemIcon sx={{ width: 100 }}>
                           <div className="w-full flex justify-end">
                             <p className="text-xs rounded-full bg-green-200 px-3 py-1">{fnb.category.name}</p>
@@ -165,6 +173,7 @@ const Menu = (props: any): JSX.Element => {
           </Box>
         </div>
       </div>
+      <CustomPrice open={openCustomPrice} setOpen={setOpenCustomPrice} />
     </div>
   );
 };

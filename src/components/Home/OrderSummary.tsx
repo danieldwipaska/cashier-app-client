@@ -1,8 +1,5 @@
 import { ArrowBackIosNew } from '@mui/icons-material';
-import axios, { AxiosError } from 'axios';
-import { ReactComponent as FoodIcon } from "../../assets/img/icons/food.svg";
-import { useState } from 'react';
-import { CircularProgress } from '@mui/material';
+import axios from 'axios';
 import CrewAuthAlertDialogSlide from './CrewAuthAlertDialogSlide';
 import { METHOD_QUERY_KEY, ReportStatus, ReportType } from 'configs/utils';
 import ICartProps from 'interfaces/CartProps';
@@ -10,49 +7,64 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useQuery } from '@tanstack/react-query';
 import { clearOrder } from 'context/slices/orderSlice';
 
-const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
+const OrderSummary = ({ states, crewData, unpaidReports, receiptData }: ICartProps) => {
   const order = useSelector((state: any) => state.order.order);
   const dispatch = useDispatch();
 
   const { setOpenSummary, setOpenBackdrop } = states;
-  const { crewCredential, setCrewCredential, openCrewAuthAlertDialog, setOpenCrewAuthAlertDialog, errorCrewCredential, setErrorCrewCredential, errorUnauthorizedCrew, setErrorUnauthorizedCrew } = crewData;
+  const {
+    crewCredential,
+    setCrewCredential,
+    openCrewAuthAlertDialog,
+    setOpenCrewAuthAlertDialog,
+    errorCrewCredential,
+    setErrorCrewCredential,
+    errorUnauthorizedCrew,
+    setErrorUnauthorizedCrew,
+    isLoadingSubmitCrewCredential,
+    setIsLoadingSubmitCrewCredential,
+  } = crewData;
   const { reportsRefetch } = unpaidReports;
-
-  const [openConfirmProgressSpinner, setOpenConfirmProgressSpinner] = useState(false);
+  const { setReceiptModal, setPaymentData } = receiptData;
 
   const handleClickOpenCrewAuthAlertDialog = () => {
     setOpenCrewAuthAlertDialog(true);
   };
 
   // START QUERY
-    const { data: method } = useQuery({
-      queryKey: METHOD_QUERY_KEY,
-      queryFn: async () => {
-        try {
-          const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/methods/${order.method_id}`, {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('access-token')}`,
-            },
-          });
-          return res.data.data;
-        } catch (err) {
-          return console.log(err);
-        }
-      },
-    });
-    // END QUERY
+  const { data: method } = useQuery({
+    queryKey: METHOD_QUERY_KEY,
+    queryFn: async () => {
+      try {
+        const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/methods/${order.method_id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        });
+        return res.data.data;
+      } catch (err) {
+        return console.log(err);
+      }
+    },
+  });
+  // END QUERY
 
   const handlePay = async () => {
     if (!crewCredential) return setErrorCrewCredential(true);
 
+    setIsLoadingSubmitCrewCredential(true);
     try {
-      const crew = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/crews/code`, { code: crewCredential }, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
-        },
-      });
+      const crew = await axios.post(
+        `${process.env.REACT_APP_API_BASE_URL}/crews/code`,
+        { code: crewCredential },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        }
+      );
 
-      setOpenConfirmProgressSpinner(true);
+      if (!crew.data.data.is_active) return setErrorUnauthorizedCrew(true);
 
       const items = order.items.map((item: any) => {
         return {
@@ -60,6 +72,13 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
           amount: item.amount,
           price: item.price,
           discount_percent: item.discount_percent,
+          note: item.note ?? '',
+          modifierItems:
+            item.modifiers
+              .filter((modifier: any) => modifier.checked)
+              .map((modifier: any) => ({
+                modifier_id: modifier.id,
+              })) ?? [],
         };
       });
 
@@ -76,11 +95,13 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
         };
 
         try {
-          await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/cards/${order.card_id}/pay`, payload, {
+          const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/cards/${order.card_id}/pay`, payload, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('access-token')}`,
             },
           });
+
+          setPaymentData(response.data.data);
 
           setCrewCredential('');
           setErrorCrewCredential(false);
@@ -89,7 +110,6 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
           setOpenSummary(false);
 
           setOpenCrewAuthAlertDialog(false);
-          setOpenConfirmProgressSpinner(false);
           setOpenBackdrop(true);
 
           // Clear order state
@@ -97,9 +117,12 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
 
           setTimeout(() => {
             setOpenBackdrop(false);
+            setReceiptModal(true);
           }, 3000);
         } catch (error) {
           console.log(error);
+        } finally {
+          setIsLoadingSubmitCrewCredential(false);
         }
       } else {
         const payload = {
@@ -113,11 +136,13 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
         };
 
         try {
-          await axios.post(`${process.env.REACT_APP_API_BASE_URL}/reports`, payload, {
+          const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/reports`, payload, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('access-token')}`,
             },
           });
+
+          setPaymentData(response.data.data);
 
           setCrewCredential('');
           setErrorCrewCredential(false);
@@ -126,7 +151,6 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
           setOpenSummary(false);
 
           setOpenCrewAuthAlertDialog(false);
-          setOpenConfirmProgressSpinner(false);
           setOpenBackdrop(true);
 
           // Clear order state
@@ -134,20 +158,25 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
 
           setTimeout(() => {
             setOpenBackdrop(false);
+            setReceiptModal(true);
           }, 3000);
         } catch (error) {
           console.log(error);
+        } finally {
+          setIsLoadingSubmitCrewCredential(false);
         }
       }
     } catch (error: unknown) {
-      if (error instanceof AxiosError && error?.response?.data?.statusCode === 404) return setErrorUnauthorizedCrew(true);
-
-      console.log(error);
+      return setErrorUnauthorizedCrew(true);
+    } finally {
+      setIsLoadingSubmitCrewCredential(false);
     }
   };
 
   const handlePayUpdate = async () => {
     if (!crewCredential) return setErrorCrewCredential(true);
+
+    setIsLoadingSubmitCrewCredential(true);
 
     try {
       const report = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports/${order.id}`, {
@@ -158,14 +187,32 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
       if (!report.data.data) return;
 
       try {
-        const crew = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/crews/code`, { code: crewCredential }, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
-          },
-        });
+        const crew = await axios.post(
+          `${process.env.REACT_APP_API_BASE_URL}/crews/code`,
+          { code: crewCredential },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+            },
+          }
+        );
         if (!crew.data.data || report.data.data.crew.name !== crew.data.data.name) return setErrorUnauthorizedCrew(true);
 
-        setOpenConfirmProgressSpinner(true);
+        const items = order.items.map((item: any) => {
+          return {
+            fnb_id: item.fnb_id,
+            amount: item.amount,
+            price: item.price,
+            discount_percent: item.discount_percent,
+            note: item.note ?? '',
+            modifierItems:
+              item.modifiers
+                .filter((modifier: any) => modifier.checked)
+                .map((modifier: any) => ({
+                  modifier_id: modifier.id,
+                })) ?? [],
+          };
+        });
 
         const payload = {
           status: ReportStatus.PAID,
@@ -173,15 +220,17 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
           crew_id: crew.data.data.id,
           method_id: order.method_id,
           note: order.note,
-          items: order.items,
+          items: items,
         };
 
         try {
-          await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/reports/${order.id}`, payload, {
+          const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/reports/${order.id}`, payload, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('access-token')}`,
             },
           });
+
+          setPaymentData(response.data.data);
 
           setCrewCredential('');
           setErrorCrewCredential(false);
@@ -190,8 +239,6 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
           setOpenSummary(false);
 
           setOpenCrewAuthAlertDialog(false);
-
-          setOpenConfirmProgressSpinner(false);
           setOpenBackdrop(true);
 
           // Clear order state
@@ -200,15 +247,20 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
           setTimeout(() => {
             setOpenBackdrop(false);
             reportsRefetch();
+            setReceiptModal(true);
           }, 3000);
         } catch (error) {
           console.log(error);
         }
       } catch (error) {
         console.log(error);
+      } finally {
+        setIsLoadingSubmitCrewCredential(false);
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsLoadingSubmitCrewCredential(false);
     }
   };
 
@@ -245,40 +297,40 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
             <p className="">Menu Detail</p>
           </div>
 
-          <div className="overflow-y-auto h-60 2xl:h-96">
+          <div className="overflow-y-auto thin-scrollbar h-[calc(100vh-400px)]">
             {order.items.map((item: any) => (
-              <div key={item.id} className="flex items-center mt-2 2xl:mt-5">
-                <div>
-                  <div className="bg-slate-800 p-2 rounded-lg">
-                    <FoodIcon className='w-[40px] text-white' />
-                  </div>
-                </div>
-                <div className="mx-3">
+              <div key={item.id} className="mt-3 2xl:mt-5 border border-green-600 p-2 rounded-md">
+                <div className="flex justify-between">
                   <div>
-                    <p className="text-sm">{item.fnb_name}</p>
+                    <div className="flex items-center gap-3">
+                      <p className="text-xl">{item.fnb_name}</p>
+                      {item.discount_percent ? <p className="text-xs text-orange-500">(-{item.discount_percent}%)</p> : null}
+                    </div>
+                    <p className="text-sm text-black/60 mt-2">
+                      {item.modifiers
+                        .filter((modifier: any) => modifier.checked)
+                        .map((modifier: any) => modifier.name)
+                        .join(', ')}
+                    </p>
                   </div>
-                  <div className="flex items-center mt-2">
+                  <div className="flex items-center">
                     {item.discount_percent ? (
                       <div className="flex items-center mx-1">
-                        <div>
-                          <input
-                            type="text"
-                            className="text-xs text-black/60 py-1 w-28"
-                            readOnly
-                            value={`${item.amount} x ${Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.price - item.price * (item.discount_percent / 100))}`}
-                          />
-                        </div>
-                        <div>
-                          <p className="text-xs text-orange-500">(-{item.discount_percent}%)</p>
-                        </div>
+                        <input
+                          type="text"
+                          className="text-sm text-black/60 py-1 bg-transparent"
+                          readOnly
+                          value={`${item.amount} x ${Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.price - item.price * (item.discount_percent / 100))}`}
+                        />
                       </div>
                     ) : (
                       <div className="mx-1">
-                        <input type="text" className="text-xs text-black/60 py-1" readOnly value={`${item.amount} x ${Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.price)}`} />
+                        <input type="text" className="text-sm text-black/60 py-1 bg-transparent" readOnly value={`${item.amount} x ${Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.price)}`} />
                       </div>
                     )}
                   </div>
                 </div>
+                <p className="text-xs text-black/60">Note: {item.note}</p>
               </div>
             ))}
           </div>
@@ -298,7 +350,7 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
           </div>
           <div>
             <button className="text-center w-full my-6 py-2 bg-green-500 hover:opacity-70 duration-500 rounded-lg" onClick={handleClickOpenCrewAuthAlertDialog}>
-              {openConfirmProgressSpinner ? <CircularProgress color="secondary" size={15} /> : 'Pay'}
+              Pay
             </button>
           </div>
         </div>
@@ -312,6 +364,8 @@ const OrderSummary = ({ states, crewData, unpaidReports }: ICartProps) => {
           setErrorCrewCredential={setErrorCrewCredential}
           errorUnauthorizedCrew={errorUnauthorizedCrew}
           setErrorUnauthorizedCrew={setErrorUnauthorizedCrew}
+          isLoadingSubmitCrewCredential={isLoadingSubmitCrewCredential}
+          setIsLoadingSubmitCrewCredential={setIsLoadingSubmitCrewCredential}
         />
       </div>
     </div>

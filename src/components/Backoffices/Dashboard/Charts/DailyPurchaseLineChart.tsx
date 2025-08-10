@@ -6,6 +6,7 @@ import { processMonthlySales } from 'functions/date-fns.report';
 import { getMonthlyOperationalHours } from 'functions/operational.report';
 import { useState } from 'react';
 import { Line } from 'react-chartjs-2';
+import CircularProgress from '@mui/material/CircularProgress';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -16,26 +17,28 @@ const options = {
 
 const DailyPurchaseLineChart = () => {
   const [reports, setReports] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useQuery({
     queryKey: ['monthlyPaidReports'],
-    queryFn: () => {
+    queryFn: async () => {
+      setIsLoading(true);
       const { from, to } = getMonthlyOperationalHours();
 
-      axios
-        .get(`${process.env.REACT_APP_API_BASE_URL}/reports?from=${from}&to=${to}&status=${ReportStatus.PAID}&type=${ReportType.PAY}&pagination=false`, {
+      try {
+        const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports?from=${from}&to=${to}&status=${ReportStatus.PAID}&type=${ReportType.PAY}&pagination=false`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access-token')}`,
           },
-        })
-        .then((res) => {
-          setReports(res.data.data);
-
-          return res.data.data;
-        })
-        .catch((err) => {
-          return console.log(err);
         });
+
+        setReports(res.data.data);
+        setIsLoading(false);
+
+        return res.data.data;
+      } catch (err) {
+        return [];
+      }
     },
   });
 
@@ -46,14 +49,19 @@ const DailyPurchaseLineChart = () => {
     labels,
     datasets: [
       {
-        label: 'Daily Purchase',
+        label: `Daily Purchases (${Intl.DateTimeFormat('en-US', { month: 'long' }).format(new Date())})`,
         data: values,
         backgroundColor: 'rgba(255, 99, 132, 0.5)',
       },
     ],
   };
-
-  return <Line options={options} data={data} width={100} height={200} />;
+  return isLoading ? (
+    <div className="flex justify-center w-full">
+      <CircularProgress color="success" size={30} />
+    </div>
+  ) : (
+    <Line options={options} data={data} width={100} height={200} />
+  );
 };
 
 export default DailyPurchaseLineChart;

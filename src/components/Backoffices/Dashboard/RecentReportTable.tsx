@@ -1,3 +1,4 @@
+import { CircularProgress } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { ReportStatus, ReportType } from 'configs/utils';
@@ -6,39 +7,50 @@ import React, { useState } from 'react';
 
 const RecentReportTable = () => {
   const [dailyReports, setDailyReports] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useQuery({
     queryKey: ['dailyReports'],
-    queryFn: () => {
+    queryFn: async () => {
+      setIsLoading(true);
       const { from, to } = getOperationalHours();
 
-      axios
-        .get(`${process.env.REACT_APP_API_BASE_URL}/reports?from=${from}&to=${to}&status=${ReportStatus.PAID}&type=${ReportType.PAY}`, {
+      try {
+        const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports?from=${from}&to=${to}&status=${ReportStatus.PAID}&type=${ReportType.PAY}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access-token')}`,
           },
-        })
-        .then((res) => {
-          setDailyReports(res.data.data);
-        })
-        .catch((err) => {
-          return console.log(err);
         });
+
+        setIsLoading(false);
+        setDailyReports(res.data.data);
+
+        return res.data.data;
+      } catch (err) {
+        return [];
+      }
     },
   });
 
   return (
-      <table className="w-full">
-        <thead className="bg-green-300 sticky top-0">
-          <th className="border-b-4 py-3 text-left px-2">Number</th>
-          <th className="border-b-4 py-3 text-left px-2">Status</th>
-          <th className="border-b-4 py-3 text-left px-2">Customer</th>
-          <th className="border-b-4 py-3 text-left px-2">Payment</th>
-          <th className="border-b-4 py-3 text-left px-2">Served By</th>
-          <th className="border-b-4 py-3 text-left px-2">Time</th>
-        </thead>
-        <tbody>
-          {dailyReports?.map((report: any) => {
+    <table className="w-full">
+      <thead className="bg-green-300 sticky top-0">
+        <th className="border-b-4 py-3 text-left px-2">Number</th>
+        <th className="border-b-4 py-3 text-left px-2">Status</th>
+        <th className="border-b-4 py-3 text-left px-2">Customer</th>
+        <th className="border-b-4 py-3 text-left px-2">Payment</th>
+        <th className="border-b-4 py-3 text-left px-2">Served By</th>
+        <th className="border-b-4 py-3 text-left px-2">Time</th>
+      </thead>
+      <tbody>
+        {isLoading ? (
+          <tr>
+            <td colSpan={6} className="text-center text-gray-400 pt-7">
+              <CircularProgress color="success" size={30} />
+            </td>
+          </tr>
+        ) : dailyReports?.length ? (
+          dailyReports?.map((report: any) => {
             return (
               <tr key={report.id} className="border-b-2 hover:bg-gray-100 duration-200">
                 <td className="py-3 text-sm px-2">{report.report_id}</td>
@@ -49,9 +61,16 @@ const RecentReportTable = () => {
                 <td className="py-3 text-sm px-2">{new Date(report.created_at).toLocaleTimeString()}</td>
               </tr>
             );
-          })}
-        </tbody>
-      </table>
+          })
+        ) : (
+          <tr>
+            <td colSpan={6} className="text-center text-gray-400 pt-7">
+              No Transactions Yet for Today
+            </td>
+          </tr>
+        )}
+      </tbody>
+    </table>
   );
 };
 

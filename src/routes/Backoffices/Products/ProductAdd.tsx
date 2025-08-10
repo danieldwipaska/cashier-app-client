@@ -1,7 +1,7 @@
 import Layout from '../Layout/Layout';
 import Header from 'components/Backoffices/Header';
 import { useForm } from 'react-hook-form';
-import { CATEGORIES_QUERY_KEY } from 'configs/utils';
+import { CATEGORIES_QUERY_KEY, ErrorMessage } from 'configs/utils';
 import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -21,7 +21,7 @@ const ProductAdd = () => {
         .get(`${process.env.REACT_APP_API_BASE_URL}/categories`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access-token')}`,
-          }
+          },
         })
         .then((res) => {
           return res.data.data;
@@ -35,20 +35,28 @@ const ProductAdd = () => {
 
   const onSubmit = (data: any) => {
     axios
-      .post(`${process.env.REACT_APP_API_BASE_URL}/fnbs`, {
-        ...data,
-        price: Number(data.price),
-      }, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+      .post(
+        `${process.env.REACT_APP_API_BASE_URL}/fnbs`,
+        {
+          ...data,
+          price: Number(data.price),
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
         }
-      })
+      )
       .then((res) => {
         showMessage('Product added successfully', 'success');
         return navigate('/backoffices/products', { replace: true });
       })
-      .catch((err) => {
-        return console.log(err);
+      .catch((error) => {
+        if (error?.response?.data?.statusCode === 404) return showMessage(ErrorMessage.PRODUCT_NOT_FOUND, 'error');
+        if (error?.response?.data?.statusCode === 500) return showMessage(ErrorMessage.INTERNAL_SERVER_ERROR, 'error');
+        if (error?.response?.data?.statusCode === 400) return showMessage(ErrorMessage.BAD_REQUEST, 'error');
+        if (error?.response?.data?.statusCode === 401) return showMessage(error.response?.data?.message, 'error');
+        return showMessage(ErrorMessage.UNEXPECTED_ERROR, 'error');
       });
   };
 

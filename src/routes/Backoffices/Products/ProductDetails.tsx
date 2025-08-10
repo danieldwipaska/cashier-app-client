@@ -4,7 +4,7 @@ import Header from 'components/Backoffices/Header';
 import SectionHeader from 'components/Backoffices/SectionHeader';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 const ProductDetails = () => {
   // START HOOKS
@@ -20,10 +20,9 @@ const ProductDetails = () => {
         .get(`${process.env.REACT_APP_API_BASE_URL}/fnbs/${productId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access-token')}`,
-          }
+          },
         })
         .then((res) => {
-          console.log(res.data.data);
           return res.data.data;
         })
         .catch((err) => {
@@ -33,11 +32,17 @@ const ProductDetails = () => {
 
   // END QUERIES
 
+  const Buttons = ({ productId }: { productId: string }): JSX.Element => {
+    return (
+      <Link to={`/backoffices/products/${productId}/set-modifier`} className="bg-green-300 py-2 px-3 rounded-lg">Set Modifier</Link>
+    )
+  }
+
   return (
     <Layout>
       <Header title="PRODUCT DETAILS" />
       <section>
-        <SectionHeader title={product?.name} />
+        <SectionHeader title={product?.name} Buttons={<Buttons productId={`${productId}`} />} />
         <table>
           <tr>
             <th className="text-left">Category</th>
@@ -63,6 +68,16 @@ const ProductDetails = () => {
             <th className="text-left">Discount Percent</th>
             <td>&ensp;&ensp;:&ensp;</td>
             <td>{product?.discount_percent ? product.discount_percent : '-'}</td>
+          </tr>
+          <tr>
+            <th className="text-left">Modifiers</th>
+            <td>&ensp;&ensp;:&ensp;</td>
+            <td>{product?.FnbModifier.length ? product?.FnbModifier.map((fnbModifier: any) => fnbModifier.modifier.name).join(', ') : '-'}</td>
+          </tr>
+          <tr>
+            <th className="text-left">Status</th>
+            <td>&ensp;&ensp;:&ensp;</td>
+            <td>{product?.is_active ? 'Active' : 'Inactive'}</td>
           </tr>
         </table>
       </section>

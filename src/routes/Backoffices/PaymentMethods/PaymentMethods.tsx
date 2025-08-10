@@ -2,14 +2,17 @@ import Layout from '../Layout/Layout';
 import Header from 'components/Backoffices/Header';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { PAYMENT_METHODS_QUERY_KEY } from 'configs/utils';
+import { ErrorMessage, PAYMENT_METHODS_QUERY_KEY } from 'configs/utils';
 import deleteIcon from '../../../assets/img/icons/icon-delete.svg';
 import editIcon from '../../../assets/img/icons/icon-edit.svg';
 import { useForm } from 'react-hook-form';
+import { useMessages } from 'context/MessageContext';
+import { Link } from 'react-router-dom';
 
 const PaymentMethods = () => {
   // START HOOKS
   const { register, handleSubmit } = useForm();
+  const { showMessage } = useMessages();
   // END HOOKS
 
   // START QUERIES
@@ -38,24 +41,26 @@ const PaymentMethods = () => {
       <Header title="PAYMENT METHODS" />
       <section>
         <div className="mb-5">
-          <a href={'/backoffices/payment-methods/add'} className="bg-green-300 py-3 px-5 rounded-lg">
+          <Link to={`/backoffices/payment-methods/add`} className="bg-green-300 py-3 px-5 rounded-lg">
             Add
-          </a>
+          </Link>
         </div>
         <table className="w-2/4">
           <tr className="bg-green-200">
             <th className="border-b-4 py-3 px-2 text-left">Method Name</th>
+            <th className="border-b-4 py-3 px-2 text-left">Status</th>
             <th className="border-b-4 py-3 px-2 text-left">Action</th>
           </tr>
           {paymentMethods?.map((method: any) => {
             return (
               <tr key={method.id} className="border-b-2 hover:bg-gray-100 duration-200">
                 <td className="py-3 px-2">{method.name}</td>
+                <td className="py-3 px-2">{method.is_active ? 'active' : 'inactive'}</td>
                 <td className="py-3 px-2">
                   <div className="flex items-center gap-2">
-                    <a href={`/backoffices/payment-methods/${method.id}/edit`}>
+                    <Link to={`/backoffices/payment-methods/${method.id}/edit`}>
                       <img src={editIcon} alt="editIcon" width={20} />
-                    </a>
+                    </Link>
                     <form
                       onSubmit={handleSubmit(() => {
                         axios
@@ -67,8 +72,12 @@ const PaymentMethods = () => {
                           .then((res) => {
                             return paymentMethodsRefetch();
                           })
-                          .catch((err) => {
-                            return console.log(err);
+                          .catch((error) => {
+                            if (error?.response?.data?.statusCode === 404) return showMessage(ErrorMessage.PAYMENT_METHOD_NOT_FOUND, 'error');
+                            if (error?.response?.data?.statusCode === 500) return showMessage(ErrorMessage.INTERNAL_SERVER_ERROR, 'error');
+                            if (error?.response?.data?.statusCode === 400) return showMessage(ErrorMessage.BAD_REQUEST, 'error');
+                            if (error?.response?.data?.statusCode === 401) return showMessage(error.response?.data?.message, 'error');
+                            return showMessage(ErrorMessage.UNEXPECTED_ERROR, 'error');
                           });
                       })}
                       className="flex items-center"

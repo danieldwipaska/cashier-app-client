@@ -35,6 +35,8 @@ export interface Item {
   refunded_amount?: number;
   price: number;
   discount_percent: number;
+  modifiers?: any;
+  note?: any;
 }
 
 export interface OrderState {
@@ -124,6 +126,24 @@ export const orderSlice = createSlice({
         }
       }
     },
+    updateModifiers: (state, action: PayloadAction<any>) => {
+      const { fnb_id, modifiers } = action.payload;
+      if (state.order && state.order.items.length) {
+        const existingItemIndex = state.order.items.findIndex((i) => i.fnb_id === fnb_id);
+        if (existingItemIndex > -1) {
+          state.order.items[existingItemIndex].modifiers = modifiers;
+        }
+      }
+    },
+    updateNote: (state, action: PayloadAction<any>) => {
+      const { fnb_id, note } = action.payload;
+      if (state.order && state.order.items.length) {
+        const existingItemIndex = state.order.items.findIndex((i) => i.fnb_id === fnb_id);
+        if (existingItemIndex > -1) {
+          state.order.items[existingItemIndex].note = note;
+        }
+      }
+    },
     increaseItemAmount: (state, action: PayloadAction<string>) => {
       const fnbId = action.payload;
       const item = state.order.items.find((i) => i.fnb_id === fnbId);
@@ -146,6 +166,6 @@ export const orderSlice = createSlice({
   },
 });
 
-export const { setOrder, setServiceAndTax, updateOrder, updateServiceAndTax, clearOrder, clearServiceAndTax, addOrUpdateItem, increaseItemAmount, decreaseItemAmount } = orderSlice.actions;
+export const { setOrder, setServiceAndTax, updateOrder, updateServiceAndTax, clearOrder, clearServiceAndTax, addOrUpdateItem, updateModifiers, updateNote, increaseItemAmount, decreaseItemAmount } = orderSlice.actions;
 
 export default orderSlice.reducer;

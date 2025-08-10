@@ -118,7 +118,11 @@ const Settings = () => {
       showMessage('Backoffice Setting has been updated', 'success');
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        if (error?.response?.data?.statusCode === 500) showMessage(ErrorMessage.INTERNAL_SERVER_ERROR, 'error');
+        if (error?.response?.data?.statusCode === 404) return showMessage(ErrorMessage.SETTING_NOT_FOUND, 'error');
+        if (error?.response?.data?.statusCode === 500) return showMessage(ErrorMessage.INTERNAL_SERVER_ERROR, 'error');
+        if (error?.response?.data?.statusCode === 400) return showMessage(ErrorMessage.BAD_REQUEST, 'error');
+        if (error?.response?.data?.statusCode === 401) return showMessage(error.response?.data?.message, 'error');
+        return showMessage(ErrorMessage.UNEXPECTED_ERROR, 'error');
       } else {
         showMessage(ErrorMessage.UNEXPECTED_ERROR, 'error');
       }
@@ -132,12 +136,12 @@ const Settings = () => {
       <section>
         <form onSubmit={handleSubmit(onSubmit)}>
           <h3 className="text-xl font-semibold mb-2">Dashboard</h3>
-          <div className="grid grid-cols-[300px_minmax(0,_1fr)] items-center gap-5">
+          <div className="grid grid-cols-[250px_minmax(0,_1fr)] gap-5">
             <div className="">Crew Purchases by Categories</div>
-            <div className="flex flex-wrap gap-5">
+            <div className="grid grid-cols-3 gap-3">
               {categories?.map((category: any, index: number) => {
                 return (
-                  <label key={category.category_id} htmlFor={`category-${index}`} className="flex gap-1 flex-1 min-w-32">
+                  <label key={category.category_id} htmlFor={`category-${index}`} className="flex gap-1 flex-1 min-w-32 items-center">
                     <input
                       type="checkbox"
                       id={`category-${index}`}

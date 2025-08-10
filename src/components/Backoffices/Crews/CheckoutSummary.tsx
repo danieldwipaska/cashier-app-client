@@ -24,7 +24,9 @@ const CheckoutSummary = ({ title, keys }: { title: string; keys: ReportType[] })
           },
         });
 
-        const groupedData = response.data.data.reduce((acc: any, report: any) => {
+        const filteredReports = response.data.data.filter((report: any) => (report.method ? report.method.is_active : false));
+
+        const groupedData = filteredReports.reduce((acc: any, report: any) => {
           const paymentMethod = report.method.name;
 
           if (!acc[paymentMethod]) {
@@ -49,7 +51,7 @@ const CheckoutSummary = ({ title, keys }: { title: string; keys: ReportType[] })
   });
 
   return (
-    <div className="border border-gray-200 shadow-sm min-w-80">
+    <div className="border border-gray-200 shadow-sm min-w-80 max-h-72">
       <div className="border-b border-gray-200 p-3 bg-green-300">
         <h3 className="text-lg font-semibold">{title}</h3>
       </div>

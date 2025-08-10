@@ -5,6 +5,7 @@ import axios from 'axios';
 import { CARDS_METHOD_QUERY_KEY } from 'configs/utils';
 import { useEffect, useState } from 'react';
 import Pagination from 'components/Pagination';
+import { Link } from 'react-router-dom';
 
 const Cards = () => {
   // START STATES
@@ -42,9 +43,9 @@ const Cards = () => {
       <Header title="CARDS" />
       <section>
       <div className="mb-5">
-          <a href={'/backoffices/cards/add'} className="bg-green-300 py-3 px-5 rounded-lg">
+          <Link to='/backoffices/cards/add' className="bg-green-300 py-3 px-5 rounded-lg">
             Add
-          </a>
+          </Link>
         </div>
         <table className="w-full">
           <tr className="bg-green-300">
@@ -62,7 +63,7 @@ const Cards = () => {
                 <td className="py-3 px-2">{card.card_number}</td>
                 <td className="py-3 px-2">{card.customer_id}</td>
                 <td className="py-3 px-2">{card.customer_name}</td>
-                <td className="py-3 px-2">{card.balance}</td>
+                <td className="py-3 px-2">{Intl.NumberFormat('id-ID').format(card.balance)}</td>
                 <td className="py-3 px-2">{card.status}</td>
                 <td className="py-3 px-2">{card.is_member ? 'yes' : 'no'}</td>
                 <td className="py-3 px-2">{new Date(card.updated_at).toLocaleDateString('id-ID')}</td>

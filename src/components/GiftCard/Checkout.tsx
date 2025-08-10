@@ -6,8 +6,25 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useMessages } from 'context/MessageContext';
 import { useQuery } from '@tanstack/react-query';
+import { CircularProgress } from '@mui/material';
 
-const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCardData, setOpenBackdrop }: { data: Card; openCheckoutModal: any; handleCloseCheckoutModal: any; refetchCardData: any; setOpenBackdrop: any }) => {
+const Checkout = ({
+  data,
+  openCheckoutModal,
+  handleCloseCheckoutModal,
+  refetchCardData,
+  setOpenBackdrop,
+  setReceiptModal,
+  setPaymentData,
+}: {
+  data: Card;
+  openCheckoutModal: any;
+  handleCloseCheckoutModal: any;
+  refetchCardData: any;
+  setOpenBackdrop: any;
+  setReceiptModal: any;
+  setPaymentData: any;
+}) => {
   // START HOOKS
   const { showMessage } = useMessages();
   // END HOOKS
@@ -18,6 +35,7 @@ const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCa
   const [note, setNote] = useState('');
   const [code, setCode] = useState('');
   const [error, setError] = useState<any>(null);
+  const [submitLoading, setSubmitLoading] = useState<boolean>(false);
 
   const handleChangePaymentMethod = (event: any) => {
     setPaymentMethod(event.target.value);
@@ -38,7 +56,7 @@ const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCa
   };
 
   const { data: methods } = useQuery({
-    queryKey: ['cardMethods'],
+    queryKey: ['cardMethodsForCards'],
     queryFn: async () => {
       try {
         const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/methods`, {
@@ -46,9 +64,8 @@ const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCa
             Authorization: `Bearer ${localStorage.getItem('access-token')}`,
           },
         });
-        const method_data = res.data.data.filter((method: any) => method.id !== process.env.REACT_APP_GIFT_CARD_METHOD_ID);
 
-        return method_data; 
+        return res.data.data.filter((method: any) => method.is_active);
       } catch (err) {
         console.log(err);
         throw err;
@@ -64,11 +81,14 @@ const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCa
     };
 
     try {
+      setSubmitLoading(true);
       const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/cards/${data?.id}/checkout`, formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('access-token')}`,
         },
       });
+
+      setPaymentData(response.data.data);
 
       handleCloseCheckoutModal();
       refetchCardData(response.data.data.card_number);
@@ -77,6 +97,7 @@ const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCa
       setOpenBackdrop(true);
       setTimeout(() => {
         setOpenBackdrop(false);
+        setReceiptModal(true);
       }, 3000);
     } catch (error) {
       console.log(error);
@@ -88,6 +109,8 @@ const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCa
       } else {
         showMessage(ErrorMessage.UNEXPECTED_ERROR, 'error');
       }
+    } finally {
+      setSubmitLoading(false);
     }
   };
 
@@ -183,8 +206,15 @@ const Checkout = ({ data, openCheckoutModal, handleCloseCheckoutModal, refetchCa
               </label>
               <input type="password" className="border px-3 py-2" id="code" value={code} onChange={handleChangeCode} required />
             </div>
-            <button type="submit" className="mt-5 px-4 py-2 bg-green-500 hover:bg-green-600">
-              Submit
+            <button type="submit" className="mt-5 px-4 py-2 bg-green-500 hover:bg-green-600" disabled={submitLoading}>
+              {submitLoading ? (
+                <span className="flex gap-2 items-center">
+                  Loading
+                  <CircularProgress color="warning" size={15} />
+                </span>
+              ) : (
+                'Submit'
+              )}
             </button>
           </form>
         </ChildModal>

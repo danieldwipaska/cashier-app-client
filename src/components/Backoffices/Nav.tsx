@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import style from '../../assets/css/style.module.css';
 import cx from 'classnames';
 import { ReactComponent as StackIcon } from '../../assets/img/icons/stacks.svg';
@@ -13,6 +13,7 @@ const Nav = () => {
   const paymentMethodsClass = cx(style.sidebarLinks, style.link, path.includes('/backoffices/payment-methods') ? style.active : null);
   const cardsClass = cx(style.sidebarLinks, style.link, path.includes('/backoffices/cards') ? style.active : null);
   const settingsClass = cx(style.sidebarLinks, style.link, path.includes('/backoffices/settings') ? style.active : null);
+  const modifiersClass = cx(style.sidebarLinks, style.link, path.includes('/backoffices/modifiers') ? style.active : null);
 
   return (
     <nav className={style.sidebar + ' relative'}>
@@ -21,30 +22,33 @@ const Nav = () => {
         <h1 className="text-xl font-semibold">Backoffice</h1>
       </header>
       <div className={style.sidebarLinks}>
-        <a href="/backoffices" className={dashboardClass} aria-label="Navigate to Products">
+        <Link to='/backoffices' className={dashboardClass} aria-label="Navigate to Products">
           Dashboard
-        </a>
-        <a href="/backoffices/products" className={productsClass} aria-label="Navigate to Products">
+        </Link>
+        <Link to='/backoffices/products' className={productsClass} aria-label="Navigate to Products">
           Products
-        </a>
-        <a href="/backoffices/categories" className={categoriesClass} aria-label="Navigate to Categories">
+        </Link>
+        <Link to='/backoffices/categories' className={categoriesClass} aria-label="Navigate to Categories">
           Categories
-        </a>
-        <a href="/backoffices/reports" className={reportsClass} aria-label="Navigate to Payments">
+        </Link>
+        <Link to='/backoffices/modifiers' className={modifiersClass} aria-label="Navigate to Modifiers">
+          Modifiers
+        </Link>
+        <Link to='/backoffices/reports' className={reportsClass} aria-label="Navigate to Payments">
           Reports
-        </a>
-        <a href="/backoffices/crews" className={crewsClass} aria-label="Navigate to Crews">
+        </Link>
+        <Link to='/backoffices/crews' className={crewsClass} aria-label="Navigate to Crews">
           Crews
-        </a>
-        <a href="/backoffices/payment-methods" className={paymentMethodsClass} aria-label="Navigate to Payment Method">
+        </Link>
+        <Link to='/backoffices/payment-methods' className={paymentMethodsClass} aria-label="Navigate to Payment Method">
           Payment Methods
-        </a>
-        <a href="/backoffices/cards" className={cardsClass} aria-label="Navigate to Cards">
+        </Link>
+        <Link to='/backoffices/cards' className={cardsClass} aria-label="Navigate to Cards">
           Cards
-        </a>
-        <a href="/backoffices/settings" className={settingsClass} aria-label="Navigate to Settings">
+        </Link>
+        <Link to='/backoffices/settings' className={settingsClass} aria-label="Navigate to Settings">
           Settings
-        </a>
+        </Link>
       </div>
       <a href="/" className="absolute bottom-0 w-full" aria-label="Navigate to POS">
         <h4 className="font-semibold px-1 py-3">Go to POS</h4>

@@ -1,16 +1,20 @@
+import { CircularProgress } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { ReportStatus, ReportType } from 'configs/utils';
 import { getCrewTotalPurchases } from 'functions/crew.report';
 import { getOperationalHours } from 'functions/operational.report';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const EmployeeAwards = () => {
   const [crewDailyPurchases, setCrewDailyPurchases] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   useQuery({
     queryKey: ['dailyCrewReports'],
     queryFn: async () => {
+      setIsLoading(true);
       const { from, to } = getOperationalHours();
 
       try {
@@ -23,7 +27,9 @@ const EmployeeAwards = () => {
         const backofficeSetting = await fetchCrewPurchaseCategory();
         const categoryIds = backofficeSetting?.CrewPurchaseCategory.map((crewPurchaseCategory: any) => crewPurchaseCategory.category.id);
 
-        const groupedData = response.data.data.reduce((acc: any, report: any) => {
+        const filteredReports = response.data.data.filter((report: any) => report.crew ? report.crew.is_active : false);
+
+        const groupedData = filteredReports.reduce((acc: any, report: any) => {
           const crewName = report.crew.name;
 
           if (!acc[crewName]) {
@@ -45,6 +51,8 @@ const EmployeeAwards = () => {
           return acc;
         }, {});
         setCrewDailyPurchases(groupedData);
+
+        setIsLoading(false);
 
         return groupedData;
       } catch (error) {
@@ -74,12 +82,14 @@ const EmployeeAwards = () => {
     <div className="border border-gray-200 shadow-sm">
       <div className="border-b border-gray-200 p-3 bg-green-300 flex justify-between items-center">
         <h3 className="text-lg font-semibold">Daily Top Employees</h3>
-        <a href="/backoffices/settings" className='bg-gray-200 py-3 px-5 rounded-lg text-black font-bold duration-200 hover:bg-gray-300'>
+        <Link to='/backoffices/settings' className='bg-gray-200 py-3 px-5 rounded-lg text-black font-bold duration-200 hover:bg-gray-300'>
           Set Categories
-        </a>
+        </Link>
       </div>
       <div className="overflow-y-auto h-40">
-        {Object.entries(crewDailyPurchases)?.map(([crewName, payment]) => {
+        {isLoading ? <div className="text-center text-gray-400 pt-7">
+          <CircularProgress color="success" size={30} />
+        </div> : Object.entries(crewDailyPurchases)?.length ? Object.entries(crewDailyPurchases)?.map(([crewName, payment]) => {
           return (
             <div className="flex items-center justify-between gap-3 border-b border-gray-200 py-2 hover:bg-gray-200 px-3">
               <div className="flex flex-col justify-center">
@@ -93,7 +103,7 @@ const EmployeeAwards = () => {
               </div>
             </div>
           );
-        })}
+        }) : <div className="text-center text-gray-400 pt-7">Employee Purchases Yet for Today</div> }
       </div>
     </div>
   );

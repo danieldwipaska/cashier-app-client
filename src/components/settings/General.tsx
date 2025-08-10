@@ -1,5 +1,6 @@
 import { FormControl, FormGroup, FormLabel, Switch, TextField } from '@mui/material';
 import axios from 'axios';
+import { ErrorMessage } from 'configs/utils';
 import { useMessages } from 'context/MessageContext';
 
 const General = ({
@@ -33,7 +34,7 @@ const General = ({
 
   const handleIncludeTaxAndService = (event: any) => {
     setIncludedTaxService(!includedTaxService);
-  }
+  };
 
   const handleChangeTax = (event: any) => {
     setTax(+event.target.value);
@@ -45,22 +46,29 @@ const General = ({
 
   const handleUpdateGeneralSettings = async (event: any) => {
     try {
-      await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/shops/${shopId}`, {
-        included_tax_service: includedTaxService,
-        tax: tax,
-        service: service,
-      }, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+      await axios.patch(
+        `${process.env.REACT_APP_API_BASE_URL}/shops/${shopId}`,
+        {
+          included_tax_service: includedTaxService,
+          tax: tax,
+          service: service,
         },
-      });
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        }
+      );
 
       userDataRefetch();
 
       showMessage('General settings updated successfully', 'success');
-    } catch (error) {
-      showMessage('Failed to update general settings', 'error');
-      console.log(error);
+    } catch (error: any) {
+      if (error?.response?.data?.statusCode === 404) return showMessage(ErrorMessage.SHOP_NOT_FOUND, 'error');
+      if (error?.response?.data?.statusCode === 500) return showMessage(ErrorMessage.INTERNAL_SERVER_ERROR, 'error');
+      if (error?.response?.data?.statusCode === 400) return showMessage(ErrorMessage.BAD_REQUEST, 'error');
+      if (error?.response?.data?.statusCode === 401) return showMessage(error.response?.data?.message, 'error');
+      return showMessage(ErrorMessage.UNEXPECTED_ERROR, 'error');
     }
   };
 
@@ -104,11 +112,7 @@ const General = ({
               <FormLabel component="legend" color="success">
                 Include Tax and/or Service <br /> without additional payments
               </FormLabel>
-              {includedTaxService ? (
-                <Switch sx={{ my: 0 }} color="success" onClick={handleIncludeTaxAndService} checked />
-              ) : (
-                <Switch sx={{ my: 0 }} color="success" onClick={handleIncludeTaxAndService} />
-              )}
+              {includedTaxService ? <Switch sx={{ my: 0 }} color="success" onClick={handleIncludeTaxAndService} checked /> : <Switch sx={{ my: 0 }} color="success" onClick={handleIncludeTaxAndService} />}
             </FormControl>
           </div>
           <div className="mt-8">

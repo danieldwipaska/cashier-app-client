@@ -28,6 +28,11 @@ import Cards from 'routes/Backoffices/Cards/Cards';
 import CardAdd from 'routes/Backoffices/Cards/CardAdd';
 import { MessageProvider } from 'context/MessageContext';
 import BackofficeSettings from 'routes/Backoffices/Settings/Settings';
+import Modifiers from 'routes/Backoffices/Modifiers/Modifiers';
+import ModifierAdd from 'routes/Backoffices/Modifiers/ModifiersAdd';
+import ProductModifier from 'routes/Backoffices/Products/ProductModifier';
+import ModifierEdit from 'routes/Backoffices/Modifiers/ModifierEdit';
+import ReportDetails from 'routes/Backoffices/Reports/ReportDetails';
 
 function App() {
   const client = new QueryClient({
@@ -54,10 +59,12 @@ function App() {
                 <Route path="/backoffices/products/:productId" element={<ProductDetails />} />
                 <Route path="/backoffices/products/:productId/edit" element={<ProductEdit />} />
                 <Route path="/backoffices/products/add" element={<ProductAdd />} />
+                <Route path="/backoffices/products/:productId/set-modifier" element={<ProductModifier />} />
                 <Route path="/backoffices/categories" element={<Categories />} />
                 <Route path="/backoffices/categories/add" element={<CategoryAdd />} />
                 <Route path="/backoffices/categories/:categoryId/edit" element={<CategoryEdit />} />
                 <Route path="/backoffices/reports" element={<Reports />} />
+                <Route path="/backoffices/reports/:reportId" element={<ReportDetails />} />
                 <Route path="/backoffices/crews" element={<Crews />} />
                 <Route path="/backoffices/crews/add" element={<CrewsAdd />} />
                 <Route path="/backoffices/crews/:crewId/edit" element={<CrewEdit />} />
@@ -66,6 +73,9 @@ function App() {
                 <Route path="/backoffices/payment-methods/:paymentMethodId/edit" element={<PaymentMethodEdit />} />
                 <Route path="/backoffices/cards" element={<Cards />} />
                 <Route path="/backoffices/cards/add" element={<CardAdd />} />
+                <Route path="/backoffices/modifiers" element={<Modifiers />} />
+                <Route path="/backoffices/modifiers/add" element={<ModifierAdd />} />
+                <Route path="/backoffices/modifiers/:modifierId/edit" element={<ModifierEdit />} />
                 <Route path="/backoffices/settings" element={<BackofficeSettings />} />
               </Routes>
             </Router>

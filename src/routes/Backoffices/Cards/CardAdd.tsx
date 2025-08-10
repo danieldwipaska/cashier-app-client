@@ -1,20 +1,22 @@
 import axios from 'axios';
-import { CARD_TYPES } from 'configs/utils';
+import { CARD_TYPES, ErrorMessage } from 'configs/utils';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../Layout/Layout';
 import Header from 'components/Backoffices/Header';
 import INewCardData from 'interfaces/CardData';
+import { useMessages } from 'context/MessageContext';
 
 const CardAdd = () => {
   const { register, handleSubmit } = useForm<NewCardFormData>();
   const navigate = useNavigate();
+  const { showMessage } = useMessages();
 
   const onSubmit = (data: NewCardFormData) => {
     const payload: INewCardData = {
       card_number: data.card_number,
       is_member: false,
-    }
+    };
 
     if (data.type === 'Member') payload.is_member = true;
 
@@ -25,10 +27,15 @@ const CardAdd = () => {
         },
       })
       .then((res) => {
+        showMessage('Card added successfully', 'success');
         return navigate('/backoffices/cards', { replace: true });
       })
-      .catch((err) => {
-        return console.log(err);
+      .catch((error) => {
+        if (error?.response?.data?.statusCode === 404) return showMessage(ErrorMessage.CARD_NOT_FOUND, 'error');
+        if (error?.response?.data?.statusCode === 500) return showMessage(ErrorMessage.INTERNAL_SERVER_ERROR, 'error');
+        if (error?.response?.data?.statusCode === 400) return showMessage(ErrorMessage.BAD_REQUEST, 'error');
+        if (error?.response?.data?.statusCode === 401) return showMessage(ErrorMessage.INVALID_CREW_CODE, 'error');
+        return showMessage(ErrorMessage.UNEXPECTED_ERROR, 'error');
       });
   };
 
