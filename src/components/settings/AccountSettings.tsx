@@ -4,7 +4,6 @@ import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import General from './General';
-import Account from './Account';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
@@ -89,7 +88,6 @@ const AccountSettings = () => {
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
             <Tabs textColor="inherit" TabIndicatorProps={{ sx: { backgroundColor: 'green' } }} value={value} onChange={handleChange} aria-label="basic tabs example">
               <Tab label="General" {...a11yProps(0)} />
-              <Tab label="Account" {...a11yProps(1)} />
             </Tabs>
           </Box>
 
@@ -111,9 +109,9 @@ const AccountSettings = () => {
               userDataRefetch={userDataRefetch}
             />
           </CustomTabPanel>
-          <CustomTabPanel value={value} index={1}>
+          {/* <CustomTabPanel value={value} index={1}>
             <Account />
-          </CustomTabPanel>
+          </CustomTabPanel> */}
         </Box>
       </div>
     </div>

@@ -6,6 +6,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Layout from '../Layout/Layout';
 import Header from 'components/Backoffices/Header';
 import { useMessages } from 'context/MessageContext';
+import { CircularProgress } from '@mui/material';
 
 const CategoryEdit = () => {
   // START HOOKS
@@ -14,9 +15,10 @@ const CategoryEdit = () => {
   const { showMessage } = useMessages();
   // START HOOKS
 
-  // START HOOKS
+  // START STATES
   const [name, setName] = useState('');
-  // END HOOKS
+  const [submitLoading, setSubmitLoading] = useState<boolean>(false);
+  // END STATES
 
   // START CHANGE
   const handleNameChange = (event: any) => {
@@ -47,6 +49,7 @@ const CategoryEdit = () => {
   // END QUERIES
 
   const onSubmit = () => {
+    setSubmitLoading(true);
     axios
       .patch(
         `${process.env.REACT_APP_API_BASE_URL}/categories/${categoryId}`,
@@ -69,6 +72,9 @@ const CategoryEdit = () => {
         if (error?.response?.data?.statusCode === 400) return showMessage(ErrorMessage.BAD_REQUEST, 'error');
         if (error?.response?.data?.statusCode === 401) return showMessage(error.response?.data?.message, 'error');
         return showMessage(ErrorMessage.UNEXPECTED_ERROR, 'error');
+      })
+      .finally(() => {
+        setSubmitLoading(false);
       });
   };
 
@@ -86,7 +92,14 @@ const CategoryEdit = () => {
           <br />
           <br />
           <button className="bg-green-300 py-2 px-3 rounded-lg" onClick={onSubmit}>
-            Submit
+            {submitLoading ? (
+              <div className="flex items-center gap-2">
+                <p>Loading</p>
+                <CircularProgress color="warning" size={15} />
+              </div>
+            ) : (
+              'Submit'
+            )}
           </button>
         </div>
       </section>
