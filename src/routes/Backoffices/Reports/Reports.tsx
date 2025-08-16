@@ -8,6 +8,7 @@ import Pagination from 'components/Pagination';
 import { ReactComponent as IconCSV } from '../../../assets/img/icons/icon-csv.svg';
 import ExportModalForm from 'components/Backoffices/Reports/ExportModalForm';
 import { Link } from 'react-router-dom';
+import { CircularProgress } from '@mui/material';
 
 const Reports = () => {
   // START STATES
@@ -19,7 +20,11 @@ const Reports = () => {
   // END STATES
 
   // START QUERIES
-  const { data: reports, refetch: reportsRefetch } = useQuery({
+  const {
+    data: reports,
+    refetch: reportsRefetch,
+    isLoading: dataLoading,
+  } = useQuery({
     queryKey: REPORTS_QUERY_KEY,
     queryFn: () =>
       axios
@@ -122,31 +127,38 @@ const Reports = () => {
             <th className="border-b-4 py-3 text-left px-2">Date</th>
             <th className="border-b-4 py-3 text-left px-2">Time</th>
           </tr>
-          {reports?.data?.map((report: any) => {
-            return (
-              <tr key={report.id} className="border-b-2 hover:bg-gray-100 duration-200">
-                <td className="py-3 text-sm px-2">
-                  <Link to={`/backoffices/reports/${report.id}`} className="font-semibold hover:opacity-70 duration-100">
-                    {report.report_id}
-                  </Link>
-                </td>
-                <td className="py-3 text-sm px-2">{reportTypeDisplay[report.type as ReportType]}</td>
-                <td className="py-3 text-sm px-2">{report.status}</td>
-                <td className="py-3 text-sm px-2">{report.customer_name}</td>
-                <td className="py-3 text-sm px-2">{report.customer_id ? report.customer_id : '-'}</td>
-                <td className="py-3 text-sm px-2">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(report.total_payment_after_tax_service)}</td>
-                <td className="py-3 text-sm px-2">{report.served_by}</td>
-                <td className="py-3 text-sm px-2">{new Date(report.created_at).toLocaleDateString('id-ID')}</td>
-                <td className="py-3 text-sm px-2">{new Date(report.created_at).toLocaleTimeString()}</td>
-              </tr>
-            );
-          })}
+          {dataLoading ? (
+            <tr className="h-full w-full relative">
+              <td colSpan={8} className="flex items-center gap-2 absolute top-0 left-1/2 -translate-x-1/2 py-5">
+                loading
+                <CircularProgress color="success" size={15} />
+              </td>
+            </tr>
+          ) : (
+            reports?.data?.map((report: any) => {
+              return (
+                <tr key={report.id} className="border-b-2 hover:bg-gray-100 duration-200">
+                  <td className="py-3 text-sm px-2">
+                    <Link to={`/backoffices/reports/${report.id}`} className="font-semibold hover:opacity-70 duration-100">
+                      {report.report_id}
+                    </Link>
+                  </td>
+                  <td className="py-3 text-sm px-2">{reportTypeDisplay[report.type as ReportType]}</td>
+                  <td className="py-3 text-sm px-2">{report.status}</td>
+                  <td className="py-3 text-sm px-2">{report.customer_name}</td>
+                  <td className="py-3 text-sm px-2">{report.customer_id ? report.customer_id : '-'}</td>
+                  <td className="py-3 text-sm px-2">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(report.total_payment_after_tax_service)}</td>
+                  <td className="py-3 text-sm px-2">{report.served_by}</td>
+                  <td className="py-3 text-sm px-2">{new Date(report.created_at).toLocaleDateString('id-ID')}</td>
+                  <td className="py-3 text-sm px-2">{new Date(report.created_at).toLocaleTimeString()}</td>
+                </tr>
+              );
+            })
+          )}
         </table>
         <Pagination setPage={setPage} pageMetaData={reports?.pageMetaData} />
       </section>
-      {openExportModal && (
-        <ExportModalForm open={openExportModal} setOpen={setOpenExportModal} />
-      )}
+      {openExportModal && <ExportModalForm open={openExportModal} setOpen={setOpenExportModal} />}
     </Layout>
   );
 };

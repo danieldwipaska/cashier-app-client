@@ -12,9 +12,9 @@ const style = {
   width: 400,
   bgcolor: 'background.paper',
   boxShadow: 24,
-  pt: 2,
+  pt: 1,
   px: 4,
-  pb: 3,
+  pb: 2,
 };
 
 export function ChildModal({ children, setError, data, action }: { children: any; setError: any; data: any; action: CardAction }) {

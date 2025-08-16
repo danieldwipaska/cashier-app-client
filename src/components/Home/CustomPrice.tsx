@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { addOrUpdateItem, Item } from 'context/slices/orderSlice';
 import { useState } from 'react';
+import formatNumber from 'functions/format.number';
 
 // Modal Style
 const style = {
@@ -22,10 +23,12 @@ const style = {
 const CustomPrice = ({ open, setOpen }: { open: boolean; setOpen: any }) => {
   const { handleSubmit } = useForm();
   const dispatch = useDispatch();
+  const [formattedCustomPrice, setFormattedCustomPrice] = useState<any>(0);
   const [customPrice, setCustomPrice] = useState<any>(0);
   const order = useSelector((state: any) => state.order.order);
 
   const handleClose = () => {
+    setFormattedCustomPrice(0);
     setCustomPrice(0);
     setOpen(false);
   };
@@ -43,6 +46,7 @@ const CustomPrice = ({ open, setOpen }: { open: boolean; setOpen: any }) => {
     };
     dispatch(addOrUpdateItem(item));
 
+    setFormattedCustomPrice(0);
     setCustomPrice(0);
     setOpen(false);
   };
@@ -57,9 +61,13 @@ const CustomPrice = ({ open, setOpen }: { open: boolean; setOpen: any }) => {
               <label className="flex gap-1 flex-1 min-w-32">
                 <input
                   type="number"
-                  value={customPrice}
+                  value={formattedCustomPrice}
                   onChange={(event) => {
-                    setCustomPrice(event.target.value);
+                    const input = event.target.value;
+                    const rawNumber = input.replace(/\./g, '');
+
+                    setFormattedCustomPrice(formatNumber(rawNumber));
+                    setCustomPrice(Number(rawNumber));
                   }}
                   className="px-5 py-2 border"
                   id="CustomPrice"
@@ -68,7 +76,7 @@ const CustomPrice = ({ open, setOpen }: { open: boolean; setOpen: any }) => {
               </label>
             </div>
             <br />
-            <div>
+            <div className="flex items-center gap-2">
               <button
                 type="submit"
                 className={`bg-green-400 py-2 px-3 rounded-lg ${order && order.items.length && order.items.some((item: Item) => item.fnb_id === process.env.REACT_APP_CUSTOM_FNB_ID) ? 'opacity-50' : 'opacity-100'}`}
@@ -76,6 +84,7 @@ const CustomPrice = ({ open, setOpen }: { open: boolean; setOpen: any }) => {
               >
                 Confirm
               </button>
+              {order && order.items.length && order.items.some((item: Item) => item.fnb_id === process.env.REACT_APP_CUSTOM_FNB_ID) ? <span className="text-gray-500">already used</span> : null}
             </div>
           </form>
         </Box>

@@ -8,6 +8,7 @@ import editIcon from '../../../assets/img/icons/icon-edit.svg';
 import { useForm } from 'react-hook-form';
 import { useMessages } from 'context/MessageContext';
 import { Link } from 'react-router-dom';
+import { CircularProgress } from '@mui/material';
 
 const Categories = () => {
   // START HOOKS
@@ -16,7 +17,11 @@ const Categories = () => {
   // END HOOKS
 
   // START QUERIES
-  const { data: categories, refetch: categoriesRefetch } = useQuery({
+  const {
+    data: categories,
+    refetch: categoriesRefetch,
+    isLoading: dataLoading,
+  } = useQuery({
     queryKey: CATEGORIES_QUERY_KEY,
     queryFn: () =>
       axios
@@ -41,7 +46,7 @@ const Categories = () => {
       <Header title="CATEGORIES" />
       <section>
         <div className="mb-5">
-          <Link to='/backoffices/categories/add' className="bg-green-300 py-3 px-5 rounded-lg">
+          <Link to="/backoffices/categories/add" className="bg-green-300 py-3 px-5 rounded-lg">
             Add
           </Link>
         </div>
@@ -51,49 +56,58 @@ const Categories = () => {
             <th className="border-b-4 py-3 px-2 text-left">Total Product</th>
             <th className="border-b-4 py-3 px-2 text-left">Action</th>
           </tr>
-          {categories?.map((category: any) => {
-            return (
-              <tr key={category.id} className="border-b-2 hover:bg-gray-100 duration-200">
-                <td className="py-3 px-2">{category.name}</td>
-                <td className="py-3 px-2">{category.fnbs.length}</td>
-                <td className="py-3 px-2">
-                  <div className="flex items-center gap-2">
-                    <Link to={`/backoffices/categories/${category.id}/edit`}>
-                      <img src={editIcon} alt="editIcon" width={20} />
-                    </Link>
-                    {!category.fnbs.length ? (
-                      <form
-                        onSubmit={handleSubmit(() => {
-                          axios
-                            .delete(`${process.env.REACT_APP_API_BASE_URL}/categories/${category.id}`, {
-                              headers: {
-                                Authorization: `Bearer ${localStorage.getItem('access-token')}`,
-                              },
-                            })
-                            .then((res) => {
-                              return categoriesRefetch();
-                            })
-                            .catch((error) => {
-                              if (error?.response?.data?.statusCode === 404) return showMessage(ErrorMessage.CATEGORY_NOT_FOUND, 'error');
-                              if (error?.response?.data?.statusCode === 500) return showMessage(ErrorMessage.INTERNAL_SERVER_ERROR, 'error');
-                              if (error?.response?.data?.statusCode === 400) return showMessage(ErrorMessage.BAD_REQUEST, 'error');
-                              if (error?.response?.data?.statusCode === 401) return showMessage(error.response?.data?.message, 'error');
-                              return showMessage(ErrorMessage.UNEXPECTED_ERROR, 'error');
-                            });
-                        })}
-                        className="flex items-center"
-                      >
-                        <input type="hidden" {...register('id')} value={category.id} readOnly />
-                        <button type="submit">
-                          <img src={deleteIcon} alt="deleteIcon" width={20} />
-                        </button>
-                      </form>
-                    ) : null}
-                  </div>
-                </td>
-              </tr>
-            );
-          })}
+          {dataLoading ? (
+            <tr className="h-full w-full relative">
+              <td colSpan={8} className="flex items-center gap-2 absolute top-0 left-1/2 -translate-x-1/2 py-5">
+                loading
+                <CircularProgress color="success" size={15} />
+              </td>
+            </tr>
+          ) : (
+            categories?.map((category: any) => {
+              return (
+                <tr key={category.id} className="border-b-2 hover:bg-gray-100 duration-200">
+                  <td className="py-3 px-2">{category.name}</td>
+                  <td className="py-3 px-2">{category.fnbs.length}</td>
+                  <td className="py-3 px-2">
+                    <div className="flex items-center gap-2">
+                      <Link to={`/backoffices/categories/${category.id}/edit`}>
+                        <img src={editIcon} alt="editIcon" width={20} />
+                      </Link>
+                      {!category.fnbs.length ? (
+                        <form
+                          onSubmit={handleSubmit(() => {
+                            axios
+                              .delete(`${process.env.REACT_APP_API_BASE_URL}/categories/${category.id}`, {
+                                headers: {
+                                  Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+                                },
+                              })
+                              .then((res) => {
+                                return categoriesRefetch();
+                              })
+                              .catch((error) => {
+                                if (error?.response?.data?.statusCode === 404) return showMessage(ErrorMessage.CATEGORY_NOT_FOUND, 'error');
+                                if (error?.response?.data?.statusCode === 500) return showMessage(ErrorMessage.INTERNAL_SERVER_ERROR, 'error');
+                                if (error?.response?.data?.statusCode === 400) return showMessage(ErrorMessage.BAD_REQUEST, 'error');
+                                if (error?.response?.data?.statusCode === 401) return showMessage(error.response?.data?.message, 'error');
+                                return showMessage(ErrorMessage.UNEXPECTED_ERROR, 'error');
+                              });
+                          })}
+                          className="flex items-center"
+                        >
+                          <input type="hidden" {...register('id')} value={category.id} readOnly />
+                          <button type="submit">
+                            <img src={deleteIcon} alt="deleteIcon" width={20} />
+                          </button>
+                        </form>
+                      ) : null}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })
+          )}
         </table>
       </section>
     </Layout>

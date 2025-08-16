@@ -5,10 +5,11 @@ import axios from 'axios';
 import { MODIFIERS_QUERY_KEY } from 'configs/utils';
 import editIcon from '../../../assets/img/icons/icon-edit.svg';
 import { Link } from 'react-router-dom';
+import { CircularProgress } from '@mui/material';
 
 const Modifiers = () => {
   // START QUERIES
-  const { data: modifiers } = useQuery({
+  const { data: modifiers, isLoading: dataLoading } = useQuery({
     queryKey: MODIFIERS_QUERY_KEY,
     queryFn: () =>
       axios
@@ -33,7 +34,7 @@ const Modifiers = () => {
       <Header title="MODIFIERS" />
       <section>
         <div className="mb-5">
-          <Link to='/backoffices/modifiers/add' className="bg-green-300 py-3 px-5 rounded-lg">
+          <Link to="/backoffices/modifiers/add" className="bg-green-300 py-3 px-5 rounded-lg">
             Add
           </Link>
         </div>
@@ -44,22 +45,31 @@ const Modifiers = () => {
             <th className="border-b-4 py-3 px-2 text-left">Status</th>
             <th className="border-b-4 py-3 px-2 text-left">Action</th>
           </tr>
-          {modifiers?.map((modifier: any) => {
-            return (
-              <tr key={modifier.id} className="border-b-2 hover:bg-gray-100 duration-200">
-                <td className="py-3 px-2">{modifier.code}</td>
-                <td className="py-3 px-2">{modifier.name}</td>
-                <td className="py-3 px-2">{modifier.is_active ? 'Active' : 'Inactive'}</td>
-                <td className="py-3 px-2">
-                  <div className="flex items-center gap-2">
-                    <Link to={`/backoffices/modifiers/${modifier.id}/edit`}>
-                      <img src={editIcon} alt="editIcon" width={20} />
-                    </Link>
-                  </div>
-                </td>
-              </tr>
-            );
-          })}
+          {dataLoading ? (
+            <tr className="h-full w-full relative">
+              <td colSpan={8} className="flex items-center gap-2 absolute top-0 left-1/2 -translate-x-1/2 py-5">
+                loading
+                <CircularProgress color="success" size={15} />
+              </td>
+            </tr>
+          ) : (
+            modifiers?.map((modifier: any) => {
+              return (
+                <tr key={modifier.id} className="border-b-2 hover:bg-gray-100 duration-200">
+                  <td className="py-3 px-2">{modifier.code}</td>
+                  <td className="py-3 px-2">{modifier.name}</td>
+                  <td className="py-3 px-2">{modifier.is_active ? 'Active' : 'Inactive'}</td>
+                  <td className="py-3 px-2">
+                    <div className="flex items-center gap-2">
+                      <Link to={`/backoffices/modifiers/${modifier.id}/edit`}>
+                        <img src={editIcon} alt="editIcon" width={20} />
+                      </Link>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })
+          )}
         </table>
       </section>
     </Layout>

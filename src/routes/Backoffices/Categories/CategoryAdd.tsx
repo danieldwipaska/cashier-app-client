@@ -55,7 +55,7 @@ const CategoryAdd = () => {
             </div>
             <br />
             <br />
-            <button type="submit" className="bg-green-300 py-2 px-3 rounded-lg">
+            <button type="submit" className="bg-green-300 py-2 px-3 rounded-lg" disabled={submitLoading}>
               {submitLoading ? (
                 <div className="flex items-center gap-2">
                   <p>Loading</p>

@@ -189,9 +189,9 @@ const Home = () => {
       </div>
 
       <NestedModal open={openReceiptModal} handleClose={handleCloseDetailModal} divClass={`overflow-y-auto max-h-screen`}>
-        <div className=" relative">
+        <div className=" relative text-sm">
           <div className="flex flex-col items-center">
-            <h1 className="text-3xl font-bold mt-5">Bahari Irish Pub</h1>
+            <h1 className="text-xl font-bold mt-5">Bahari Irish Pub</h1>
             <p>Jl. Kawi No.8A, Kota Malang</p>
             <p>Indonesia, 65119</p>
             <div className="my-3 w-full border border-b-black border-dashed"></div>
@@ -212,15 +212,17 @@ const Home = () => {
           </div>
           <div className="my-3 w-full border border-b-black border-dashed"></div>
           <div>
-            {paymentData?.Item.map((item: any, i: number) => (
-              <div key={i} className="flex justify-between">
-                <div className="flex">
-                  <div>{item.fnb?.name}</div>
-                  <div>...x {item.amount}</div>
+            <div className="max-h-[calc(100vh-500px)] overflow-y-auto">
+              {paymentData?.Item.map((item: any, i: number) => (
+                <div key={i} className="flex justify-between">
+                  <div className="flex">
+                    <div>{item.fnb?.name}</div>
+                    <div>...x {item.amount}</div>
+                  </div>
+                  <div>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.price * item.amount)}</div>
                 </div>
-                <div>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.price * item.amount)}</div>
-              </div>
-            ))}
+              ))}
+            </div>
             {paymentData?.type !== ReportType.PAY ? (
               <div className="flex justify-between">
                 <div>{paymentData?.type}</div>

@@ -426,11 +426,15 @@ const ListOfPayment = () => {
 
   const cancelOpenBill = async (id: string) => {
     try {
-      await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/reports/${id}/cancel`, {}, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('access-token')}`,
-        },
-      });
+      await axios.patch(
+        `${process.env.REACT_APP_API_BASE_URL}/reports/${id}/cancel`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+          },
+        }
+      );
 
       reportsRefetch();
       showMessage('Payment has been cancelled', 'success');
@@ -590,9 +594,9 @@ const ListOfPayment = () => {
         </Paper>
       </div>
       <NestedModal open={openDetailModal} handleClose={handleCloseDetailModal} divClass={`overflow-y-auto max-h-screen`}>
-        <div className=" relative">
+        <div className=" relative text-sm">
           <div className="flex flex-col items-center">
-            <h1 className="text-3xl font-bold mt-5">Bahari Irish Pub</h1>
+            <h1 className="text-xl font-bold mt-5">Bahari Irish Pub</h1>
             <p>Jl. Kawi No.8A, Kota Malang</p>
             <p>Indonesia, 65119</p>
             <div className="my-3 w-full border border-b-black border-dashed"></div>
@@ -613,7 +617,8 @@ const ListOfPayment = () => {
           </div>
           <div className="my-3 w-full border border-b-black border-dashed"></div>
           <div>
-            {selectedPaymentData?.items?.map((item: Item, i: number) => (
+            <div className='max-h-[calc(100vh-500px)] overflow-y-auto'>
+              {selectedPaymentData?.items?.map((item: Item, i: number) => (
               <div key={i} className="flex justify-between">
                 <div className="flex">
                   <div>{item.fnb_name}</div>
@@ -622,6 +627,7 @@ const ListOfPayment = () => {
                 <div>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(selectedPaymentData?.items[i].price * selectedPaymentData?.items[i].amount)}</div>
               </div>
             ))}
+            </div>
             {selectedPaymentData?.type !== ReportType.PAY ? (
               <div className="flex justify-between">
                 <div>{selectedPaymentData?.type}</div>

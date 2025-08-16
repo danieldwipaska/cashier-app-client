@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import Pagination from 'components/Pagination';
 import { useMessages } from 'context/MessageContext';
 import { Link } from 'react-router-dom';
+import { CircularProgress } from '@mui/material';
 
 const Products = () => {
   // START CONTEXTS
@@ -19,7 +20,11 @@ const Products = () => {
   // END STATES
 
   // START QUERIES
-  const { data: products, refetch: productsRefetch } = useQuery({
+  const {
+    data: products,
+    refetch: productsRefetch,
+    isLoading: dataLoading,
+  } = useQuery({
     queryKey: PRODUCTS_QUERY_KEY,
     queryFn: () =>
       axios
@@ -76,7 +81,7 @@ const Products = () => {
       <Header title="PRODUCTS" />
       <section>
         <div className="mb-5">
-          <Link to='/backoffices/products/add' className="bg-green-300 py-3 px-5 rounded-lg">
+          <Link to="/backoffices/products/add" className="bg-green-300 py-3 px-5 rounded-lg">
             Add
           </Link>
         </div>
@@ -91,42 +96,51 @@ const Products = () => {
             <th className="border-b-4 py-3 px-2 text-left">Discount Percent</th>
             <th className="border-b-4 py-3 px-2 text-center">Action</th>
           </tr>
-          {products?.data?.map((product: any) => {
-            return (
-              <tr key={product.id} className="border-b-2 hover:bg-gray-100 duration-200">
-                <td className="py-3 px-2">
-                  <Link to={`/backoffices/products/${product.id}`}  className="font-semibold hover:opacity-70 duration-100">
-                    {product.name}
-                  </Link>
-                </td>
-                <td className="py-3 px-2">{product.is_active ? 'active' : 'inactive'}</td>
-                <td className="py-3 px-2">
-                  <div className="flex items-center gap-2">
-                    {product.availability ? <div className="text-green-700">Available</div> : <div className="text-red-700">Out of Stock</div>}
-                    <button
-                      className="rounded-full bg-gray-300 px-2 py-1"
-                      onClick={() => {
-                        handleAvailabilityClick(product.id, !product.availability);
-                      }}
-                    >
-                      set as empty
-                    </button>
-                  </div>
-                </td>
-                <td className="py-3 px-2">{Intl.NumberFormat('id-ID').format(product.price)}</td>
-                <td className="py-3 px-2">{product.category.name}</td>
-                <td className="py-3 px-2">{product.discount_status ? 'yes' : 'no'}</td>
-                <td className="py-3 px-2">{product.discount_percent ? Intl.NumberFormat('id-ID').format(product.discount_percent) : '-'}</td>
-                <td className="py-3 px-2">
-                  <div className="flex items-center gap-2 justify-center">
-                    <Link to={`/backoffices/products/${product.id}/edit`} className="">
-                      <img src={editIcon} alt="editIcon" width={20} />
+          {dataLoading ? (
+            <tr className="h-full w-full relative">
+              <td colSpan={8} className="flex items-center gap-2 absolute top-0 left-1/2 -translate-x-1/2 py-5">
+                loading
+                <CircularProgress color="success" size={15} />
+              </td>
+            </tr>
+          ) : (
+            products?.data?.map((product: any) => {
+              return (
+                <tr key={product.id} className="border-b-2 hover:bg-gray-100 duration-200">
+                  <td className="py-3 px-2">
+                    <Link to={`/backoffices/products/${product.id}`} className="font-semibold hover:opacity-70 duration-100">
+                      {product.name}
                     </Link>
-                  </div>
-                </td>
-              </tr>
-            );
-          })}
+                  </td>
+                  <td className="py-3 px-2">{product.is_active ? 'active' : 'inactive'}</td>
+                  <td className="py-3 px-2">
+                    <div className="flex items-center gap-2">
+                      {product.availability ? <div className="text-green-700">Available</div> : <div className="text-red-700">Out of Stock</div>}
+                      <button
+                        className="rounded-full bg-gray-300 px-2 py-1"
+                        onClick={() => {
+                          handleAvailabilityClick(product.id, !product.availability);
+                        }}
+                      >
+                        set as empty
+                      </button>
+                    </div>
+                  </td>
+                  <td className="py-3 px-2">{Intl.NumberFormat('id-ID').format(product.price)}</td>
+                  <td className="py-3 px-2">{product.category.name}</td>
+                  <td className="py-3 px-2">{product.discount_status ? 'yes' : 'no'}</td>
+                  <td className="py-3 px-2">{product.discount_percent ? Intl.NumberFormat('id-ID').format(product.discount_percent) : '-'}</td>
+                  <td className="py-3 px-2">
+                    <div className="flex items-center gap-2 justify-center">
+                      <Link to={`/backoffices/products/${product.id}/edit`} className="">
+                        <img src={editIcon} alt="editIcon" width={20} />
+                      </Link>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })
+          )}
         </table>
         <Pagination setPage={setPage} pageMetaData={products?.pageMetaData} />
       </section>

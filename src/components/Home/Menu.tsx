@@ -1,4 +1,4 @@
-import { Badge, Box, FormControl, InputLabel, List, ListItem, ListItemButton, ListItemIcon, ListItemText, MenuItem, Select, SelectChangeEvent } from '@mui/material';
+import { Badge, Box, CircularProgress, FormControl, InputLabel, List, ListItem, ListItemButton, ListItemIcon, ListItemText, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { addOrUpdateItem, Item } from 'context/slices/orderSlice';
@@ -30,7 +30,11 @@ const Menu = (props: any): JSX.Element => {
         }),
   });
 
-  const { data: availableFnbsByCategory, refetch: fnbsRefetch } = useQuery({
+  const {
+    data: availableFnbsByCategory,
+    refetch: fnbsRefetch,
+    isLoading: dataLoading,
+  } = useQuery({
     queryKey: ['availableFnbsByCategory'],
     queryFn: async () => {
       try {
@@ -122,55 +126,62 @@ const Menu = (props: any): JSX.Element => {
         <input type="text" className="px-3 py-2 border border-black/40 rounded-md" placeholder="Search..." onChange={handleSearchMenuChange} />
       </div>
       <div className="bg-white mt-5 rounded-md px-5 py-3 h-4/5 w-full">
-        <div>
+        <div className="flex justify-between items-center">
           <p className="text-xl mx-2 font-semibold">Menu</p>
+          <button className={`bg-green-300 py-2 px-3 rounded-lg ${openSummary ? 'opacity-60' : ''}`} onClick={() => setOpenCustomPrice(true)} disabled={openSummary}>
+            Custom
+          </button>
         </div>
         <div className="mt-6 h-5/6 overflow-y-auto border rounded-md" style={{ width: '100%' }}>
-          <Box sx={{ m: 0, width: 'inherit', bgcolor: 'background.paper' }}>
-            <div aria-label="main mailbox folders">
-              <List disablePadding>
-                {availableFnbsByCategory?.map((fnb: any) => (
-                  <ListItem disablePadding sx={{ borderBottom: '1px solid #e0e0e0' }} key={fnb.id}>
-                    {openSummary ? (
-                      <ListItemButton sx={{ p: 2 }} disabled>
-                        <ListItemIcon sx={{ width: 100 }}>
-                          <div className="w-full flex justify-end">
-                            <p className="text-xs rounded-full bg-green-200 px-3 py-1">{fnb.category.name}</p>
-                          </div>
-                        </ListItemIcon>
-                        <ListItemText primary={fnb.name} sx={{ mx: 2 }} />
-                      </ListItemButton>
-                    ) : (
-                      <ListItemButton
-                        sx={{ p: 2 }}
-                        onClick={() => {
-                          if (fnb.name === process.env.REACT_APP_CUSTOM_FNB_NAME) {
-                            setOpenCustomPrice(true);
-                            return;
-                          }
-
-                          addFnbToOrder(fnb);
-                        }}
-                      >
-                        <ListItemIcon sx={{ width: 100 }}>
-                          <div className="w-full flex justify-end">
-                            <p className="text-xs rounded-full bg-green-200 px-3 py-1">{fnb.category.name}</p>
-                          </div>
-                        </ListItemIcon>
-                        {fnb.discount_status ? (
-                          <Badge badgeContent={`-${fnb.discount_percent}%`} color="warning">
-                            <ListItemText primary={fnb.name} sx={{ mx: 2 }} />
-                          </Badge>
-                        ) : (
-                          <ListItemText primary={fnb.name} sx={{ mx: 2 }} />
-                        )}
-                      </ListItemButton>
-                    )}
-                  </ListItem>
-                ))}
-              </List>
+          {dataLoading ? (
+            <div className="h-full w-full relative">
+              <div className="flex items-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full z-10">
+                loading
+                <CircularProgress color="success" size={15} />
+              </div>
             </div>
-          </Box>
+          ) : (
+            <Box sx={{ m: 0, width: 'inherit', bgcolor: 'background.paper' }}>
+              <div aria-label="main mailbox folders">
+                <List disablePadding>
+                  {availableFnbsByCategory?.map((fnb: any) => (
+                    <ListItem disablePadding sx={{ borderBottom: '1px solid #e0e0e0' }} key={fnb.id}>
+                      {openSummary ? (
+                        <ListItemButton sx={{ p: 2 }} disabled>
+                          <ListItemIcon sx={{ width: 100 }}>
+                            <div className="w-full flex justify-end">
+                              <p className="text-xs rounded-full bg-green-200 px-3 py-1">{fnb.category.name}</p>
+                            </div>
+                          </ListItemIcon>
+                          <ListItemText primary={fnb.name} sx={{ mx: 2 }} />
+                        </ListItemButton>
+                      ) : (
+                        <ListItemButton
+                          sx={{ p: 2 }}
+                          onClick={() => {
+                            addFnbToOrder(fnb);
+                          }}
+                        >
+                          <ListItemIcon sx={{ width: 100 }}>
+                            <div className="w-full flex justify-end">
+                              <p className="text-xs rounded-full bg-green-200 px-3 py-1">{fnb.category.name}</p>
+                            </div>
+                          </ListItemIcon>
+                          {fnb.discount_status ? (
+                            <Badge badgeContent={`-${fnb.discount_percent}%`} color="warning">
+                              <ListItemText primary={fnb.name} sx={{ mx: 2 }} />
+                            </Badge>
+                          ) : (
+                            <ListItemText primary={fnb.name} sx={{ mx: 2 }} />
+                          )}
+                        </ListItemButton>
+                      )}
+                    </ListItem>
+                  ))}
+                </List>
+              </div>
+            </Box>
+          )}
         </div>
       </div>
       <CustomPrice open={openCustomPrice} setOpen={setOpenCustomPrice} />

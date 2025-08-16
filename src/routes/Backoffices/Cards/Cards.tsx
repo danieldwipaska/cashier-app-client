@@ -6,6 +6,7 @@ import { CARDS_METHOD_QUERY_KEY } from 'configs/utils';
 import { useEffect, useState } from 'react';
 import Pagination from 'components/Pagination';
 import { Link } from 'react-router-dom';
+import { CircularProgress } from '@mui/material';
 
 const Cards = () => {
   // START STATES
@@ -13,7 +14,11 @@ const Cards = () => {
   // END STATES
 
   // START QUERIES
-  const { data: cards, refetch: cardsRefetch } = useQuery({
+  const {
+    data: cards,
+    refetch: cardsRefetch,
+    isLoading: dataLoading,
+  } = useQuery({
     queryKey: CARDS_METHOD_QUERY_KEY,
     queryFn: () =>
       axios
@@ -42,8 +47,8 @@ const Cards = () => {
     <Layout>
       <Header title="CARDS" />
       <section>
-      <div className="mb-5">
-          <Link to='/backoffices/cards/add' className="bg-green-300 py-3 px-5 rounded-lg">
+        <div className="mb-5">
+          <Link to="/backoffices/cards/add" className="bg-green-300 py-3 px-5 rounded-lg">
             Add
           </Link>
         </div>
@@ -57,19 +62,28 @@ const Cards = () => {
             <th className="border-b-4 py-3 px-2 text-left">Member</th>
             <th className="border-b-4 py-3 px-2 text-left">Updated At</th>
           </tr>
-          {cards?.data?.map((card: any) => {
-            return (
-              <tr key={card.id} className="border-b-2 hover:bg-gray-100 duration-200">
-                <td className="py-3 px-2">{card.card_number}</td>
-                <td className="py-3 px-2">{card.customer_id}</td>
-                <td className="py-3 px-2">{card.customer_name}</td>
-                <td className="py-3 px-2">{Intl.NumberFormat('id-ID').format(card.balance)}</td>
-                <td className="py-3 px-2">{card.status}</td>
-                <td className="py-3 px-2">{card.is_member ? 'yes' : 'no'}</td>
-                <td className="py-3 px-2">{new Date(card.updated_at).toLocaleDateString('id-ID')}</td>
-              </tr>
-            );
-          })}
+          {dataLoading ? (
+            <tr className="h-full w-full relative">
+              <td colSpan={8} className="flex items-center gap-2 absolute top-0 left-1/2 -translate-x-1/2 py-5">
+                loading
+                <CircularProgress color="success" size={15} />
+              </td>
+            </tr>
+          ) : (
+            cards?.data?.map((card: any) => {
+              return (
+                <tr key={card.id} className="border-b-2 hover:bg-gray-100 duration-200">
+                  <td className="py-3 px-2">{card.card_number}</td>
+                  <td className="py-3 px-2">{card.customer_id}</td>
+                  <td className="py-3 px-2">{card.customer_name}</td>
+                  <td className="py-3 px-2">{Intl.NumberFormat('id-ID').format(card.balance)}</td>
+                  <td className="py-3 px-2">{card.status}</td>
+                  <td className="py-3 px-2">{card.is_member ? 'yes' : 'no'}</td>
+                  <td className="py-3 px-2">{new Date(card.updated_at).toLocaleDateString('id-ID')}</td>
+                </tr>
+              );
+            })
+          )}
         </table>
         <Pagination setPage={setPage} pageMetaData={cards?.pageMetaData} />
       </section>

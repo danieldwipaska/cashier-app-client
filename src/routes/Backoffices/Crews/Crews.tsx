@@ -12,6 +12,7 @@ import CheckoutSummary from 'components/Backoffices/Crews/CheckoutSummary';
 import AdjustmentSummary from 'components/Backoffices/Crews/AdjustmentSummary';
 import { useMessages } from 'context/MessageContext';
 import { Link } from 'react-router-dom';
+import { CircularProgress } from '@mui/material';
 
 const Crews = () => {
   // START HOOKS
@@ -21,7 +22,11 @@ const Crews = () => {
   // END HOOKS
 
   // START QUERIES
-  const { data: crews, refetch: crewsRefetch } = useQuery({
+  const {
+    data: crews,
+    refetch: crewsRefetch,
+    isLoading: dataLoading,
+  } = useQuery({
     queryKey: CREWS_QUERY_KEY,
     queryFn: () =>
       axios
@@ -46,7 +51,7 @@ const Crews = () => {
       <Header title="CREWS" />
       <section>
         <div className="mb-5">
-          <Link to='/backoffices/crews/add' className="bg-green-300 py-3 px-5 rounded-lg">
+          <Link to="/backoffices/crews/add" className="bg-green-300 py-3 px-5 rounded-lg">
             Add
           </Link>
         </div>
@@ -59,48 +64,57 @@ const Crews = () => {
                 <th className="border-b-4 py-3 px-2 text-left">Position</th>
                 <th className="border-b-4 py-3 px-2 text-left">Action</th>
               </tr>
-              {crews?.map((crew: any) => {
-                return (
-                  <tr key={crew.id} className="border-b-2 hover:bg-gray-100 duration-200">
-                    <td className="py-3 px-2">{crew.name}</td>
-                    <td className="py-3 px-2">{crew.is_active ? 'active' : 'inactive'}</td>
-                    <td className="py-3 px-2">{crew.position}</td>
-                    <td className="py-3 px-2">
-                      <div className="flex items-center gap-2">
-                        <Link to={`/backoffices/crews/${crew.id}/edit`}>
-                          <img src={editIcon} alt="editIcon" width={20} />
-                        </Link>
-                        <form
-                          onSubmit={handleSubmit(() => {
-                            axios
-                              .delete(`${process.env.REACT_APP_API_BASE_URL}/crews/${crew.id}`, {
-                                headers: {
-                                  Authorization: `Bearer ${localStorage.getItem('access-token')}`,
-                                },
-                              })
-                              .then((res) => {
-                                return crewsRefetch();
-                              })
-                              .catch((error) => {
-                                if (error?.response?.data?.statusCode === 404) return showMessage(ErrorMessage.CREW_NOT_FOUND, 'error');
-                                if (error?.response?.data?.statusCode === 500) return showMessage(ErrorMessage.INTERNAL_SERVER_ERROR, 'error');
-                                if (error?.response?.data?.statusCode === 400) return showMessage(ErrorMessage.BAD_REQUEST, 'error');
-                                if (error?.response?.data?.statusCode === 401) return showMessage(error.response?.data?.message, 'error');
-                                return showMessage(ErrorMessage.UNEXPECTED_ERROR, 'error');
-                              });
-                          })}
-                          className="flex items-center"
-                        >
-                          <input type="hidden" {...register('id')} value={crew.id} readOnly />
-                          <button type="submit">
-                            <img src={deleteIcon} alt="deleteIcon" width={20} />
-                          </button>
-                        </form>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+              {dataLoading ? (
+                <tr className="h-full w-full relative">
+                  <td colSpan={8} className="flex items-center gap-2 absolute top-0 left-1/2 -translate-x-1/2 py-5">
+                    loading
+                    <CircularProgress color="success" size={15} />
+                  </td>
+                </tr>
+              ) : (
+                crews?.map((crew: any) => {
+                  return (
+                    <tr key={crew.id} className="border-b-2 hover:bg-gray-100 duration-200">
+                      <td className="py-3 px-2">{crew.name}</td>
+                      <td className="py-3 px-2">{crew.is_active ? 'active' : 'inactive'}</td>
+                      <td className="py-3 px-2">{crew.position}</td>
+                      <td className="py-3 px-2">
+                        <div className="flex items-center gap-2">
+                          <Link to={`/backoffices/crews/${crew.id}/edit`}>
+                            <img src={editIcon} alt="editIcon" width={20} />
+                          </Link>
+                          <form
+                            onSubmit={handleSubmit(() => {
+                              axios
+                                .delete(`${process.env.REACT_APP_API_BASE_URL}/crews/${crew.id}`, {
+                                  headers: {
+                                    Authorization: `Bearer ${localStorage.getItem('access-token')}`,
+                                  },
+                                })
+                                .then((res) => {
+                                  return crewsRefetch();
+                                })
+                                .catch((error) => {
+                                  if (error?.response?.data?.statusCode === 404) return showMessage(ErrorMessage.CREW_NOT_FOUND, 'error');
+                                  if (error?.response?.data?.statusCode === 500) return showMessage(ErrorMessage.INTERNAL_SERVER_ERROR, 'error');
+                                  if (error?.response?.data?.statusCode === 400) return showMessage(ErrorMessage.BAD_REQUEST, 'error');
+                                  if (error?.response?.data?.statusCode === 401) return showMessage(error.response?.data?.message, 'error');
+                                  return showMessage(ErrorMessage.UNEXPECTED_ERROR, 'error');
+                                });
+                            })}
+                            className="flex items-center"
+                          >
+                            <input type="hidden" {...register('id')} value={crew.id} readOnly />
+                            <button type="submit">
+                              <img src={deleteIcon} alt="deleteIcon" width={20} />
+                            </button>
+                          </form>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </table>
           </div>
           <div className="flex flex-col gap-3">
