@@ -5,14 +5,19 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useMessages } from 'context/MessageContext';
 import { ErrorMessage } from 'configs/utils';
+import { CircularProgress } from '@mui/material';
+import { useState } from 'react';
 
 const ModifierAdd = () => {
+  const [submitLoading, setSubmitLoading] = useState<boolean>(false);
+
   const { showMessage } = useMessages();
 
   const { register, handleSubmit } = useForm();
   const navigate = useNavigate();
 
   const onSubmit = (data: any) => {
+    setSubmitLoading(true);
     axios
       .post(`${process.env.REACT_APP_API_BASE_URL}/modifiers`, data, {
         headers: {
@@ -29,6 +34,9 @@ const ModifierAdd = () => {
         if (error?.response?.data?.statusCode === 400) return showMessage(ErrorMessage.BAD_REQUEST, 'error');
         if (error?.response?.data?.statusCode === 401) return showMessage(ErrorMessage.INVALID_CREW_CODE, 'error');
         return showMessage(ErrorMessage.UNEXPECTED_ERROR, 'error');
+      })
+      .finally(() => {
+        setSubmitLoading(false);
       });
   };
 
@@ -54,7 +62,14 @@ const ModifierAdd = () => {
             <br />
             <div>
               <button type="submit" className="bg-green-300 py-2 px-3 rounded-lg">
-                Submit
+                {submitLoading ? (
+                  <div className="flex items-center gap-2">
+                    <p>Loading</p>
+                    <CircularProgress color="warning" size={15} />
+                  </div>
+                ) : (
+                  'Submit'
+                )}
               </button>
             </div>
           </div>

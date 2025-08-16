@@ -7,6 +7,7 @@ import Layout from '../Layout/Layout';
 import Header from 'components/Backoffices/Header';
 import { useForm } from 'react-hook-form';
 import { useMessages } from 'context/MessageContext';
+import { CircularProgress } from '@mui/material';
 
 const ModifierEdit = () => {
   // START HOOKS
@@ -20,6 +21,7 @@ const ModifierEdit = () => {
   const [code, setCode] = useState('');
   const [name, setName] = useState('');
   const [activeStatus, setActiveStatus] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState<boolean>(false);
   // END STATES
 
   // START CHANGE
@@ -59,6 +61,7 @@ const ModifierEdit = () => {
   // END QUERIES
 
   const onSubmit = (data: any) => {
+    setSubmitLoading(true);
     axios
       .patch(
         `${process.env.REACT_APP_API_BASE_URL}/modifiers/${modifierId}`,
@@ -83,6 +86,9 @@ const ModifierEdit = () => {
         if (error?.response?.data?.statusCode === 400) return showMessage(ErrorMessage.BAD_REQUEST, 'error');
         if (error?.response?.data?.statusCode === 401) return showMessage(error.response?.data?.message, 'error');
         return showMessage(ErrorMessage.UNEXPECTED_ERROR, 'error');
+      })
+      .finally(() => {
+        setSubmitLoading(false);
       });
   };
 
@@ -114,7 +120,14 @@ const ModifierEdit = () => {
             <br />
             <div>
               <button type="submit" className="bg-green-300 py-2 px-3 rounded-lg">
-                Submit
+                {submitLoading ? (
+                  <div className="flex items-center gap-2">
+                    <p>Loading</p>
+                    <CircularProgress color="warning" size={15} />
+                  </div>
+                ) : (
+                  'Submit'
+                )}
               </button>
             </div>
           </div>

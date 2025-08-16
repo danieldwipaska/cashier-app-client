@@ -6,8 +6,14 @@ import Layout from '../Layout/Layout';
 import Header from 'components/Backoffices/Header';
 import INewCardData from 'interfaces/CardData';
 import { useMessages } from 'context/MessageContext';
+import { useState } from 'react';
+import { CircularProgress } from '@mui/material';
 
 const CardAdd = () => {
+  // START STATES
+  const [submitLoading, setSubmitLoading] = useState<boolean>(false);
+  // END STATES
+
   const { register, handleSubmit } = useForm<NewCardFormData>();
   const navigate = useNavigate();
   const { showMessage } = useMessages();
@@ -19,6 +25,8 @@ const CardAdd = () => {
     };
 
     if (data.type === 'Member') payload.is_member = true;
+
+    setSubmitLoading(true);
 
     axios
       .post(`${process.env.REACT_APP_API_BASE_URL}/cards`, payload, {
@@ -36,6 +44,9 @@ const CardAdd = () => {
         if (error?.response?.data?.statusCode === 400) return showMessage(ErrorMessage.BAD_REQUEST, 'error');
         if (error?.response?.data?.statusCode === 401) return showMessage(ErrorMessage.INVALID_CREW_CODE, 'error');
         return showMessage(ErrorMessage.UNEXPECTED_ERROR, 'error');
+      })
+      .finally(() => {
+        setSubmitLoading(false);
       });
   };
 
@@ -71,7 +82,14 @@ const CardAdd = () => {
             <br />
             <div>
               <button type="submit" className="bg-green-300 py-2 px-3 rounded-lg">
-                Submit
+                {submitLoading ? (
+                  <div className="flex items-center gap-2">
+                    <p>Loading</p>
+                    <CircularProgress color="warning" size={15} />
+                  </div>
+                ) : (
+                  'Submit'
+                )}
               </button>
             </div>
           </div>
