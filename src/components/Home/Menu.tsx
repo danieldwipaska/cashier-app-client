@@ -46,7 +46,7 @@ const Menu = (props: any): JSX.Element => {
         });
 
         const availableFnbs = res.data.data.filter((fnb: any) => {
-          return fnb.availability === true && fnb.is_active;
+          return fnb.availability === true && fnb.is_active && fnb.id !== process.env.REACT_APP_CUSTOM_FNB_ID;
         });
 
         if (selectedCategory === 'All' && !searchedMenu) {
