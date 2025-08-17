@@ -17,7 +17,7 @@ const WeeklyEmployeeAwards = () => {
       const { from, to } = getWeeklyOperationalHours();
 
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports?from=${from}&to=${to}&status=${ReportStatus.PAID}&type=${ReportType.PAY}`, {
+        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports?from=${from}&to=${to}&status=${ReportStatus.PAID}&type=${ReportType.PAY}&pagination=false`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access-token')}`,
           },
