@@ -11,7 +11,7 @@ const OrderSummary = ({ states, crewData, unpaidReports, receiptData }: ICartPro
   const order = useSelector((state: any) => state.order.order);
   const dispatch = useDispatch();
 
-  const { setOpenSummary, setOpenBackdrop, openCart, setOpenCart } = states;
+  const { setOpenSummary, setOpenBackdrop, setOpenCart } = states;
   const {
     crewCredential,
     setCrewCredential,

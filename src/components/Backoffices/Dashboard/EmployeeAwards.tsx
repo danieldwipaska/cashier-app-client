@@ -103,7 +103,7 @@ const EmployeeAwards = () => {
               </div>
             </div>
           );
-        }) : <div className="text-center text-gray-400 pt-7">Employee Purchases Yet for Today</div> }
+        }) : <div className="text-center text-gray-400 pt-7">No Employee Purchases Yet for Today</div> }
       </div>
     </div>
   );
