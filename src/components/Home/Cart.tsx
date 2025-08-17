@@ -367,7 +367,7 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
             </div>
           ) : null}
 
-          <div className="flex flex-col overflow-y-auto thin-scrollbar mt-2 pr-2 h-[calc(100vh-400px)]">
+          <div className="flex flex-col overflow-y-auto thin-scrollbar mt-2 pr-2 h-[calc(100dvh-400px)]">
             {order.items?.map((item: any) => (
               <div className="mt-5 border-b-2 pb-2" key={item.fnb_id}>
                 <div className="flex justify-between gap-3 md:gap-0 items-start md:items-center flex-col md:flex-row">

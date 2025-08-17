@@ -155,7 +155,7 @@ const CardDetails = ({ cardData, setCardData, refetchCardData, customerReports }
             <CircularProgress color="warning" size={15} />
           </div>
         ) : (
-          <div className="transaction-container max-h-[calc(100vh-220px)] overflow-y-auto">
+          <div className="transaction-container max-h-[calc(100dvh-220px)] overflow-y-auto">
             {customerReports &&
               customerReports.map((report: any, index: number) => {
                 return (

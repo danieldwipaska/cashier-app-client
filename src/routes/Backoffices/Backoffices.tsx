@@ -35,7 +35,7 @@ const Backoffices = () => {
               <DailyPurchaseLineChart />
             </div>
             <h3 className='font-medium'>Recent Transactions</h3>
-            <div className='overflow-y-auto mb-5 max-h-[calc(100vh-450px)]'>
+            <div className='overflow-y-auto mb-5 max-h-[calc(100dvh-450px)]'>
               <RecentReportTable />
             </div>
           </div>

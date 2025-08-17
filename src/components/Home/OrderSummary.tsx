@@ -300,7 +300,7 @@ const OrderSummary = ({ states, crewData, unpaidReports, receiptData }: ICartPro
             <p className="">Menu Detail</p>
           </div>
 
-          <div className="overflow-y-auto thin-scrollbar h-[calc(100vh-400px)]">
+          <div className="overflow-y-auto thin-scrollbar h-[calc(100dvh-400px)]">
             {order.items.map((item: any) => (
               <div key={item.id} className="mt-3 2xl:mt-5 border border-green-600 p-2 rounded-md">
                 <div className="flex justify-between">

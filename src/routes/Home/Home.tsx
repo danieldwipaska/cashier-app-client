@@ -220,7 +220,7 @@ const Home = () => {
           </div>
           <div className="my-3 w-full border border-b-black border-dashed"></div>
           <div>
-            <div className="max-h-[calc(100vh-500px)] overflow-y-auto">
+            <div className="max-h-[calc(100dvh-500px)] overflow-y-auto">
               {paymentData?.Item.map((item: any, i: number) => (
                 <div key={i} className="flex justify-between">
                   <div className="flex">
