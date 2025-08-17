@@ -18,7 +18,7 @@ const TopupCard = () => {
       const { from, to } = getOperationalHours();
 
       try {
-        const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports?from=${from}&to=${to}&status=${ReportStatus.PAID}&type=${ReportType.TOPUP}&type=${ReportType.TOPUP_AND_ACTIVATE}&type=${ReportType.ADJUSTMENT}`, {
+        const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/reports?from=${from}&to=${to}&status=${ReportStatus.PAID}&type=${ReportType.TOPUP}&type=${ReportType.TOPUP_AND_ACTIVATE}&type=${ReportType.ADJUSTMENT}&pagination=false`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access-token')}`,
           },

@@ -11,7 +11,7 @@ const PaySummary = ({ title, keys }: { title: string; keys: ReportType[] }) => {
     queryKey: ['paySummary'],
     queryFn: async () => {
       const { from, to } = getOperationalHours();
-      let url = `${process.env.REACT_APP_API_BASE_URL}/reports?from=${from}&to=${to}`;
+      let url = `${process.env.REACT_APP_API_BASE_URL}/reports?from=${from}&to=${to}&pagination=false`;
 
       keys.forEach((key) => {
         url += `&type=${key}`;
