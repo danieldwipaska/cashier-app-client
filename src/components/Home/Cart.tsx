@@ -5,7 +5,8 @@ import { ReactComponent as PlusIcon } from '../../assets/img/icons/plus.svg';
 import { ReactComponent as SaveIcon } from '../../assets/img/icons/save.svg';
 import { ReactComponent as AddIcon } from '../../assets/img/icons/additional-plus.svg';
 import { ReactComponent as NoteIcon } from '../../assets/img/icons/notes.svg';
-import { Alert, CircularProgress, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, TextField } from '@mui/material';
+import { ReactComponent as DoubleArrowBottomIcon } from '../../assets/img/icons/double-arrow-bottom.svg';
+import { Alert, CircularProgress, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, TextField, useMediaQuery } from '@mui/material';
 import axios from 'axios';
 import CrewAuthAlertDialogSlide from './CrewAuthAlertDialogSlide';
 import SimpleSnackbar from '../snackbars/SimpleSnackbar';
@@ -19,12 +20,13 @@ import ItemNote from './ItemNote';
 import SetCustomerName from './SetCustomerName';
 import SetNote from './SetNote';
 
-const Cart = ({ states, crewData, unpaidReports, receiptData }: ICartProps) => {
+const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
   const order = useSelector((state: any) => state.order.order);
   const dispatch = useDispatch();
+  const widthMinMd = useMediaQuery('(min-width: 768px)');
 
   // START STATES
-  const { setOpenSummary } = states;
+  const { setOpenSummary, openCart, setOpenCart } = states;
   const {
     crewCredential,
     setCrewCredential,
@@ -312,9 +314,27 @@ const Cart = ({ states, crewData, unpaidReports, receiptData }: ICartProps) => {
   // END FUNCTIONS
 
   return (
-    <div className="h-screen w-5/12 pt-20 mx-8">
+    <div className={`h-screen w-full md:w-5/12 p-5 md:pt-20 md:px-0 md:pb-0 mx-0 md:mx-8 md:translate-y-0 ${openCart ? 'translate-y-0' : 'translate-y-full'} fixed md:static z-50 md:z-0 bg-white duration-300`}>
       <div className="grid grid-cols-1 content-between h-full">
         <div className="h-full relative">
+          {widthMinMd ? null : (
+            <div>
+              <div className="flex justify-center w-full mb-3 absolute -top-16 left-1/2 -translate-x-1/2">
+                <button className='bg-green-400 pt-3 pb-5 w-1/2 rounded-md' onClick={() => {
+                  setOpenCart(true);
+                }}>
+                  Cart
+                </button>
+              </div>
+              <div className="flex justify-center mb-3">
+                <button onClick={() => {
+                  setOpenCart(false);
+                }}>
+                  <DoubleArrowBottomIcon className="w-[30px] text-green-500" />
+                </button>
+              </div>
+            </div>
+          )}
           <div className="flex justify-between items-center">
             <div>
               <p className="text-lg font-semibold ">Your Order</p>
@@ -350,7 +370,7 @@ const Cart = ({ states, crewData, unpaidReports, receiptData }: ICartProps) => {
           <div className="flex flex-col overflow-y-auto thin-scrollbar mt-2 pr-2 h-[calc(100vh-400px)]">
             {order.items?.map((item: any) => (
               <div className="mt-5 border-b-2 pb-2" key={item.fnb_id}>
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between gap-3 md:gap-0 items-start md:items-center flex-col md:flex-row">
                   <div className="flex gap-2 mr-2">
                     <button
                       className="flex gap-2 items-center text-left"
@@ -360,7 +380,7 @@ const Cart = ({ states, crewData, unpaidReports, receiptData }: ICartProps) => {
                         setOpenModifierModal(true);
                       }}
                     >
-                      <p className="text-xl font-bold">{item.fnb_name}</p>
+                      <p className="text-lg md:text-xl font-bold">{item.fnb_name}</p>
                       <div className={`border border-green-600 rounded-full w-8 h-8 flex items-center justify-center ${item.modifiers && item.modifiers.some((modifier: any) => modifier.checked) ? 'bg-green-600' : null}`}>
                         <AddIcon className={`w-[28px] ${item.modifiers && item.modifiers.some((modifier: any) => modifier.checked) ? 'fill-gray-700' : 'fill-green-600'}`} />
                       </div>
@@ -394,7 +414,7 @@ const Cart = ({ states, crewData, unpaidReports, receiptData }: ICartProps) => {
                     </button>
                   </div>
                 </div>
-                <div className="flex justify-between mt-2">
+                <div className="flex justify-between mt-4 md:mt-2">
                   <div className="flex gap-2 items-center">
                     <button
                       className="border border-green-600 rounded-lg w-8 h-8 flex items-center justify-center"

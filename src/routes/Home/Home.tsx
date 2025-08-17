@@ -28,6 +28,7 @@ const Home = () => {
   // Cart & Summary
   const [openSummary, setOpenSummary] = useState(false);
   const [openBackdrop, setOpenBackdrop] = useState(false);
+  const [openCart, setOpenCart] = useState<boolean>(false);
 
   // Crew Auth
   const [crewCredential, setCrewCredential] = useState('');
@@ -39,6 +40,9 @@ const Home = () => {
   // Receipt
   const [openReceiptModal, setReceiptModal] = useState(false);
   const [paymentData, setPaymentData] = useState<any>(null);
+
+  // SideNav
+  const [showSideNav, setShowSideNav] = useState<boolean>(false);
 
   // END STATES
 
@@ -116,10 +120,10 @@ const Home = () => {
 
   return (
     <div>
-      <Nav />
+      <Nav setShowSideNav={setShowSideNav} />
 
       <div className="flex">
-        <SideNav />
+        <SideNav mobileOpen={showSideNav} setMobileOpen={setShowSideNav} />
 
         <Menu openSummary={openSummary} setOpenSummary={setOpenSummary} />
 
@@ -130,6 +134,8 @@ const Home = () => {
               setOpenSummary,
               openBackdrop,
               setOpenBackdrop,
+              openCart,
+              setOpenCart,
             }}
             crewData={{
               crewCredential,
@@ -161,6 +167,8 @@ const Home = () => {
               setOpenSummary,
               openBackdrop,
               setOpenBackdrop,
+              openCart,
+              setOpenCart,
             }}
             crewData={{
               crewCredential,

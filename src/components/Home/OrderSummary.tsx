@@ -11,7 +11,7 @@ const OrderSummary = ({ states, crewData, unpaidReports, receiptData }: ICartPro
   const order = useSelector((state: any) => state.order.order);
   const dispatch = useDispatch();
 
-  const { setOpenSummary, setOpenBackdrop } = states;
+  const { setOpenSummary, setOpenBackdrop, openCart, setOpenCart } = states;
   const {
     crewCredential,
     setCrewCredential,
@@ -106,6 +106,7 @@ const OrderSummary = ({ states, crewData, unpaidReports, receiptData }: ICartPro
           setCrewCredential('');
           setErrorCrewCredential(false);
           setErrorUnauthorizedCrew(false);
+          setOpenCart(false);
 
           setOpenSummary(false);
 
@@ -148,6 +149,7 @@ const OrderSummary = ({ states, crewData, unpaidReports, receiptData }: ICartPro
           setErrorCrewCredential(false);
           setErrorUnauthorizedCrew(false);
 
+          setOpenCart(false);
           setOpenSummary(false);
 
           setOpenCrewAuthAlertDialog(false);
@@ -236,6 +238,7 @@ const OrderSummary = ({ states, crewData, unpaidReports, receiptData }: ICartPro
           setErrorCrewCredential(false);
           setErrorUnauthorizedCrew(false);
 
+          setOpenCart(false);
           setOpenSummary(false);
 
           setOpenCrewAuthAlertDialog(false);
@@ -269,7 +272,7 @@ const OrderSummary = ({ states, crewData, unpaidReports, receiptData }: ICartPro
   };
 
   return (
-    <div className="h-screen w-4/12 pt-20 mx-8">
+    <div className="h-screen w-full md:w-4/12 p-5 md:p-0 md:pt-20 mx-0 md:mx-8 fixed md:static z-50 md:z-0 bg-white">
       <div className="grid grid-cols-1 content-between h-full">
         <div>
           <div>

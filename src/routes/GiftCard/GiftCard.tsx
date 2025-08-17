@@ -13,6 +13,7 @@ import { useQuery } from '@tanstack/react-query';
 const GiftCard = () => {
   const { user } = useAuth();
   const [cardData, setCardData] = useState<any>(null);
+  const [showSideNav, setShowSideNav] = useState<boolean>(false);
 
   // useEffect
   useCheckToken(user);
@@ -70,12 +71,12 @@ const GiftCard = () => {
 
   return (
     <div>
-      <Nav />
+      <Nav setShowSideNav={setShowSideNav} />
 
       <div className="flex">
-        <SideNav />
+        <SideNav mobileOpen={showSideNav} setMobileOpen={setShowSideNav} />
         <div className={`bg-gray-200 max-h-screen pt-20 pb-8 px-8 w-full ${cardData ? null : 'grid grid-cols-1 place-items-center'}`}>
-          {cardData ? <CardDetails cardData={cardData} setCardData={setCardData} refetchCardData={refetchCardData} customerReports={customerReports}  /> : <SearchCard setCardData={setCardData} />}
+          {cardData ? <CardDetails cardData={cardData} setCardData={setCardData} refetchCardData={refetchCardData} customerReports={customerReports} /> : <SearchCard setCardData={setCardData} />}
         </div>
       </div>
     </div>

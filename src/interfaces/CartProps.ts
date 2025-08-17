@@ -4,6 +4,8 @@ export default interface ICartProps {
     setOpenSummary: React.Dispatch<React.SetStateAction<boolean>>;
     openBackdrop: boolean;
     setOpenBackdrop: React.Dispatch<React.SetStateAction<boolean>>;
+    openCart: boolean;
+    setOpenCart: React.Dispatch<React.SetStateAction<boolean>>;
   };
 
   crewData: {
