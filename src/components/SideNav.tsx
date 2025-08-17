@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { ReactComponent as CartIcon } from '../assets/img/icons/cart.svg';
 import { ReactComponent as ArchiveIcon } from '../assets/img/icons/archive.svg';
 import { ReactComponent as CardIcon } from '../assets/img/icons/card.svg';
@@ -24,27 +24,27 @@ const SideNav = ({ mobileOpen, setMobileOpen }: { mobileOpen: boolean; setMobile
             <DoubleArrowIcon className={`h-[36px] text-green-600`} />
           </button>
         )}
-        <Link to={'/'} className="flex flex-col items-center mb-5">
+        <a href={'/'} className="flex flex-col items-center mb-5">
           <CartIcon className={`h-[36px] ${location?.pathname === '/' ? 'text-green-600' : 'text-gray-400'}`} />
           <p className={`text-xs ${location?.pathname === '/' ? 'text-green-700' : 'text-gray-400'}`}>Orders</p>
-        </Link>
-        <Link to={'/report'} className="flex flex-col items-center mb-5">
+        </a>
+        <a href={'/report'} className="flex flex-col items-center mb-5">
           <ArchiveIcon className={`h-[36px] ${location?.pathname === '/report' ? 'text-green-600' : 'text-gray-400'}`} />
           <p className={`text-xs ${location?.pathname === '/report' ? 'text-green-700' : 'text-gray-400'}`}>Reports</p>
-        </Link>
-        <Link to={'/gift-card'} className="flex flex-col items-center mb-5">
+        </a>
+        <a href={'/gift-card'} className="flex flex-col items-center mb-5">
           <CardIcon className={`h-[36px] ${location?.pathname === '/gift-card' ? 'text-green-600' : 'text-gray-400'}`} />
           <p className={`text-xs ${location?.pathname === '/gift-card' ? 'text-green-700' : 'text-gray-400'}`}>Gift Card</p>
-        </Link>
-        <Link to={'/settings'} className="flex flex-col items-center mb-5">
+        </a>
+        <a href={'/settings'} className="flex flex-col items-center mb-5">
           <SettingIcon className={`h-[36px] ${location?.pathname === '/settings' ? 'text-green-600' : 'text-gray-400'}`} />
           <p className={`text-xs ${location?.pathname === '/settings' ? 'text-green-700' : 'text-gray-400'}`}>Settings</p>
-        </Link>
+        </a>
       </div>
-      <Link to={'/backoffices'} className="flex flex-col items-center mb-7">
+      <a href={'/backoffices'} className="flex flex-col items-center mb-7">
         <BackofficeIcon className="h-[36px] text-gray-400" />
         <p className="text-xs text-gray-400 mt-1">Backoffices</p>
-      </Link>
+      </a>
     </div>
   );
 };
