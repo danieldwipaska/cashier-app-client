@@ -52,6 +52,9 @@ interface Data {
   included_tax_service: boolean;
   tax_percent: number;
   service_percent: number;
+  card_number?: string,
+  final_balance?: number,
+  note?: string;
 }
 
 function createData(
@@ -69,7 +72,10 @@ function createData(
   items: Item[],
   included_tax_service: boolean,
   tax_percent: number,
-  service_percent: number
+  service_percent: number,
+  card_number?: string,
+  final_balance?: number,
+  note?: string,
 ): Data {
   return {
     id,
@@ -87,6 +93,9 @@ function createData(
     included_tax_service,
     tax_percent,
     service_percent,
+    card_number,
+    final_balance,
+    note,
   };
 }
 
@@ -401,7 +410,10 @@ const ListOfPayment = () => {
               items,
               report.included_tax_service,
               report.tax_percent,
-              report.service_percent
+              report.service_percent,
+              report.card_number,
+              report.final_balance ? report.final_balance : 0,
+              report.note ? report.note : '',
             )
           );
         });
@@ -617,16 +629,16 @@ const ListOfPayment = () => {
           </div>
           <div className="my-3 w-full border border-b-black border-dashed"></div>
           <div>
-            <div className='max-h-[calc(100dvh-500px)] overflow-y-auto'>
+            <div className="max-h-[calc(100dvh-500px)] overflow-y-auto">
               {selectedPaymentData?.items?.map((item: Item, i: number) => (
-              <div key={i} className="flex justify-between">
-                <div className="flex">
-                  <div>{item.fnb_name}</div>
-                  <div>...x {selectedPaymentData?.items[i].amount}</div>
+                <div key={i} className="flex justify-between">
+                  <div className="flex">
+                    <div>{item.fnb_name}</div>
+                    <div>...x {selectedPaymentData?.items[i].amount}</div>
+                  </div>
+                  <div>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(selectedPaymentData?.items[i].price * selectedPaymentData?.items[i].amount)}</div>
                 </div>
-                <div>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(selectedPaymentData?.items[i].price * selectedPaymentData?.items[i].amount)}</div>
-              </div>
-            ))}
+              ))}
             </div>
             {selectedPaymentData?.type !== ReportType.PAY ? (
               <div className="flex justify-between">
@@ -665,9 +677,29 @@ const ListOfPayment = () => {
               </div>
             </div>
 
+            {selectedPaymentData?.card_number ? (
+              <>
+                <div className="my-3 w-full border border-b-black border-dashed"></div>
+                <div className="font-bold">
+                  <div>Bahari Card:</div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between">
+                    <div>
+                      <div>Balance</div>
+                    </div>
+                    <div>
+                      <div>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(selectedPaymentData?.final_balance)}</div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : null}
+
             <div className="my-3 w-full border border-b-black border-dashed"></div>
 
-            <div>
+            <div className="mt-3">
               <div>Note:</div>
               <div>{selectedPaymentData ? selectedPaymentData.note : null}</div>
             </div>
