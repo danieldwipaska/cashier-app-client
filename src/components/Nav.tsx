@@ -23,14 +23,10 @@ const Nav = ({ setShowSideNav }: { setShowSideNav: any }) => {
   };
 
   return (
-    <nav className="bg-white h-16 w-full grid grid-cols-1 content-center fixed z-10">
+    <nav className="bg-white h-16 md:h-fit w-full grid grid-cols-1 content-center fixed z-10">
       <div className="flex my-auto justify-between">
         <div className="flex items-stretch min-w-24 justify-center">
-          {widthMinMd ? (
-            <div className="self-center">
-              <img src={bahariLogo} alt="profile" className="w-14" />
-            </div>
-          ) : (
+          {widthMinMd ? null : (
             <button
               className="self-center"
               onClick={() => {
@@ -42,7 +38,6 @@ const Nav = ({ setShowSideNav }: { setShowSideNav: any }) => {
           )}
         </div>
         <div className="flex-col mx-12">
-          <div className="text-xs text-gray-500">Cashier</div>
           {user.username ? (
             <div>
               <Button

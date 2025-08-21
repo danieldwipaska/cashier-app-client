@@ -12,7 +12,7 @@ const SideNav = ({ mobileOpen, setMobileOpen }: { mobileOpen: boolean; setMobile
   const widthMinMd = useMediaQuery('(min-width: 768px)');
 
   return (
-    <div className={`h-screen min-w-24 pt-5 md:pt-24 flex-col justify-between flex absolute md:static bg-white z-50 md:bg-transparent ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 duration-300`}>
+    <div className={`h-dvh min-w-24 pt-5 md:pt-16 flex-col justify-between flex absolute md:static bg-white z-50 md:bg-transparent ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 duration-300`}>
       <div className="grid grid-cols-1 justify-items-center">
         {widthMinMd ? null : (
           <button

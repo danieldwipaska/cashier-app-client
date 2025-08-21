@@ -456,7 +456,7 @@ const ListOfPayment = () => {
   };
 
   return (
-    <div className="bg-gray-200 max-h-screen pt-20 px-8 w-full">
+    <div className="bg-gray-200 max-h-dvh pt-20 px-8 w-full">
       <div className="mb-5 flex justify-between">
         <div className="flex items-center">
           <input type="text" className="px-3 py-1 border border-black/40 rounded-md" placeholder="Search..." onChange={handleSearchReportChange} />
@@ -519,7 +519,7 @@ const ListOfPayment = () => {
                                 className={`absolute hover:cursor-pointer z-[1] duration-200 transition-all overflow-hidden -translate-x-1/2 ${openDropdownId !== row.id ? 'max-h-0 opacity-0' : 'max-h-60 opacity-100'}`}
                                 id="dropdown-dialog"
                               >
-                                <PartiallyRefundModal row={row} />
+                                {row.type === ReportType.PAY && row.status === ReportStatus.PAID ? <PartiallyRefundModal row={row} /> : null}
                                 <ModalConfirmation
                                   buttonContent={'Cancel'}
                                   confirm={() => {
@@ -605,7 +605,7 @@ const ListOfPayment = () => {
           {reports ? <TablePagination rowsPerPageOptions={[25, 50, 100]} component="div" count={reports.length} rowsPerPage={rowsPerPage} page={page} onPageChange={handleChangePage} onRowsPerPageChange={handleChangeRowsPerPage} /> : null}
         </Paper>
       </div>
-      <NestedModal open={openDetailModal} handleClose={handleCloseDetailModal} divClass={`overflow-y-auto max-h-screen`}>
+      <NestedModal open={openDetailModal} handleClose={handleCloseDetailModal} divClass={`overflow-y-auto max-h-dvh`}>
         <div className=" relative text-sm">
           <div className="flex flex-col items-center">
             <h1 className="text-xl font-bold mt-5">Bahari Irish Pub</h1>
@@ -717,7 +717,7 @@ const ListOfPayment = () => {
           )}
         </div>
       </NestedModal>
-      <NestedModal open={openRefundDetailModal} handleClose={handleCloseRefundDetailModal} divClass={`overflow-y-auto max-h-screen`}>
+      <NestedModal open={openRefundDetailModal} handleClose={handleCloseRefundDetailModal} divClass={`overflow-y-auto max-h-dvh`}>
         <div className=" relative">
           <div className="flex flex-col items-center">
             <h1 className="text-base font-bold">Bahari Irish Pub</h1>

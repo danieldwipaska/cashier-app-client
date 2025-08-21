@@ -272,35 +272,36 @@ const OrderSummary = ({ states, crewData, unpaidReports, receiptData }: ICartPro
   };
 
   return (
-    <div className="h-screen w-full md:w-4/12 p-5 md:p-0 md:pt-20 mx-0 md:mx-8 fixed md:static z-50 md:z-0 bg-white">
+    <div className="h-dvh w-full md:w-4/12 p-5 md:p-0 md:pt-12 mx-0 md:mx-8 fixed md:static z-50 md:z-0 bg-white">
       <div className="grid grid-cols-1 content-between h-full">
         <div>
           <div>
             <button onClick={handleBack}>
               <ArrowBackIosNew />
+              <span>Back to Cart</span>
             </button>
           </div>
           <div className="mt-2">
             <p className="text-lg font-semibold">Order Detail</p>
           </div>
-          <div className="mt-2 grid grid-cols-2 w-2/3 text-gray-400">
+          <div className="mt-2 grid grid-cols-2 w-2/3 text-gray-800">
             <p className="text-sm font-normal">Customer Name</p>
             <p className="text-sm font-normal">: {order.customer_name}</p>
           </div>
-          <div className="mt-1 grid grid-cols-2 w-2/3 text-gray-400">
+          <div className="mt-1 grid grid-cols-2 w-2/3 text-gray-800">
             <p className="text-sm font-normal">Payment Method</p>
             <p className="text-sm font-normal">: {method?.name}</p>
           </div>
-          <div className="mt-1 grid grid-cols-2 w-2/3 text-gray-400">
+          <div className="mt-1 grid grid-cols-2 w-2/3 text-gray-800">
             <p className="text-sm font-normal">Note</p>
             <p className="text-sm font-normal">: {order.note}</p>
           </div>
 
-          <div className="mt-7">
+          <div className="mt-4">
             <p className="">Menu Detail</p>
           </div>
 
-          <div className="overflow-y-auto thin-scrollbar h-[calc(100dvh-400px)]">
+          <div className="overflow-y-auto thin-scrollbar h-[calc(100dvh-350px)] pr-4">
             {order.items.map((item: any) => (
               <div key={item.id} className="mt-3 2xl:mt-5 border border-green-600 p-2 rounded-md">
                 <div className="flex justify-between">
@@ -352,25 +353,25 @@ const OrderSummary = ({ states, crewData, unpaidReports, receiptData }: ICartPro
             </div>
           </div>
           <div>
-            <button className="text-center w-full my-6 py-2 bg-green-500 hover:opacity-70 duration-500 rounded-lg" onClick={handleClickOpenCrewAuthAlertDialog}>
+            <button className="text-center w-full my-4 py-2 bg-green-500 hover:opacity-70 duration-500 rounded-lg" onClick={handleClickOpenCrewAuthAlertDialog}>
               Pay
             </button>
           </div>
         </div>
-        <CrewAuthAlertDialogSlide
-          openCrewAuthAlertDialog={openCrewAuthAlertDialog}
-          setOpenCrewAuthAlertDialog={setOpenCrewAuthAlertDialog}
-          handleConfirm={order.id ? handlePayUpdate : handlePay}
-          crewCredential={crewCredential}
-          setCrewCredential={setCrewCredential}
-          errorCrewCredential={errorCrewCredential}
-          setErrorCrewCredential={setErrorCrewCredential}
-          errorUnauthorizedCrew={errorUnauthorizedCrew}
-          setErrorUnauthorizedCrew={setErrorUnauthorizedCrew}
-          isLoadingSubmitCrewCredential={isLoadingSubmitCrewCredential}
-          setIsLoadingSubmitCrewCredential={setIsLoadingSubmitCrewCredential}
-        />
       </div>
+      <CrewAuthAlertDialogSlide
+        openCrewAuthAlertDialog={openCrewAuthAlertDialog}
+        setOpenCrewAuthAlertDialog={setOpenCrewAuthAlertDialog}
+        handleConfirm={order.id ? handlePayUpdate : handlePay}
+        crewCredential={crewCredential}
+        setCrewCredential={setCrewCredential}
+        errorCrewCredential={errorCrewCredential}
+        setErrorCrewCredential={setErrorCrewCredential}
+        errorUnauthorizedCrew={errorUnauthorizedCrew}
+        setErrorUnauthorizedCrew={setErrorUnauthorizedCrew}
+        isLoadingSubmitCrewCredential={isLoadingSubmitCrewCredential}
+        setIsLoadingSubmitCrewCredential={setIsLoadingSubmitCrewCredential}
+      />
     </div>
   );
 };

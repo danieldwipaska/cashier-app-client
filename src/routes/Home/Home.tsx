@@ -196,7 +196,7 @@ const Home = () => {
         )}
       </div>
 
-      <NestedModal open={openReceiptModal} handleClose={handleCloseDetailModal} divClass={`overflow-y-auto max-h-screen`}>
+      <NestedModal open={openReceiptModal} handleClose={handleCloseDetailModal} divClass={`overflow-y-auto max-h-dvh`}>
         <div className=" relative text-sm">
           <div className="flex flex-col items-center">
             <h1 className="text-xl font-bold mt-5">Bahari Irish Pub</h1>
@@ -267,6 +267,26 @@ const Home = () => {
                 </div>
               </div>
             </div>
+
+            {paymentData?.card_number ? (
+              <>
+                <div className="my-3 w-full border border-b-black border-dashed"></div>
+                <div className="font-bold">
+                  <div>Bahari Card:</div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between">
+                    <div>
+                      <div>Balance</div>
+                    </div>
+                    <div>
+                      <div>{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(paymentData?.final_balance)}</div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : null}
 
             <div className="my-3 w-full border border-b-black border-dashed"></div>
 

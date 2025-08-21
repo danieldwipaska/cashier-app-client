@@ -6,7 +6,7 @@ import { ReactComponent as SaveIcon } from '../../assets/img/icons/save.svg';
 import { ReactComponent as AddIcon } from '../../assets/img/icons/additional-plus.svg';
 import { ReactComponent as NoteIcon } from '../../assets/img/icons/notes.svg';
 import { ReactComponent as DoubleArrowBottomIcon } from '../../assets/img/icons/double-arrow-bottom.svg';
-import { Alert, CircularProgress, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, TextField, useMediaQuery } from '@mui/material';
+import { Alert, CircularProgress, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, useMediaQuery } from '@mui/material';
 import axios from 'axios';
 import CrewAuthAlertDialogSlide from './CrewAuthAlertDialogSlide';
 import SimpleSnackbar from '../snackbars/SimpleSnackbar';
@@ -19,11 +19,14 @@ import SetModifier from './SetModifier';
 import ItemNote from './ItemNote';
 import SetCustomerName from './SetCustomerName';
 import SetNote from './SetNote';
+import { useMessages } from 'context/MessageContext';
+import SetCardNumber from './SetCardNumber';
 
 const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
   const order = useSelector((state: any) => state.order.order);
   const dispatch = useDispatch();
   const widthMinMd = useMediaQuery('(min-width: 768px)');
+  const { showMessage } = useMessages();
 
   // START STATES
   const { setOpenSummary, openCart, setOpenCart } = states;
@@ -41,12 +44,8 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
   } = crewData;
   const { reports, reportsRefetch } = unpaidReports;
 
-  const [customerNameIsEmpty, setCustomerNameIsEmpty] = useState(false);
   const [paymentMethodIsEmpty, setPaymentMethodIsEmpty] = useState(false);
-  const [cardNumberIsEmpty, setCardNumberIsEmpty] = useState(false);
   const [orderIsEmpty, setOrderIsEmpty] = useState(false);
-
-  const [cardNumber, setCardNumber] = useState('');
 
   const [openConfirmProgressSpinner, setOpenConfirmProgressSpinner] = useState(false);
   const [openSaveProgressSpinner, setOpenSaveProgressSpinner] = useState(false);
@@ -58,6 +57,7 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
   const [openNoteModal, setOpenNoteModal] = useState(false);
   const [openOrderCustomerNameModal, setOpenOrderCustomerNameModal] = useState(false);
   const [openOrderNoteModal, setOpenOrderNoteModal] = useState(false);
+  const [openOrderCardNumberModal, setOpenOrderCardNumberModal] = useState(false);
   const [modifiers, setModifiers] = useState<any>(null);
   const [note, setNote] = useState('');
   const [selectedFnbId, setSelectedFnbId] = useState<any>(null);
@@ -145,13 +145,11 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
   };
 
   const handleClickOpenCrewAuthAlertDialog = () => {
-    if (!order.customer_name) return setCustomerNameIsEmpty(true);
+    if (!order.customer_name) {
+      showMessage('Please enter Customer Name', 'error');
+      return;
+    };
     setOpenCrewAuthAlertDialog(true);
-  };
-
-  const handleCardNumberChange = (event: any) => {
-    setCardNumberIsEmpty(false);
-    setCardNumber(event.target.value);
   };
 
   const fetchModifierOption = async (fnbId: string) => {
@@ -235,6 +233,7 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
       };
 
       try {
+        console.log('Submitting order:', payload);
         await axios.post(`${process.env.REACT_APP_API_BASE_URL}/reports`, payload, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access-token')}`,
@@ -263,22 +262,23 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
       setTimeout(() => {
         setOrderIsEmpty(false);
       }, 3000);
-    } else if (!order.customer_name && order.method_id !== process.env.REACT_APP_GIFT_CARD_METHOD_ID) {
-      setCustomerNameIsEmpty(true);
-    } else if (!cardNumber && order.method_id === process.env.REACT_APP_GIFT_CARD_METHOD_ID) {
-      setCardNumberIsEmpty(true);
     } else if (!order.method_id) {
       setPaymentMethodIsEmpty(true);
+      showMessage('Please choose Payment Method', 'error');
+    } else if (!order.customer_name && order.method_id !== process.env.REACT_APP_GIFT_CARD_METHOD_ID) {
+      showMessage('Please enter Customer Name', 'error');
+    } else if (!order.card_number && order.method_id === process.env.REACT_APP_GIFT_CARD_METHOD_ID) {
+      showMessage('Please enter Card Number', 'error');
     } else {
       if (order.method_id === process.env.REACT_APP_GIFT_CARD_METHOD_ID) {
         setOpenConfirmProgressSpinner(true);
         try {
-          const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/cards/${cardNumber}`, {
+          const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/cards/${order.card_number}`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('access-token')}`,
             },
           });
-          if (response.data.data.balance < order.total_payment_after_tax_service) throw new Error('Balance Not Enough');
+          if (Number(response.data.data.balance) - Number(order.total_payment_after_tax_service) < 5000) throw new Error('Balance Not Enough');
 
           dispatch(
             updateOrder({
@@ -314,22 +314,27 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
   // END FUNCTIONS
 
   return (
-    <div className={`h-screen w-full md:w-5/12 p-5 md:pt-20 md:px-0 md:pb-0 mx-0 md:mx-8 md:translate-y-0 ${openCart ? 'translate-y-0' : 'translate-y-full'} fixed md:static z-50 md:z-0 bg-white duration-300`}>
+    <div className={`h-dvh w-full md:w-5/12 p-5 md:pt-12 md:px-0 md:pb-0 mx-0 md:mx-8 md:translate-y-0 ${openCart ? 'translate-y-0' : 'translate-y-full'} fixed md:static z-50 md:z-0 bg-white duration-300`}>
       <div className="grid grid-cols-1 content-between h-full">
         <div className="h-full relative">
           {widthMinMd ? null : (
             <div>
               <div className="flex justify-center w-full mb-3 absolute -top-16 left-1/2 -translate-x-1/2">
-                <button className='bg-green-400 pt-3 pb-5 w-1/2 rounded-md' onClick={() => {
-                  setOpenCart(true);
-                }}>
+                <button
+                  className="bg-green-400 pt-3 pb-5 w-1/2 rounded-md"
+                  onClick={() => {
+                    setOpenCart(true);
+                  }}
+                >
                   Cart
                 </button>
               </div>
               <div className="flex justify-center mb-3">
-                <button onClick={() => {
-                  setOpenCart(false);
-                }}>
+                <button
+                  onClick={() => {
+                    setOpenCart(false);
+                  }}
+                >
                   <DoubleArrowBottomIcon className="w-[30px] text-green-500" />
                 </button>
               </div>
@@ -357,9 +362,6 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
               </FormControl>
             </div>
           </div>
-          <div className="mt-2">
-            <p className="font-normal">Menu Detail</p>
-          </div>
 
           {orderIsEmpty ? (
             <div className="mt-4 absolute top-20 left-0">
@@ -367,7 +369,7 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
             </div>
           ) : null}
 
-          <div className="flex flex-col overflow-y-auto thin-scrollbar mt-2 pr-2 h-[calc(100dvh-400px)]">
+          <div className="flex flex-col overflow-y-auto thin-scrollbar mt-2 pr-2 h-[calc(100dvh-280px)]">
             {order.items?.map((item: any) => (
               <div className="mt-5 border-b-2 pb-2" key={item.fnb_id}>
                 <div className="flex justify-between gap-3 md:gap-0 items-start md:items-center flex-col md:flex-row">
@@ -444,8 +446,19 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
         </div>
         <div>
           <div>
-            <div className="mb-5 grid grid-cols-2 gap-2">
-              <FormControl sx={{ mb: 1, minWidth: 120 }} size="small">
+            <div className="flex justify-between mb-2">
+              <div>
+                <p>Total</p>
+              </div>
+              <div>
+                <div className="flex text-black/60">
+                  <p className="mx-2">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(order.total_payment_after_tax_service)}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-2 items-center">
+              <FormControl sx={{ minWidth: '30%' }} size="small">
                 <InputLabel id="demo-select-small-label" error={paymentMethodIsEmpty}>
                   Payment
                 </InputLabel>
@@ -460,81 +473,34 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
                   })}
                 </Select>
               </FormControl>
-
               {order.method_id === process.env.REACT_APP_GIFT_CARD_METHOD_ID ? (
-                <FormControl size="small" sx={{ m: 0, minWidth: 120 }}>
-                  {cardNumberIsEmpty ? (
-                    <TextField id="card-number" error label="Card" variant="outlined" size="small" onChange={handleCardNumberChange} value={cardNumber} />
-                  ) : (
-                    <TextField id="card-number" label="Card" variant="outlined" size="small" onChange={handleCardNumberChange} value={cardNumber} />
-                  )}
-                </FormControl>
+                <button
+                  className={`text-center w-full py-2 rounded-lg ${order.card_number ? 'bg-green-500' : 'bg-gray-300'}`}
+                  onClick={() => {
+                    setOpenOrderCardNumberModal(true);
+                  }}
+                >
+                  Card Number
+                </button>
               ) : (
-                <FormControl size="small" sx={{ m: 0, minWidth: 120 }}>
-                  {customerNameIsEmpty ? (
-                    <TextField
-                      id="customer-name"
-                      error
-                      label="Customer Name"
-                      variant="outlined"
-                      size="small"
-                      value={order.customer_name}
-                      slotProps={{
-                        input: {
-                          readOnly: true,
-                        },
-                      }}
-                      onClick={() => {
-                        setOpenOrderCustomerNameModal(true);
-                      }}
-                    />
-                  ) : (
-                    <TextField
-                      id="customer-name"
-                      label="Customer Name"
-                      variant="outlined"
-                      size="small"
-                      value={order.customer_name}
-                      slotProps={{
-                        input: {
-                          readOnly: true,
-                        },
-                      }}
-                      onClick={() => {
-                        setOpenOrderCustomerNameModal(true);
-                      }}
-                    />
-                  )}
-                </FormControl>
+                <button
+                  className={`text-center w-full py-2 rounded-lg ${order.customer_name ? 'bg-green-500' : 'bg-gray-300'}`}
+                  onClick={() => {
+                    setOpenOrderCustomerNameModal(true);
+                  }}
+                >
+                  Customer Name
+                </button>
               )}
 
-              <FormControl size="small" sx={{ mt: 0, minWidth: 120 }}>
-                <TextField
-                  id="note"
-                  label="Note"
-                  variant="outlined"
-                  size="small"
-                  value={order.note}
-                  slotProps={{
-                    input: {
-                      readOnly: true,
-                    },
-                  }}
-                  onClick={() => {
-                    setOpenOrderNoteModal(true);
-                  }}
-                />
-              </FormControl>
-            </div>
-            <div className="flex justify-between">
-              <div>
-                <p>Total</p>
-              </div>
-              <div>
-                <div className="flex text-black/60">
-                  <p className="mx-2">{Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(order.total_payment_after_tax_service)}</p>
-                </div>
-              </div>
+              <button
+                className={`text-center w-full py-2 rounded-lg ${order.note ? 'bg-green-500' : 'bg-gray-300'}`}
+                onClick={() => {
+                  setOpenOrderNoteModal(true);
+                }}
+              >
+                Note
+              </button>
             </div>
           </div>
           <div className="flex py-2">
@@ -548,7 +514,7 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
               {openSaveProgressSpinner ? <CircularProgress color="secondary" size={15} /> : <SaveIcon className="w-[25px]" />}
             </button>
 
-            <button className="text-center w-full my-2 py-2 bg-green-500 hover:opacity-70 duration-500 rounded-lg" onClick={handleConfirm}>
+            <button className="text-center w-full my-2 py-3 bg-green-500 hover:opacity-70 duration-500 rounded-lg" onClick={handleConfirm}>
               {openConfirmProgressSpinner ? <CircularProgress color="secondary" size={15} /> : 'Confirm'}
             </button>
           </div>
@@ -571,6 +537,7 @@ const Cart = ({ states, crewData, unpaidReports }: ICartProps) => {
       <ItemNote open={openNoteModal} setOpen={setOpenNoteModal} note={note} setNote={setNote} fnbId={selectedFnbId} />
       <SetCustomerName open={openOrderCustomerNameModal} setOpen={setOpenOrderCustomerNameModal} />
       <SetNote open={openOrderNoteModal} setOpen={setOpenOrderNoteModal} />
+      <SetCardNumber open={openOrderCardNumberModal} setOpen={setOpenOrderCardNumberModal} />
       <SimpleSnackbar open={openSnackbar} setOpen={setOpenSnackbar} message={snackbarMessage} />
     </div>
   );
