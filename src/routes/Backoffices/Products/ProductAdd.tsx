@@ -6,12 +6,29 @@ import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useMessages } from 'context/MessageContext';
+import { useState } from 'react';
+import formatNumber from 'functions/format.number';
 
 const ProductAdd = () => {
   const { showMessage } = useMessages();
 
   const { register, handleSubmit } = useForm();
   const navigate = useNavigate();
+
+  // START STATES
+  const [price, setPrice] = useState(0);
+  const [formattedPrice, setFormattedPrice] = useState<string>('');
+  // END STATES
+
+  // START FUNCTIONS
+  const handleChangePrice = (event: any) => {
+    const input = event.target.value;
+    const rawNumber = input.replace(/\./g, '');
+
+    setFormattedPrice(formatNumber(rawNumber));
+    setPrice(Number(rawNumber));
+  };
+  // END FUNCTIONS
 
   // START QUERIES
   const { data: categories } = useQuery({
@@ -39,7 +56,7 @@ const ProductAdd = () => {
         `${process.env.REACT_APP_API_BASE_URL}/fnbs`,
         {
           ...data,
-          price: Number(data.price),
+          price: Number(price),
         },
         {
           headers: {
@@ -76,7 +93,7 @@ const ProductAdd = () => {
               <label className="" htmlFor="price">
                 Price
               </label>
-              <input type="number" className="border px-3 py-2 rounded-lg" id="price" {...register('price')} placeholder="ex. 25000" required />
+              <input type="number" className="border px-3 py-2 rounded-lg" id="price" placeholder="ex. 25000" value={formattedPrice} onChange={handleChangePrice} required />
             </div>
             <div className="grid grid-cols-2 max-w-[300px] items-center">
               <label className="" htmlFor="categoryId">
